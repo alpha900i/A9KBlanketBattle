@@ -1,12 +1,9 @@
 # TODO
 ## PRIMARY
 1. General appbar
-2. ViewModel
-3. Game board structure 
-4. Game screen 
-5. Settings screen
-6. Two player gameplay
-7. Bot
+2. Settings screen
+3. Two player gameplay
+4. Bot
 ## SECONDARY
 1. Readme
 2. Tests

@@ -17,15 +17,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.alpha900i.a9kblanketbattle.R
+import com.alpha900i.a9kblanketbattle.data.Board
 import com.alpha900i.a9kblanketbattle.ui.AppNavHost
 import com.alpha900i.a9kblanketbattle.ui.AppNavigationController
+import com.alpha900i.a9kblanketbattle.ui.AppViewModel
 import com.alpha900i.a9kblanketbattle.ui.StartScreenActions
 import com.alpha900i.a9kblanketbattle.ui.theme.A9KBlanketBattleTheme
 
@@ -53,6 +58,8 @@ fun MainContent(
             backDispatcher = backDispatcher
         )
     }
+    val viewModel: AppViewModel = viewModel(factory = AppViewModel.Companion.Factory)
+    val board by viewModel.boardState.collectAsState()
     val startScreenActions = object: StartScreenActions{
         override fun startGame() {
             appNavigationController.navigateToGame()
@@ -77,6 +84,7 @@ fun MainContent(
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         MainScreen(
+            board = board,
             startScreenActions = startScreenActions,
             navController = navController,
             contentPadding = innerPadding
@@ -86,6 +94,7 @@ fun MainContent(
 
 @Composable
 fun MainScreen(
+    board: Board,
     startScreenActions: StartScreenActions,
     navController: NavHostController,
     contentPadding: PaddingValues
@@ -93,6 +102,7 @@ fun MainScreen(
     Box(modifier = Modifier.padding(contentPadding)) {
         AppNavHost(
             startScreenActions = startScreenActions,
+            board = board,
             navController = navController
         )
     }
