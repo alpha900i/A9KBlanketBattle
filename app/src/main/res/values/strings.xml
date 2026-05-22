@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">A9KBlanketBattle</string>
     <string name="main_title">Blanket Battle</string>
+    <string name="start_game_button_title">Start game</string>
+    <string name="settings_button_title">Settings</string>
+    <string name="exit_game_button_title">Exit game</string>
 </resources>

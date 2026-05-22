@@ -14,6 +14,7 @@ import com.alpha900i.a9kblanketbattle.ui.screens.StartScreen
 
 @Composable
 fun AppNavHost(
+    startScreenActions: StartScreenActions,
     navController: NavHostController = rememberNavController(),
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -22,7 +23,9 @@ fun AppNavHost(
         startDestination = Screen.START.name
     ) {
         composable(route = Screen.START.name) {
-            StartScreen()
+            StartScreen(
+                actions = startScreenActions
+            )
         }
         composable(route = Screen.GAME.name) {
             GameScreen()
