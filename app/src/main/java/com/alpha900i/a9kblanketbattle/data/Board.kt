@@ -5,16 +5,18 @@ enum class Cell {
     KITTEN,
     CAT
 }
-class Board (
-    private val width: Int,
-    private val height: Int
+
+data class Board(
+    val cells: List<List<Cell>>
 ) {
-    public var board: Array<Array<Cell>> = Array(height) { Array(width) { Cell.EMPTY } }
-    init {
-        modify()
-    }
-    public fun modify() {
-        board[0][2] = Cell.CAT
-        board[1][1] = Cell.KITTEN
+    companion object {
+        fun emptyBoard(width: Int, height: Int): Board {
+            val cells = List(height) {
+                List(width) {
+                    Cell.EMPTY
+                }
+            }
+            return Board(cells)
+        }
     }
 }

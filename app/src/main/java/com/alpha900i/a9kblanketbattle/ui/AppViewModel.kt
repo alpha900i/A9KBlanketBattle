@@ -11,14 +11,14 @@ import kotlinx.coroutines.flow.asStateFlow
 
 public class AppViewModel() : ViewModel() {
     private val _boardState = MutableStateFlow(
-        Board(
-            width = 6,
-            height = 6
-        )
+        Board.emptyBoard(BOARD_DEFAULT_WIDTH, BOARD_DEFAULT_HEIGHT)
     )
     val boardState: StateFlow<Board> = _boardState.asStateFlow();
 
     companion object {
+        const val BOARD_DEFAULT_WIDTH = 6
+        const val BOARD_DEFAULT_HEIGHT = 6
+
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 AppViewModel()

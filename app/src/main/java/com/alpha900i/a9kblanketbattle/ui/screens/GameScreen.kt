@@ -27,13 +27,13 @@ fun GameScreen(
         modifier = Modifier
             .fillMaxSize(1f)
     ) {
-        for (row in board.board) {
+        for (row in board.cells) {
             Row(modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(1f)
             ) {
                 for (cell in row) {
-                    var color = when (cell) {
+                    val color = when (cell) {
                         Cell.EMPTY -> Color.Gray
                         Cell.KITTEN -> Color.Yellow
                         Cell.CAT -> Color.Red
