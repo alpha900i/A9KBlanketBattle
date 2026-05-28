@@ -20,7 +20,7 @@ class Game {
         stateUpdater: (GameState) -> Unit
     ) {
         //modify board. For now it is wrong logic - just set object to cell
-        val (newBoard, handChange) = gameState.board.applyMove(move)
+        val (newBoard, handChange) = gameState.board.applyMove(move, gameState.activePlayerIndex)
         //modify hand
         val newHand = gameState.hands[gameState.activePlayerIndex].applyChange(handChange)
         val newHands = gameState.hands.mapIndexed { index, hand ->
