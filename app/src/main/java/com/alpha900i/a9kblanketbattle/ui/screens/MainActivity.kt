@@ -28,6 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.Board
+import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.ui.AppNavHost
 import com.alpha900i.a9kblanketbattle.ui.AppNavigationController
 import com.alpha900i.a9kblanketbattle.ui.AppViewModel
@@ -59,7 +60,7 @@ fun MainContent(
         )
     }
     val viewModel: AppViewModel = viewModel(factory = AppViewModel.Companion.Factory)
-    val board by viewModel.boardState.collectAsState()
+    val gameState by viewModel.gameState.collectAsState()
     val startScreenActions = object: StartScreenActions{
         override fun startGame() {
             appNavigationController.navigateToGame()
@@ -84,8 +85,9 @@ fun MainContent(
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         MainScreen(
-            board = board,
+            gameState = gameState,
             startScreenActions = startScreenActions,
+            activator = viewModel::activateGame,
             navController = navController,
             contentPadding = innerPadding
         )
@@ -94,15 +96,17 @@ fun MainContent(
 
 @Composable
 fun MainScreen(
-    board: Board,
+    gameState: GameState,
     startScreenActions: StartScreenActions,
+    activator: () -> Unit,
     navController: NavHostController,
     contentPadding: PaddingValues
 ) {
     Box(modifier = Modifier.padding(contentPadding)) {
         AppNavHost(
             startScreenActions = startScreenActions,
-            board = board,
+            gameState = gameState,
+            activator = activator,
             navController = navController
         )
     }

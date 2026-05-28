@@ -13,21 +13,27 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.alpha900i.a9kblanketbattle.data.Board
 import com.alpha900i.a9kblanketbattle.data.Cell
+import com.alpha900i.a9kblanketbattle.data.GameState
 
 @Composable
 fun GameScreen(
-    board: Board
+    gameState: GameState,
+    activator: () -> Unit
 ) {
+    LaunchedEffect(Unit) {
+        activator()
+    }
     Column(
         modifier = Modifier
             .fillMaxSize(1f)
     ) {
-        for (row in board.cells) {
+        for (row in gameState.board.cells) {
             Row(modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(1f)

@@ -2,23 +2,56 @@ package com.alpha900i.a9kblanketbattle.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.alpha900i.a9kblanketbattle.data.Board
+import com.alpha900i.a9kblanketbattle.data.GameState
+import com.alpha900i.a9kblanketbattle.domain.BotPlayerA
+import com.alpha900i.a9kblanketbattle.domain.BotPlayerB
+import com.alpha900i.a9kblanketbattle.domain.Game
+import com.alpha900i.a9kblanketbattle.domain.Player
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 public class AppViewModel() : ViewModel() {
-    private val _boardState = MutableStateFlow(
-        Board.emptyBoard(BOARD_DEFAULT_WIDTH, BOARD_DEFAULT_HEIGHT)
+    private val _gameState = MutableStateFlow(
+        GameState.startingState()
     )
-    val boardState: StateFlow<Board> = _boardState.asStateFlow();
+    val gameState: StateFlow<GameState> = _gameState.asStateFlow();
+    fun activateGame() {
+        _gameState.update { currentState ->
+            currentState.copy(moveIsExpected = true)
+        }
+    }
+    fun updateGameState(newState: GameState) {
+        _gameState.update { newState }
+    }
+
+    init {
+        viewModelScope.launch {
+            gameState.collect { state ->
+                if (state.moveIsExpected) {
+                    game.makeMove(players, state) { newState ->
+                        updateGameState(newState = newState)
+                    }
+                }
+            }
+        }
+    }
+
+
+    private val game: Game = Game()
+    private val players: List<Player> = listOf(
+        BotPlayerA(index = 0),
+        BotPlayerB(index = 1)
+    )
+
 
     companion object {
-        const val BOARD_DEFAULT_WIDTH = 6
-        const val BOARD_DEFAULT_HEIGHT = 6
-
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 AppViewModel()
