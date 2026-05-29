@@ -9,6 +9,8 @@ import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.domain.BotPlayerA
 import com.alpha900i.a9kblanketbattle.domain.BotPlayerB
 import com.alpha900i.a9kblanketbattle.domain.Game
+import com.alpha900i.a9kblanketbattle.domain.HumanPlayer
+import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.Player
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +18,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-public class AppViewModel() : ViewModel() {
+data class UiState(
+    val isHumanTurn: Boolean
+)
+
+class AppViewModel() : ViewModel() {
     private val _gameState = MutableStateFlow(
         GameState.startingState()
     )
@@ -30,10 +36,29 @@ public class AppViewModel() : ViewModel() {
         _gameState.update { newState }
     }
 
+    private val _uiState = MutableStateFlow(
+        UiState(
+            isHumanTurn = false
+        )
+    )
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+    fun setHumanTurn(isHumanTurn: Boolean) {
+        _uiState.update { currentState ->
+            currentState.copy(isHumanTurn = isHumanTurn)
+        }
+    }
+
+
+    fun submitMove(activePlayerIndex: Int, move: Move) {
+        players[activePlayerIndex].submitMove(move)
+    }
+
+
     init {
         viewModelScope.launch {
             gameState.collect { state ->
                 if (state.gameIsActive) {
+                    setHumanTurn(players[state.activePlayerIndex] is HumanPlayer)
                     game.makeMove(players, state) { newState ->
                         updateGameState(newState = newState)
                     }
@@ -45,8 +70,8 @@ public class AppViewModel() : ViewModel() {
 
     private val game: Game = Game()
     private val players: List<Player> = listOf(
-        BotPlayerA(index = 0),
-        BotPlayerB(index = 1)
+        HumanPlayer(index = 0),
+        BotPlayerA(index = 1)
     )
 
 

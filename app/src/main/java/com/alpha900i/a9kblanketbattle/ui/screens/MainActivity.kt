@@ -27,12 +27,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.alpha900i.a9kblanketbattle.R
-import com.alpha900i.a9kblanketbattle.data.Board
 import com.alpha900i.a9kblanketbattle.data.GameState
+import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.ui.AppNavHost
 import com.alpha900i.a9kblanketbattle.ui.AppNavigationController
 import com.alpha900i.a9kblanketbattle.ui.AppViewModel
 import com.alpha900i.a9kblanketbattle.ui.StartScreenActions
+import com.alpha900i.a9kblanketbattle.ui.UiState
 import com.alpha900i.a9kblanketbattle.ui.theme.A9KBlanketBattleTheme
 
 class MainActivity : ComponentActivity() {
@@ -61,6 +62,7 @@ fun MainContent(
     }
     val viewModel: AppViewModel = viewModel(factory = AppViewModel.Companion.Factory)
     val gameState by viewModel.gameState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val startScreenActions = object: StartScreenActions{
         override fun startGame() {
             appNavigationController.navigateToGame()
@@ -86,8 +88,12 @@ fun MainContent(
     ) { innerPadding ->
         MainScreen(
             gameState = gameState,
+            uiState = uiState,
             startScreenActions = startScreenActions,
             activator = viewModel::activateGame,
+            submitMove = { move ->
+                viewModel.submitMove(gameState.activePlayerIndex, move)
+            },
             navController = navController,
             contentPadding = innerPadding
         )
@@ -97,8 +103,10 @@ fun MainContent(
 @Composable
 fun MainScreen(
     gameState: GameState,
+    uiState: UiState,
     startScreenActions: StartScreenActions,
     activator: () -> Unit,
+    submitMove: (Move) -> Unit,
     navController: NavHostController,
     contentPadding: PaddingValues
 ) {
@@ -106,7 +114,9 @@ fun MainScreen(
         AppNavHost(
             startScreenActions = startScreenActions,
             gameState = gameState,
+            uiState = uiState,
             activator = activator,
+            submitMove = submitMove,
             navController = navController
         )
     }

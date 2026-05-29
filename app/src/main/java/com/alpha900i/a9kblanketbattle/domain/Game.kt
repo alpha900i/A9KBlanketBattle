@@ -4,7 +4,7 @@ import com.alpha900i.a9kblanketbattle.data.GameState
 
 class Game {
     val PLAYER_COUNT: Int = 2
-    fun makeMove(
+    suspend fun makeMove(
         players: List<Player>,
         gameState: GameState,
         stateUpdater: (GameState) -> Unit

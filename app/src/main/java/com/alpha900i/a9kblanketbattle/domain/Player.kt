@@ -1,17 +1,19 @@
 package com.alpha900i.a9kblanketbattle.domain
 
 import com.alpha900i.a9kblanketbattle.data.GameState
+import kotlinx.coroutines.CompletableDeferred
 
 interface Player {
     val index: Int
-    fun makeMove(
+    suspend fun makeMove(
         gameState: GameState,
         applier: (Move) -> Unit
     )
+    fun submitMove(move: Move) {}
 }
 
 class BotPlayerA(override val index: Int) : Player{
-    override fun makeMove(
+    override suspend fun makeMove(
         gameState: GameState,
         applier: (Move) -> Unit
     ) {
@@ -22,7 +24,7 @@ class BotPlayerA(override val index: Int) : Player{
     }
 }
 class BotPlayerB(override val index: Int) : Player{
-    override fun makeMove(
+    override suspend fun makeMove(
         gameState: GameState,
         applier: (Move) -> Unit
     ) {
@@ -30,5 +32,21 @@ class BotPlayerB(override val index: Int) : Player{
     }
     private fun formMove(): Move {
         return Move(3, 2, MoveType.KITTEN)
+    }
+}
+class HumanPlayer(override val index: Int): Player {
+    private var deferredMove: CompletableDeferred<Move>? = null
+
+    override suspend fun makeMove(
+        gameState: GameState,
+        applier: (Move) -> Unit
+    ) {
+        deferredMove = CompletableDeferred()
+        applier(deferredMove!!.await())
+    }
+
+    override fun submitMove(move: Move) {
+        deferredMove?.complete(move)
+        deferredMove = null
     }
 }
