@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.alpha900i.a9kblanketbattle.data.Board
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.domain.BotPlayerA
 import com.alpha900i.a9kblanketbattle.domain.BotPlayerB
@@ -24,7 +23,7 @@ public class AppViewModel() : ViewModel() {
     val gameState: StateFlow<GameState> = _gameState.asStateFlow();
     fun activateGame() {
         _gameState.update { currentState ->
-            currentState.copy(moveIsExpected = true)
+            currentState.copy(gameIsActive = true)
         }
     }
     fun updateGameState(newState: GameState) {
@@ -34,7 +33,7 @@ public class AppViewModel() : ViewModel() {
     init {
         viewModelScope.launch {
             gameState.collect { state ->
-                if (state.moveIsExpected) {
+                if (state.gameIsActive) {
                     game.makeMove(players, state) { newState ->
                         updateGameState(newState = newState)
                     }

@@ -39,7 +39,7 @@ class Game {
             board = newBoard,
             hands = newHands,
             activePlayerIndex = newPlayerIndex % PLAYER_COUNT,
-            moveIsExpected = moveIsExpected,
+            gameIsActive = moveIsExpected,
         )
         stateUpdater(newState)
     }

@@ -4,7 +4,7 @@ data class GameState(
     val board: Board,
     val hands: List<Hand>,
     val activePlayerIndex: Int,
-    val moveIsExpected: Boolean
+    val gameIsActive: Boolean
 ) {
     companion object {
         const val DEFAULT_WIDTH = 6
@@ -47,7 +47,7 @@ data class GameState(
                     )
                 ),
                 activePlayerIndex = 0,
-                moveIsExpected = false,
+                gameIsActive = false,
             )
         }
     }
