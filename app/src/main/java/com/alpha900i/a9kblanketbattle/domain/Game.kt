@@ -21,15 +21,10 @@ class Game {
         stateUpdater: (GameState) -> Unit
     ) {
         //modify board. For now it is wrong logic - just set object to cell
-        val (newBoard, handChange) = gameState.board.applyMove(move, gameState.activePlayerIndex)
-        //modify hand
-        val newHand = gameState.hands[gameState.activePlayerIndex].applyChange(handChange)
+        val (newBoard, handChanges) = gameState.board.applyMove(move, gameState.activePlayerIndex)
+        //modify hands
         val newHands = gameState.hands.mapIndexed { index, hand ->
-            if (index == gameState.activePlayerIndex) {
-                newHand
-            } else {
-                hand
-            }
+            hand.applyChange(handChanges[index])
         }
 
         val emptyCount = gameState.board.cells.sumOf { row -> row.count { it.type == CellType.EMPTY } }
