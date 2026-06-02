@@ -1,5 +1,6 @@
 package com.alpha900i.a9kblanketbattle.domain
 
+import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 import kotlinx.coroutines.CompletableDeferred
 
@@ -17,20 +18,16 @@ class BotPlayerA(override val index: Int) : Player{
         gameState: GameState,
         applier: (Move) -> Unit
     ) {
-        applier(formMove())
+        applier(formMove(gameState))
     }
-    private fun formMove(): Move {
-        return Move(1, 2, MoveType.CAT)
-    }
-}
-class BotPlayerB(override val index: Int) : Player{
-    override suspend fun makeMove(
-        gameState: GameState,
-        applier: (Move) -> Unit
-    ) {
-        applier(formMove())
-    }
-    private fun formMove(): Move {
+    private fun formMove(gameState: GameState): Move {
+        gameState.board.cells.forEachIndexed { rowIndex, row ->
+            row.forEachIndexed { colIndex, cell ->
+                if (cell.type == CellType.EMPTY) {
+                    return Move(rowIndex, colIndex, MoveType.KITTEN)
+                }
+            }
+        }
         return Move(3, 2, MoveType.KITTEN)
     }
 }
@@ -42,11 +39,14 @@ class HumanPlayer(override val index: Int): Player {
         applier: (Move) -> Unit
     ) {
         deferredMove = CompletableDeferred()
-        applier(deferredMove!!.await())
+        try {
+            applier(deferredMove!!.await())
+        } finally {
+            deferredMove = null   // ✅ clear even if applier throws
+        }
     }
 
     override fun submitMove(move: Move) {
         deferredMove?.complete(move)
-        deferredMove = null
     }
 }

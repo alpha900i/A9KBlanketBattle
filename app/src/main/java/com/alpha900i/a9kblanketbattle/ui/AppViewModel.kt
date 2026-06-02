@@ -7,7 +7,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.domain.BotPlayerA
-import com.alpha900i.a9kblanketbattle.domain.BotPlayerB
 import com.alpha900i.a9kblanketbattle.domain.Game
 import com.alpha900i.a9kblanketbattle.domain.HumanPlayer
 import com.alpha900i.a9kblanketbattle.domain.Move
@@ -70,8 +69,8 @@ class AppViewModel() : ViewModel() {
 
     private val game: Game = Game()
     private val players: List<Player> = listOf(
-        HumanPlayer(index = 0),
-        BotPlayerA(index = 1)
+        BotPlayerA(index = 0),
+        HumanPlayer(index = 1)
     )
 
 

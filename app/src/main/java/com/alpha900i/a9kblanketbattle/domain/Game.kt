@@ -1,5 +1,6 @@
 package com.alpha900i.a9kblanketbattle.domain
 
+import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 
 class Game {
@@ -31,14 +32,15 @@ class Game {
             }
         }
 
+        val emptyCount = gameState.board.cells.sumOf { row -> row.count { it.type == CellType.EMPTY } }
 
         //update state
-        val newPlayerIndex = gameState.activePlayerIndex + 1
-        val moveIsExpected = newPlayerIndex < PLAYER_COUNT
+        val newPlayerIndex = (gameState.activePlayerIndex + 1) % PLAYER_COUNT
+        val moveIsExpected = emptyCount > 0
         val newState = GameState(
             board = newBoard,
             hands = newHands,
-            activePlayerIndex = newPlayerIndex % PLAYER_COUNT,
+            activePlayerIndex = newPlayerIndex,
             gameIsActive = moveIsExpected,
         )
         stateUpdater(newState)
