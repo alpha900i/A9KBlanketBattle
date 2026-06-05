@@ -8,6 +8,8 @@
 6. Bottom section of game screen - data
 7. Bottom section of game screen - usage
 8. HandChange can affect both players
+9. If all 8 pieces are on board, you can remove one kitten and take one cat - or remove cat and take kitten
+10. Only one group of 3 can be activated 
 ## SECONDARY
 1. Readme
 2. Tests

@@ -10,8 +10,11 @@ enum class CellType {
     KITTEN,
     CAT;
 
-    fun isPushable(): Boolean {
-        return (this == KITTEN)
+    fun isPushable(moveType: MoveType): Boolean {
+        return when (moveType) {
+            MoveType.CAT -> (this == CAT || this == KITTEN)
+            MoveType.KITTEN -> (this == KITTEN)
+        }
     }
 }
 
@@ -46,7 +49,7 @@ data class Board(
             //is cell in question even in board?
             if (checkX in 0 until mutableCells[0].size && checkY in 0 until mutableCells.size) {
                 //is there a pushable piece (so, kitten) in this cell?
-                if (mutableCells[checkX][checkY].type.isPushable()) {
+                if (mutableCells[checkX][checkY].type.isPushable(moveType)) {
                     //is cell we are getting pushed to on board?
                     if (receiverX in 0 until mutableCells[0].size && receiverY in 0 until mutableCells.size) {
                         //is cell we are getting pushed empty>
