@@ -76,6 +76,12 @@ data class Board(
             type = cellType,
             owner = playerIndex
         )
+        if (cellType == CellType.CAT) {
+            deltaCats[playerIndex]--
+        }
+        if (cellType == CellType.KITTEN) {
+            deltaKittens[playerIndex]--
+        }
 
         val immutableCells = mutableCells.map { it.toList() }
         val handChanges = deltaKittens.zip(deltaCats) { deltaKitten, deltaCat ->
