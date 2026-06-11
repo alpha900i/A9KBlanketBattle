@@ -4,7 +4,6 @@ import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 
 class Game {
-    val PLAYER_COUNT: Int = 2
     suspend fun makeMove(
         players: List<Player>,
         gameState: GameState,
@@ -38,5 +37,9 @@ class Game {
             gameIsActive = moveIsExpected,
         )
         stateUpdater(newState)
+    }
+
+    companion object {
+        const val PLAYER_COUNT: Int = 2
     }
 }
