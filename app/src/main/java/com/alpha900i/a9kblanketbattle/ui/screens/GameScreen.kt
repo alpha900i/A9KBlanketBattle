@@ -45,9 +45,6 @@ fun GameScreen(
         activator()
     }
     var moveType by remember { mutableStateOf<MoveType?>(null) }
-    LaunchedEffect(gameState.activePlayerIndex) {
-        moveType = null
-    }
     Column(
         modifier = Modifier
             .fillMaxSize(1f)
@@ -63,9 +60,11 @@ fun GameScreen(
             gameState = gameState,
             isHumanTurn = isHumanTurn,
             setKittenMove = {
+                Log.d("HandBlock", "Set kitten move")
                 moveType = MoveType.KITTEN
             },
             setCatMove = {
+                Log.d("HandBlock", "Set cat move")
                 moveType = MoveType.CAT
             },
             modifier = Modifier.weight(1f)
@@ -166,8 +165,17 @@ fun HandBlock(
     setCatMove: () -> Unit,
     modifier: Modifier
 ) {
-    var kittenActive by remember(isActiveHand) { mutableStateOf(false) }
-    var catActive by remember(isActiveHand) { mutableStateOf(false) }
+    var kittensAreDefaultChoice = hand.kittenCurrent > 0 && isActiveHand
+    var catsAreDefaultChoice = hand.kittenCurrent == 0 && isActiveHand
+    var kittenActive by remember(isActiveHand) { mutableStateOf(kittensAreDefaultChoice) }
+    var catActive by remember(isActiveHand) { mutableStateOf(catsAreDefaultChoice) }
+    Log.d("HandBlock", "HandBlock $handIndex $isActiveHand kittens are $kittensAreDefaultChoice cats are $catsAreDefaultChoice")
+    if (kittensAreDefaultChoice) {
+        setKittenMove()
+    }
+    if (catsAreDefaultChoice) {
+        setCatMove()
+    }
 
     Column(
         modifier = modifier
