@@ -33,6 +33,9 @@ data class Cell(
 data class Board(
     val cells: List<List<Cell>>
 ) {
+    //general move application
+    //first it sets pieces and processes possible boops
+    //second it removes possible triplets
     fun applyMove(move: Move, playerIndex: Int): Pair<Board, List<HandChange>> {
         val deltaCats = mutableListOf(0, 0)
         val deltaKittens = mutableListOf(0, 0)
@@ -47,8 +50,7 @@ data class Board(
         )
         checkForTriplets(
             mutableCells = mutableCells,
-            deltaCats = deltaCats,
-            deltaKittens = deltaKittens,
+            deltaCats = deltaCats
         )
 
         val immutableCells = mutableCells.map { it.toList() }
@@ -61,6 +63,13 @@ data class Board(
         return Pair(Board(immutableCells), handChanges)
     }
 
+    //setting pieces and booping neighbors
+    //for target cell we check all 8 possible directions
+    //possible cases are:
+    //- next piece isn't pushable (empty or higher value)
+    //- two pieces in target direction, no boop happens
+    //- one pushable piece in target direction, far from edge - boop happens
+    //- one pushable piece in target direction, near the edge - boop happens, piece returns to hand
     private fun setPieceAndBoop(
         move: Move,
         mutableCells: MutableList<MutableList<Cell>>,
@@ -97,7 +106,7 @@ data class Board(
                             mutableCells[checkX][checkY] = Cell.emptyCell()
                         }
                     } else {
-                        //receiver cell is not on board - time to fall
+                        //receiver cell is not on board - time to fall of board
                         if (mutableCells[checkX][checkY].type == CellType.CAT) {
                             deltaCats[mutableCells[checkX][checkY].owner]++
                         }
@@ -128,8 +137,7 @@ data class Board(
 
     private fun checkForTriplets(
         mutableCells: MutableList<MutableList<Cell>>,
-        deltaCats: MutableList<Int>,
-        deltaKittens: MutableList<Int>
+        deltaCats: MutableList<Int>
     ) {
         val cellDeltas = listOf(
             Pair(1, 0),
@@ -144,8 +152,8 @@ data class Board(
         //check horizontal/vertical/diagonal triplet to down/right direction
         //get at most one triplet for each player
         //cells become empty
-        //kittens turn into cats
-        //cats just removed
+        //kittens turn into cats (so, no delta kittens, delta cats)
+        //cats just removed (delta cats)
         (0..<mutableCells.size).forEach { rowIndex ->
             (0..<mutableCells[rowIndex].size).forEach { columnIndex ->
                 cellDeltas.forEach { cellDelta ->
@@ -162,7 +170,6 @@ data class Board(
                             rowIndex,
                             columnIndex,
                             deltaCats,
-                            deltaKittens,
                             cellDelta
                         )
                         foundFlags[cellOwner] = true
@@ -200,7 +207,6 @@ data class Board(
         rowIndex: Int,
         columnIndex: Int,
         deltaCats: MutableList<Int>,
-        deltaKittens: MutableList<Int>,
         cellDelta: Pair<Int, Int>
     ) {
         val (dx, dy) = cellDelta

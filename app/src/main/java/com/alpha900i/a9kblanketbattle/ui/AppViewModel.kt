@@ -69,7 +69,7 @@ class AppViewModel() : ViewModel() {
 
     private val game: Game = Game()
     private val players: List<Player> = listOf(
-        BotPlayerA(index = 0),
+        HumanPlayer(index = 0),
         HumanPlayer(index = 1)
     )
 
