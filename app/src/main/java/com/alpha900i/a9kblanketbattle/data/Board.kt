@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import com.alpha900i.a9kblanketbattle.domain.HandChange
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
+import com.alpha900i.a9kblanketbattle.domain.Player
 
 enum class CellType {
     EMPTY,
@@ -29,6 +30,32 @@ data class Board(
     fun applyMove(move: Move, playerIndex: Int): Pair<Board, List<HandChange>> {
         val deltaCats = mutableListOf(0, 0)
         val deltaKittens = mutableListOf(0, 0)
+        val mutableCells = cells.map { it.toMutableList() }.toMutableList()
+
+        setPieceAndBoop(
+            move = move,
+            mutableCells = mutableCells,
+            deltaCats = deltaCats,
+            deltaKittens = deltaKittens,
+            playerIndex = playerIndex
+        )
+
+        val immutableCells = mutableCells.map { it.toList() }
+        val handChanges = deltaKittens.zip(deltaCats) { deltaKitten, deltaCat ->
+            HandChange(
+                deltaKitten = deltaKitten,
+                deltaCat = deltaCat
+            )
+        }
+        return Pair(Board(immutableCells), handChanges)
+    }
+    private fun setPieceAndBoop(
+        move: Move,
+        mutableCells: MutableList<MutableList<Cell>>,
+        deltaCats: MutableList<Int>,
+        deltaKittens: MutableList<Int>,
+        playerIndex: Int
+    ) {
         val (moveX, moveY, moveType) = move
         val cellDeltas = listOf(
             Pair(1, 0),
@@ -40,7 +67,7 @@ data class Board(
             Pair(1, -1),
             Pair(-1, 1)
         )
-        val mutableCells = cells.map { it.toMutableList() }.toMutableList()
+
         for ((dx, dy) in cellDeltas) {
             val checkX = moveX + dx
             val checkY = moveY + dy
@@ -85,15 +112,6 @@ data class Board(
         if (cellType == CellType.KITTEN) {
             deltaKittens[playerIndex]--
         }
-
-        val immutableCells = mutableCells.map { it.toList() }
-        val handChanges = deltaKittens.zip(deltaCats) { deltaKitten, deltaCat ->
-            HandChange(
-                deltaKitten = deltaKitten,
-                deltaCat = deltaCat
-            )
-        }
-        return Pair(Board(immutableCells), handChanges)
     }
 
     companion object {
