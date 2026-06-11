@@ -36,7 +36,7 @@ data class Board(
     //general move application
     //first it sets pieces and processes possible boops
     //second it removes possible triplets
-    fun applyMove(move: Move, playerIndex: Int): Pair<Board, List<HandChange>> {
+    fun applyMove(move: Move, playerIndex: Int): Triple<Board, List<HandChange>, Boolean> {
         val deltaCats = mutableListOf(0, 0)
         val deltaKittens = mutableListOf(0, 0)
         val mutableCells = cells.map { it.toMutableList() }.toMutableList()
@@ -47,6 +47,9 @@ data class Board(
             deltaCats = deltaCats,
             deltaKittens = deltaKittens,
             playerIndex = playerIndex
+        )
+        val gameOver = checkForGameOver(
+            mutableCells = mutableCells,
         )
         checkForTriplets(
             mutableCells = mutableCells,
@@ -60,7 +63,7 @@ data class Board(
                 deltaCat = deltaCat
             )
         }
-        return Pair(Board(immutableCells), handChanges)
+        return Triple(Board(immutableCells), handChanges, gameOver)
     }
 
     //setting pieces and booping neighbors
@@ -222,6 +225,58 @@ data class Board(
             deltaCats[cellOwner]++
             mutableCells[rowIndex + shift * dx][columnIndex + shift * dy] = Cell.emptyCell()
         }
+    }
+
+    private fun checkForGameOver(
+        mutableCells: MutableList<MutableList<Cell>>,
+    ): Boolean {
+        val cellDeltas = listOf(
+            Pair(1, 0),
+            Pair(0, 1),
+            Pair(1, 1)
+        )
+        //for each cell
+        //check horizontal/vertical/diagonal triplet to down/right direction
+        (0..<mutableCells.size).forEach { rowIndex ->
+            (0..<mutableCells[rowIndex].size).forEach { columnIndex ->
+                cellDeltas.forEach { cellDelta ->
+                    val cellOwner = mutableCells[rowIndex][columnIndex].owner
+                    if (isCatTriplet(
+                            mutableCells,
+                            rowIndex,
+                            columnIndex,
+                            cellDelta
+                        )
+                    ) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+    private fun isCatTriplet(
+        mutableCells: MutableList<MutableList<Cell>>,
+        rowIndex: Int,
+        columnIndex: Int,
+        cellDelta: Pair<Int, Int>
+    ): Boolean {
+        val (dx, dy) = cellDelta
+        if (rowIndex + 2 * dx >= mutableCells.size) {
+            return false
+        }
+        if (columnIndex + 2 * dy >= mutableCells[rowIndex].size) {
+            return false
+        }
+        val owner = mutableCells[rowIndex][columnIndex].owner
+        (0..2).forEach { shift ->
+            val cellOwner = mutableCells[rowIndex + shift * dx][columnIndex + shift * dy].owner
+            val cellType = mutableCells[rowIndex + shift * dx][columnIndex + shift * dy].type
+            if (cellOwner == -1 || cellOwner != owner || cellType != CellType.CAT) {
+                return false
+            }
+        }
+        return true
     }
 
     companion object {

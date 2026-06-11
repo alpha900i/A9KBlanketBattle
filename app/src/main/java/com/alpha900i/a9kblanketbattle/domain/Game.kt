@@ -1,5 +1,6 @@
 package com.alpha900i.a9kblanketbattle.domain
 
+import android.util.Log
 import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 
@@ -19,7 +20,7 @@ class Game {
         move: Move,
         stateUpdater: (GameState) -> Unit
     ) {
-        val (newBoard, handChanges) = gameState.board.applyMove(move, gameState.activePlayerIndex)
+        val (newBoard, handChanges, gameOver) = gameState.board.applyMove(move, gameState.activePlayerIndex)
         //modify hands
         val newHands = gameState.hands.mapIndexed { index, hand ->
             hand.applyChange(handChanges[index])
@@ -29,7 +30,7 @@ class Game {
 
         //update state
         val newPlayerIndex = (gameState.activePlayerIndex + 1) % PLAYER_COUNT
-        val moveIsExpected = emptyCount > 0
+        val moveIsExpected = emptyCount > 0 && !gameOver
         val newState = GameState(
             board = newBoard,
             hands = newHands,
