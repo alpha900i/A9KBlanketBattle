@@ -27,7 +27,7 @@ data class GameState(
         fun startingState(width: Int, height: Int, catStart: Int, catMax: Int, kittenStart: Int, kittenMax:Int): GameState {
             val cells = List(height) {
                 List(width) {
-                    Cell(CellType.EMPTY, -1)
+                    Cell.emptyCell()
                 }
             }
             return GameState(

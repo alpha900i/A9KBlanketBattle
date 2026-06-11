@@ -22,7 +22,13 @@ enum class CellType {
 data class Cell(
     val type: CellType,
     val owner: Int
-)
+) {
+    companion object {
+        fun emptyCell() : Cell {
+            return Cell(CellType.EMPTY, -1)
+        }
+    }
+}
 
 data class Board(
     val cells: List<List<Cell>>
@@ -88,7 +94,7 @@ data class Board(
                         //is cell we are getting pushed empty>
                         if (mutableCells[receiverX][receiverY].type == CellType.EMPTY) {
                             mutableCells[receiverX][receiverY] = mutableCells[checkX][checkY];
-                            mutableCells[checkX][checkY] = Cell(type = CellType.EMPTY, owner = -1)
+                            mutableCells[checkX][checkY] = Cell.emptyCell()
                         }
                     } else {
                         //receiver cell is not on board - time to fall
@@ -98,7 +104,7 @@ data class Board(
                         if (mutableCells[checkX][checkY].type == CellType.KITTEN) {
                             deltaKittens[mutableCells[checkX][checkY].owner]++
                         }
-                        mutableCells[checkX][checkY] = Cell(type = CellType.EMPTY, owner = -1)
+                        mutableCells[checkX][checkY] = Cell.emptyCell()
                     }
                 }
             }
@@ -208,7 +214,7 @@ data class Board(
         (0..2).forEach { shift ->
             val cellOwner = mutableCells[rowIndex + shift * dx][columnIndex + shift * dy].owner
             deltaCats[cellOwner]++
-            mutableCells[rowIndex + shift * dx][columnIndex + shift * dy] = Cell(CellType.EMPTY, -1)
+            mutableCells[rowIndex + shift * dx][columnIndex + shift * dy] = Cell.emptyCell()
         }
     }
 
@@ -216,7 +222,7 @@ data class Board(
         fun emptyBoard(width: Int, height: Int): Board {
             val cells = List(height) {
                 List(width) {
-                    Cell(CellType.EMPTY, -1)
+                    Cell.emptyCell()
                 }
             }
             return Board(cells)
