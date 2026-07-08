@@ -1,10 +1,8 @@
 package com.alpha900i.a9kblanketbattle.data
 
-import androidx.compose.foundation.layout.PaddingValues
 import com.alpha900i.a9kblanketbattle.domain.HandChange
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
-import com.alpha900i.a9kblanketbattle.domain.Player
 
 enum class CellType {
     EMPTY,
@@ -24,11 +22,18 @@ data class Cell(
     val owner: Int
 ) {
     companion object {
-        fun emptyCell() : Cell {
+        fun emptyCell(): Cell {
             return Cell(CellType.EMPTY, -1)
         }
     }
 }
+
+private data class TripletOnBoard(
+    val row: Int,
+    val column: Int,
+    val rowShift: Int,
+    val columnShift: Int
+)
 
 data class Board(
     val cells: List<List<Cell>>
@@ -51,8 +56,14 @@ data class Board(
         val gameOver = checkForGameOver(
             mutableCells = mutableCells,
         )
-        checkForTriplets(
+
+        val deletableTriplets = getTriplets(
             mutableCells = mutableCells,
+            playerIndex = playerIndex
+        )
+        removeTriplet(
+            mutableCells = mutableCells,
+            tripletOnBoard = deletableTriplets.firstOrNull(),
             deltaCats = deltaCats
         )
 
@@ -138,25 +149,21 @@ data class Board(
         }
     }
 
-    private fun checkForTriplets(
+    //this method gets us all deletable triplets for current player that exist on board right now
+    //triplets are grouped by players
+    //triplet is defined by its top-left corner and "shift", leading from this corner to next item
+    private fun getTriplets(
         mutableCells: MutableList<MutableList<Cell>>,
-        deltaCats: MutableList<Int>
-    ) {
+        playerIndex: Int
+    ): MutableSet<TripletOnBoard> {
+        val result = mutableSetOf<TripletOnBoard>()
         val cellDeltas = listOf(
             Pair(1, 0),
             Pair(0, 1),
             Pair(1, 1)
         )
-        val foundFlags = mutableListOf(
-            false,
-            false
-        )
         //for each cell
         //check horizontal/vertical/diagonal triplet to down/right direction
-        //get at most one triplet for each player
-        //cells become empty
-        //kittens turn into cats (so, no delta kittens, delta cats)
-        //cats just removed (delta cats)
         (0..<mutableCells.size).forEach { rowIndex ->
             (0..<mutableCells[rowIndex].size).forEach { columnIndex ->
                 cellDeltas.forEach { cellDelta ->
@@ -166,20 +173,21 @@ data class Board(
                             rowIndex,
                             columnIndex,
                             cellDelta
-                        ) && cellOwner != -1 && !foundFlags[cellOwner]
+                        ) && cellOwner == playerIndex
                     ) {
-                        removeTriplet(
-                            mutableCells,
-                            rowIndex,
-                            columnIndex,
-                            deltaCats,
-                            cellDelta
+                        result.add(
+                            TripletOnBoard(
+                                row = rowIndex,
+                                column = columnIndex,
+                                rowShift = cellDelta.first,
+                                columnShift = cellDelta.second
+                            )
                         )
-                        foundFlags[cellOwner] = true
                     }
                 }
             }
         }
+        return result
     }
 
     private fun isTriplet(
@@ -205,14 +213,22 @@ data class Board(
         return true
     }
 
+
+    //cells become empty
+    //kittens turn into cats (so, no delta kittens, delta cats)
+    //cats just removed (delta cats)
     private fun removeTriplet(
         mutableCells: MutableList<MutableList<Cell>>,
-        rowIndex: Int,
-        columnIndex: Int,
-        deltaCats: MutableList<Int>,
-        cellDelta: Pair<Int, Int>
+        tripletOnBoard: TripletOnBoard?,
+        deltaCats: MutableList<Int>
     ) {
-        val (dx, dy) = cellDelta
+        if (tripletOnBoard == null) {
+            return
+        }
+        val rowIndex = tripletOnBoard.row
+        val columnIndex = tripletOnBoard.column
+        val dx = tripletOnBoard.rowShift
+        val dy = tripletOnBoard.columnShift
         if (rowIndex + 2 * dx >= mutableCells.size) {
             return
         }
@@ -255,6 +271,7 @@ data class Board(
         }
         return false
     }
+
     private fun isCatTriplet(
         mutableCells: MutableList<MutableList<Cell>>,
         rowIndex: Int,
