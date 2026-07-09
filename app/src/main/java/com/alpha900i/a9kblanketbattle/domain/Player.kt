@@ -2,6 +2,7 @@ package com.alpha900i.a9kblanketbattle.domain
 
 import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
+import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import kotlinx.coroutines.CompletableDeferred
 
 interface Player {
@@ -9,6 +10,10 @@ interface Player {
     suspend fun makeMove(
         gameState: GameState,
         applier: (Move) -> Unit
+    )
+    suspend fun removeTriplet(
+        gameState: GameState,
+        applier: (TripletOnBoard) -> Unit
     )
     fun submitMove(move: Move) {}
 }
@@ -19,6 +24,12 @@ class BotPlayerA(override val index: Int) : Player{
         applier: (Move) -> Unit
     ) {
         applier(formMove(gameState))
+    }
+    override suspend fun removeTriplet(
+        gameState: GameState,
+        applier: (TripletOnBoard) -> Unit
+    ) {
+        applier(gameState.deletableTriplets.first())
     }
     private fun formMove(gameState: GameState): Move {
         gameState.board.cells.forEachIndexed { rowIndex, row ->
@@ -33,6 +44,7 @@ class BotPlayerA(override val index: Int) : Player{
 }
 class HumanPlayer(override val index: Int): Player {
     private var deferredMove: CompletableDeferred<Move>? = null
+    private var deferredRemoval: CompletableDeferred<TripletOnBoard?>? = null
 
     override suspend fun makeMove(
         gameState: GameState,
@@ -44,6 +56,18 @@ class HumanPlayer(override val index: Int): Player {
         } finally {
             deferredMove = null   // ✅ clear even if applier throws
         }
+    }
+    override suspend fun removeTriplet(
+        gameState: GameState,
+        applier: (TripletOnBoard) -> Unit
+    ) {
+        applier(gameState.deletableTriplets.first())
+//        deferredRemoval = CompletableDeferred()
+//        try {
+//            applier(deferredRemoval!!.await())
+//        } finally {
+//            deferredRemoval = null   // ✅ clear even if applier throws
+//        }
     }
 
     override fun submitMove(move: Move) {

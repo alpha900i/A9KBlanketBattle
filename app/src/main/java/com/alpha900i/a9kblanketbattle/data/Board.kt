@@ -28,11 +28,17 @@ data class Cell(
     }
 }
 
-private data class TripletOnBoard(
+data class TripletOnBoard(
     val row: Int,
     val column: Int,
     val rowShift: Int,
     val columnShift: Int
+)
+data class MoveResult(
+    val board: Board,
+    val handChanges: List<HandChange>,
+    val gameOver: Boolean,
+    val deletableTriplets: Set<TripletOnBoard>
 )
 
 data class Board(
@@ -41,7 +47,7 @@ data class Board(
     //general move application
     //first it sets pieces and processes possible boops
     //second it removes possible triplets
-    fun applyMove(move: Move, playerIndex: Int): Triple<Board, List<HandChange>, Boolean> {
+    fun applyMove(move: Move, playerIndex: Int): MoveResult {
         val deltaCats = mutableListOf(0, 0)
         val deltaKittens = mutableListOf(0, 0)
         val mutableCells = cells.map { it.toMutableList() }.toMutableList()
@@ -61,9 +67,31 @@ data class Board(
             mutableCells = mutableCells,
             playerIndex = playerIndex
         )
+
+
+        val immutableCells = mutableCells.map { it.toList() }
+        val handChanges = deltaKittens.zip(deltaCats) { deltaKitten, deltaCat ->
+            HandChange(
+                deltaKitten = deltaKitten,
+                deltaCat = deltaCat
+            )
+        }
+        return MoveResult(
+            Board(immutableCells),
+            handChanges,
+            gameOver,
+            deletableTriplets
+        )
+    }
+
+    fun applyRemoval(tripletOnBoard: TripletOnBoard): MoveResult {
+        val deltaCats = mutableListOf(0, 0)
+        val deltaKittens = mutableListOf(0, 0)
+        val mutableCells = cells.map { it.toMutableList() }.toMutableList()
+
         removeTriplet(
             mutableCells = mutableCells,
-            tripletOnBoard = deletableTriplets.firstOrNull(),
+            tripletOnBoard = tripletOnBoard,
             deltaCats = deltaCats
         )
 
@@ -74,7 +102,12 @@ data class Board(
                 deltaCat = deltaCat
             )
         }
-        return Triple(Board(immutableCells), handChanges, gameOver)
+        return MoveResult(
+            Board(immutableCells),
+            handChanges,
+            false,           //we wouldn't get here if there was an active gameover, and triplet removal can't initiate one
+            setOf()     //no removal after removal
+        )
     }
 
     //setting pieces and booping neighbors

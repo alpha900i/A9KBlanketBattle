@@ -4,7 +4,8 @@ data class GameState(
     val board: Board,
     val hands: List<Hand>,
     val activePlayerIndex: Int,
-    val gameIsActive: Boolean
+    val gameIsActive: Boolean,
+    val deletableTriplets: Set<TripletOnBoard>
 ) {
     companion object {
         const val DEFAULT_WIDTH = 6
@@ -48,6 +49,7 @@ data class GameState(
                 ),
                 activePlayerIndex = 0,
                 gameIsActive = false,
+                deletableTriplets = setOf()
             )
         }
     }
