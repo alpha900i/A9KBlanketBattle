@@ -17,6 +17,8 @@ class Game {
             players[gameState.activePlayerIndex].makeMove(gameState) { move ->
                 applyMove(gameState, move, stateUpdater)
             }
+        } else if (gameState.deletableTriplets.size == 1) {
+            applyRemoval(gameState, gameState.deletableTriplets.first(), stateUpdater)
         } else {
             players[gameState.activePlayerIndex].removeTriplet(gameState) { tripletToDelete ->
                 applyRemoval(gameState, tripletToDelete, stateUpdater)
