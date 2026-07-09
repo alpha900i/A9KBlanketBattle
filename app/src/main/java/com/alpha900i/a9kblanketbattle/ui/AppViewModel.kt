@@ -13,8 +13,11 @@ import com.alpha900i.a9kblanketbattle.domain.HumanPlayer
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.Player
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -36,6 +39,8 @@ class AppViewModel() : ViewModel() {
         _gameState.update { newState }
     }
 
+
+
     private val _uiState = MutableStateFlow(
         UiState(
             isHumanTurn = false
@@ -49,12 +54,23 @@ class AppViewModel() : ViewModel() {
     }
 
 
+    val infoMessage: StateFlow<String> = gameState.map { state ->
+        when {
+            !state.gameIsActive -> "Game Over! Player ${state.activePlayerIndex + 1} wins"
+            state.deletableTriplets.size > 1 -> "Player ${state.activePlayerIndex + 1} must select a triplet"
+            else -> "Player ${state.activePlayerIndex + 1}'s turn"
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, "Waiting for game...")
+
     fun submitMove(activePlayerIndex: Int, move: Move) {
         players[activePlayerIndex].submitMove(move)
     }
     fun submitRemoval(activePlayerIndex: Int, tripletOnBoard: TripletOnBoard) {
         players[activePlayerIndex].submitRemoval(tripletOnBoard)
     }
+
+
+
 
     init {
         viewModelScope.launch {

@@ -64,6 +64,7 @@ fun MainContent(
     val viewModel: AppViewModel = viewModel(factory = AppViewModel.Companion.Factory)
     val gameState by viewModel.gameState.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
+    val infoSectionMessage by viewModel.infoMessage.collectAsState()
     val startScreenActions = object: StartScreenActions{
         override fun startGame() {
             appNavigationController.navigateToGame()
@@ -91,6 +92,7 @@ fun MainContent(
             gameState = gameState,
             uiState = uiState,
             startScreenActions = startScreenActions,
+            infoSectionMessage = infoSectionMessage,
             activator = viewModel::activateGame,
             submitMove = { move ->
                 viewModel.submitMove(gameState.activePlayerIndex, move)
@@ -109,6 +111,7 @@ fun MainScreen(
     gameState: GameState,
     uiState: UiState,
     startScreenActions: StartScreenActions,
+    infoSectionMessage: String,
     activator: () -> Unit,
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
@@ -120,6 +123,7 @@ fun MainScreen(
             startScreenActions = startScreenActions,
             gameState = gameState,
             uiState = uiState,
+            infoSectionMessage = infoSectionMessage,
             activator = activator,
             submitMove = submitMove,
             submitRemoval = submitRemoval,

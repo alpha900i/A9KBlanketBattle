@@ -42,6 +42,7 @@ import com.alpha900i.a9kblanketbattle.domain.MoveType
 fun GameScreen(
     gameState: GameState,
     isHumanTurn: Boolean,
+    infoSectionMessage: String,
     activator: () -> Unit,
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
@@ -55,6 +56,9 @@ fun GameScreen(
         modifier = Modifier
             .fillMaxSize(1f)
     ) {
+        InfoSection(
+            infoSectionMessage = infoSectionMessage
+        )
         BoardSection(
             gameState = gameState,
             highlightedTriplet = highlightedTriplet,
@@ -89,6 +93,15 @@ fun GameScreen(
             )
         }
     }
+}
+
+@Composable
+fun InfoSection(infoSectionMessage: String) {
+    Text(
+        text = infoSectionMessage,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth(1f)
+    )
 }
 
 @Composable

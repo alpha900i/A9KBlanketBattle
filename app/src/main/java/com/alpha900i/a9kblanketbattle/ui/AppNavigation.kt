@@ -20,6 +20,7 @@ fun AppNavHost(
     startScreenActions: StartScreenActions,
     gameState: GameState,
     uiState: UiState,
+    infoSectionMessage: String,
     activator: () -> Unit,
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
@@ -39,6 +40,7 @@ fun AppNavHost(
             GameScreen(
                 gameState = gameState,
                 isHumanTurn = uiState.isHumanTurn,
+                infoSectionMessage = infoSectionMessage,
                 activator = activator,
                 submitMove = submitMove,
                 submitRemoval = submitRemoval
