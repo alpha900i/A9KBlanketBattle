@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,6 +34,7 @@ import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.Hand
+import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
 
@@ -39,47 +43,69 @@ fun GameScreen(
     gameState: GameState,
     isHumanTurn: Boolean,
     activator: () -> Unit,
-    submitMove: (Move) -> Unit
+    submitMove: (Move) -> Unit,
+    submitRemoval: (TripletOnBoard) -> Unit,
 ) {
     LaunchedEffect(Unit) {
         activator()
     }
     var moveType by remember { mutableStateOf<MoveType?>(null) }
+    var highlightedTriplet by remember { mutableStateOf<TripletOnBoard?>(null) }
     Column(
         modifier = Modifier
             .fillMaxSize(1f)
     ) {
         BoardSection(
             gameState = gameState,
+            highlightedTriplet = highlightedTriplet,
             isHumanTurn = isHumanTurn,
             submitMove = submitMove,
             moveType = moveType,
             modifier = Modifier.weight(4f)
         )
-        HandsSection(
-            gameState = gameState,
-            isHumanTurn = isHumanTurn,
-            setKittenMove = {
-                Log.d("HandBlock", "Set kitten move")
-                moveType = MoveType.KITTEN
-            },
-            setCatMove = {
-                Log.d("HandBlock", "Set cat move")
-                moveType = MoveType.CAT
-            },
-            modifier = Modifier.weight(1f)
-        )
+        if (gameState.deletableTriplets.isEmpty()) {
+            HandsSection(
+                gameState = gameState,
+                isHumanTurn = isHumanTurn,
+                setKittenMove = {
+                    Log.d("HandBlock", "Set kitten move")
+                    moveType = MoveType.KITTEN
+                },
+                setCatMove = {
+                    Log.d("HandBlock", "Set cat move")
+                    moveType = MoveType.CAT
+                },
+                modifier = Modifier.weight(1f)
+            )
+        } else {
+            TripletRemovalSection(
+                gameState = gameState,
+                isHumanTurn = isHumanTurn,
+                highlightTriplet = { triplet ->
+                    highlightedTriplet = triplet
+                },
+                submitRemoval = submitRemoval,
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }
 
 @Composable
 fun BoardSection(
     gameState: GameState,
+    highlightedTriplet: TripletOnBoard?,
     isHumanTurn: Boolean,
     submitMove: (Move) -> Unit,
     moveType: MoveType?,
     modifier: Modifier
 ) {
+    val superHighlightedCells: Set<Pair<Int, Int>> = remember (highlightedTriplet) {
+        getHighlights(setOf(highlightedTriplet))
+    }
+    val highlightedCells: Set<Pair<Int, Int>>  = remember (gameState.deletableTriplets) {
+        getHighlights(gameState.deletableTriplets)
+    }
     Column(
         modifier = modifier
             .fillMaxWidth(1f)
@@ -101,13 +127,21 @@ fun BoardSection(
                         1 -> Color.Red
                         else -> Color.Yellow
                     }
+                    val backgroundColor =
+                        if (superHighlightedCells.contains(Pair(rowIndex, colIndex))) {
+                            Color.Green
+                        } else if (highlightedCells.contains(Pair(rowIndex, colIndex))) {
+                            Color.Magenta
+                        } else {
+                            Color.Gray
+                        }
 
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
                             .border(4.dp, Color.White)
-                            .background(Color.Gray)
+                            .background(backgroundColor)
                             .clickable(
                                 enabled = isHumanTurn && moveType != null,
                                 onClick = {
@@ -132,6 +166,14 @@ fun BoardSection(
     }
 }
 
+fun getHighlights(triplets: Set<TripletOnBoard?>): Set<Pair<Int, Int>> =
+    triplets
+        .filterNotNull()
+        .flatMap { triplet ->
+        triplet.getCells()
+    }.toSet()
+
+
 @Composable
 fun HandsSection(
     gameState: GameState,
@@ -151,6 +193,60 @@ fun HandsSection(
                 setKittenMove = setKittenMove,
                 setCatMove = setCatMove,
                 modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+@Composable
+fun TripletRemovalSection(
+    gameState: GameState,
+    isHumanTurn: Boolean,
+    highlightTriplet: (TripletOnBoard?) -> Unit,
+    submitRemoval: (TripletOnBoard) -> Unit,
+    modifier: Modifier
+) {
+    var selectedTriplet: TripletOnBoard? by remember{mutableStateOf(null)}
+    Column(modifier = modifier.fillMaxWidth(1f)) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth(1f)
+                .weight(1f)
+        ) {
+            gameState.deletableTriplets.forEach { tripletOnBoard ->
+                val buttonColor = if (tripletOnBoard == selectedTriplet) {
+                    Color.Green
+                } else {
+                    Color.Gray
+                }
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = buttonColor
+                    ),
+                    onClick = {
+                        highlightTriplet(tripletOnBoard)
+                        selectedTriplet = tripletOnBoard
+                    },
+                    enabled = isHumanTurn,
+                    modifier = modifier
+                        .fillMaxHeight(1f)
+                ) {
+                    Text(
+                        text = "Row ${tripletOnBoard.row} Column ${tripletOnBoard.column}"
+                    )
+                }
+            }
+
+        }
+        Button(
+            onClick = {
+                submitRemoval(selectedTriplet!!)
+                highlightTriplet(null)
+            },
+            enabled = (selectedTriplet != null) && isHumanTurn,
+            modifier = modifier.fillMaxWidth(1f)
+        ) {
+            Text(
+                text = "Remove selected"
             )
         }
     }

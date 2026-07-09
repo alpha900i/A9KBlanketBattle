@@ -33,7 +33,25 @@ data class TripletOnBoard(
     val column: Int,
     val rowShift: Int,
     val columnShift: Int
-)
+) {
+    fun contains(
+        r: Int,
+        c: Int
+    ): Boolean {
+        for (i in 0..2) {
+            if (row + i * rowShift == r && column + i * columnShift == c) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun getCells(): Set<Pair<Int, Int>> =
+        (0..2).map { shift ->
+            Pair(row + shift * rowShift, column + shift * columnShift)
+        }.toSet()
+}
+
 data class MoveResult(
     val board: Board,
     val handChanges: List<HandChange>,

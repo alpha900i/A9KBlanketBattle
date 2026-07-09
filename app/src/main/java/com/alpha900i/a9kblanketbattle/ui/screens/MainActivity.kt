@@ -28,6 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.GameState
+import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.ui.AppNavHost
 import com.alpha900i.a9kblanketbattle.ui.AppNavigationController
@@ -94,6 +95,9 @@ fun MainContent(
             submitMove = { move ->
                 viewModel.submitMove(gameState.activePlayerIndex, move)
             },
+            submitRemoval = { tripletToRemove ->
+                viewModel.submitRemoval(gameState.activePlayerIndex, tripletToRemove)
+            },
             navController = navController,
             contentPadding = innerPadding
         )
@@ -107,6 +111,7 @@ fun MainScreen(
     startScreenActions: StartScreenActions,
     activator: () -> Unit,
     submitMove: (Move) -> Unit,
+    submitRemoval: (TripletOnBoard) -> Unit,
     navController: NavHostController,
     contentPadding: PaddingValues
 ) {
@@ -117,6 +122,7 @@ fun MainScreen(
             uiState = uiState,
             activator = activator,
             submitMove = submitMove,
+            submitRemoval = submitRemoval,
             navController = navController
         )
     }

@@ -16,6 +16,7 @@ interface Player {
         applier: (TripletOnBoard) -> Unit
     )
     fun submitMove(move: Move) {}
+    fun submitRemoval(tripletOnBoard: TripletOnBoard) {}
 }
 
 class BotPlayerA(override val index: Int) : Player{
@@ -44,7 +45,7 @@ class BotPlayerA(override val index: Int) : Player{
 }
 class HumanPlayer(override val index: Int): Player {
     private var deferredMove: CompletableDeferred<Move>? = null
-    private var deferredRemoval: CompletableDeferred<TripletOnBoard?>? = null
+    private var deferredRemoval: CompletableDeferred<TripletOnBoard>? = null
 
     override suspend fun makeMove(
         gameState: GameState,
@@ -61,16 +62,18 @@ class HumanPlayer(override val index: Int): Player {
         gameState: GameState,
         applier: (TripletOnBoard) -> Unit
     ) {
-        applier(gameState.deletableTriplets.first())
-//        deferredRemoval = CompletableDeferred()
-//        try {
-//            applier(deferredRemoval!!.await())
-//        } finally {
-//            deferredRemoval = null   // ✅ clear even if applier throws
-//        }
+        deferredRemoval = CompletableDeferred()
+        try {
+            applier(deferredRemoval!!.await())
+        } finally {
+            deferredRemoval = null   // ✅ clear even if applier throws
+        }
     }
 
     override fun submitMove(move: Move) {
         deferredMove?.complete(move)
+    }
+    override fun submitRemoval(removal: TripletOnBoard) {
+        deferredRemoval?.complete(removal)
     }
 }

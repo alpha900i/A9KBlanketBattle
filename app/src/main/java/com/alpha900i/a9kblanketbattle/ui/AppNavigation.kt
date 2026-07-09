@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.alpha900i.a9kblanketbattle.data.GameState
+import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.ui.screens.GameScreen
 import com.alpha900i.a9kblanketbattle.ui.screens.SettingsScreen
@@ -21,6 +22,7 @@ fun AppNavHost(
     uiState: UiState,
     activator: () -> Unit,
     submitMove: (Move) -> Unit,
+    submitRemoval: (TripletOnBoard) -> Unit,
     navController: NavHostController = rememberNavController(),
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -38,7 +40,8 @@ fun AppNavHost(
                 gameState = gameState,
                 isHumanTurn = uiState.isHumanTurn,
                 activator = activator,
-                submitMove = submitMove
+                submitMove = submitMove,
+                submitRemoval = submitRemoval
             )
         }
         composable(route = Screen.SETTINGS.name) {

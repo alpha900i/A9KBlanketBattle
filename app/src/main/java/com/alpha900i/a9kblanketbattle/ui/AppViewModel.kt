@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.alpha900i.a9kblanketbattle.data.GameState
+import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.domain.BotPlayerA
 import com.alpha900i.a9kblanketbattle.domain.Game
 import com.alpha900i.a9kblanketbattle.domain.HumanPlayer
@@ -51,7 +52,9 @@ class AppViewModel() : ViewModel() {
     fun submitMove(activePlayerIndex: Int, move: Move) {
         players[activePlayerIndex].submitMove(move)
     }
-
+    fun submitRemoval(activePlayerIndex: Int, tripletOnBoard: TripletOnBoard) {
+        players[activePlayerIndex].submitRemoval(tripletOnBoard)
+    }
 
     init {
         viewModelScope.launch {
