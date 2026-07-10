@@ -52,7 +52,7 @@ fun GameScreen(
     LaunchedEffect(Unit) {
         activator()
     }
-    var moveType by remember { mutableStateOf<MoveType?>(null) }
+    var moveType by remember(gameState.activePlayerIndex) { mutableStateOf<MoveType?>(null) }
     var highlightedTriplet by remember { mutableStateOf<TripletOnBoard?>(null) }
     Column(
         modifier = Modifier
@@ -73,6 +73,7 @@ fun GameScreen(
             HandsSection(
                 gameState = gameState,
                 isHumanTurn = isHumanTurn,
+                moveType = moveType,
                 setKittenMove = {
                     Log.d("HandBlock", "Set kitten move")
                     moveType = MoveType.KITTEN
@@ -193,6 +194,7 @@ fun getHighlights(triplets: Set<TripletOnBoard?>): Set<Pair<Int, Int>> =
 fun HandsSection(
     gameState: GameState,
     isHumanTurn: Boolean,
+    moveType: MoveType?,
     setKittenMove: () -> Unit,
     setCatMove: () -> Unit,
     modifier: Modifier
@@ -204,6 +206,7 @@ fun HandsSection(
             HandBlock(
                 hand = hand,
                 isActiveHand = isHumanTurn && gameState.activePlayerIndex == index,
+                moveType = moveType,
                 handIndex = index,
                 setKittenMove = setKittenMove,
                 setCatMove = setCatMove,
@@ -271,6 +274,7 @@ fun TripletRemovalSection(
 fun HandBlock(
     hand: Hand,
     isActiveHand: Boolean,
+    moveType: MoveType?,
     handIndex: Int,
     setKittenMove: () -> Unit,
     setCatMove: () -> Unit,
@@ -281,10 +285,10 @@ fun HandBlock(
     var kittenActive by remember(isActiveHand) { mutableStateOf(kittensAreDefaultChoice) }
     var catActive by remember(isActiveHand) { mutableStateOf(catsAreDefaultChoice) }
     Log.d("HandBlock", "HandBlock $handIndex $isActiveHand kittens are $kittensAreDefaultChoice cats are $catsAreDefaultChoice")
-    if (kittensAreDefaultChoice) {
+    if (kittensAreDefaultChoice && moveType == null) {
         setKittenMove()
     }
-    if (catsAreDefaultChoice) {
+    if (catsAreDefaultChoice && moveType == null) {
         setCatMove()
     }
 
