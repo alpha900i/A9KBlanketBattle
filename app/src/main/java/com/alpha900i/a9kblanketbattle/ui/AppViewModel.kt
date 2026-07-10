@@ -1,10 +1,12 @@
 package com.alpha900i.a9kblanketbattle.ui
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.domain.BotPlayerA
@@ -24,6 +26,26 @@ import kotlinx.coroutines.launch
 data class UiState(
     val isHumanTurn: Boolean
 )
+sealed class InfoSectionState {
+    data class PlayerTurn(val playerIndex: Int): InfoSectionState() {
+        override val resourceId: Int = R.string.players_turn
+        override val formatArgs = arrayOf(playerIndex + 1)
+    }
+    data class PlayerRemoval(val playerIndex: Int): InfoSectionState() {
+        override val resourceId = R.string.players_removal
+        override val formatArgs = arrayOf(playerIndex + 1)
+    }
+    data class GameOver(val playerIndex: Int): InfoSectionState() {
+        override val resourceId = R.string.game_over
+        override val formatArgs = arrayOf(playerIndex + 1)
+    }
+    object WaitingForGame: InfoSectionState() {
+        override val resourceId = R.string.waiting_for_game
+        override val formatArgs = emptyArray<Any>()
+    }
+    abstract val resourceId: Int
+    abstract val formatArgs: Array<out Any>
+}
 
 class AppViewModel() : ViewModel() {
     private val _gameState = MutableStateFlow(
@@ -54,13 +76,13 @@ class AppViewModel() : ViewModel() {
     }
 
 
-    val infoMessage: StateFlow<String> = gameState.map { state ->
+    val infoMessage: StateFlow<InfoSectionState> = gameState.map { state ->
         when {
-            !state.gameIsActive -> "Game Over! Player ${state.activePlayerIndex + 1} wins"
-            state.deletableTriplets.size > 1 -> "Player ${state.activePlayerIndex + 1} must select a triplet"
-            else -> "Player ${state.activePlayerIndex + 1}'s turn"
+            !state.gameIsActive -> InfoSectionState.GameOver(state.activePlayerIndex)
+            state.deletableTriplets.size > 1 -> InfoSectionState.PlayerRemoval(state.activePlayerIndex)
+            else ->  InfoSectionState.PlayerTurn(state.activePlayerIndex)
         }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, "Waiting for game...")
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, InfoSectionState.WaitingForGame)
 
     fun submitMove(activePlayerIndex: Int, move: Move) {
         players[activePlayerIndex].submitMove(move)

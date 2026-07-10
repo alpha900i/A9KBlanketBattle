@@ -20,7 +20,7 @@ fun AppNavHost(
     startScreenActions: StartScreenActions,
     gameState: GameState,
     uiState: UiState,
-    infoSectionMessage: String,
+    infoSectionMessage: InfoSectionState,
     activator: () -> Unit,
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,

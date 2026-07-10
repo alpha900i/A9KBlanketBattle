@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,12 +38,13 @@ import com.alpha900i.a9kblanketbattle.data.Hand
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
+import com.alpha900i.a9kblanketbattle.ui.InfoSectionState
 
 @Composable
 fun GameScreen(
     gameState: GameState,
     isHumanTurn: Boolean,
-    infoSectionMessage: String,
+    infoSectionMessage: InfoSectionState,
     activator: () -> Unit,
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
@@ -96,9 +98,9 @@ fun GameScreen(
 }
 
 @Composable
-fun InfoSection(infoSectionMessage: String) {
+fun InfoSection(infoSectionMessage: InfoSectionState) {
     Text(
-        text = infoSectionMessage,
+        text = stringResource(infoSectionMessage.resourceId, *infoSectionMessage.formatArgs),
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth(1f)
     )

@@ -15,4 +15,3 @@
 4. Back out of game with possible save - right now backing out of game screen creates strange things
 5. Change kitten/cat max values - they are static now
 6. Check autoselect piece type logic - it can fail when all piece on board
-7. Extract strings from info section

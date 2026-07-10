@@ -4,4 +4,8 @@
     <string name="start_game_button_title">Start game</string>
     <string name="settings_button_title">Settings</string>
     <string name="exit_game_button_title">Exit game</string>
+    <string name="players_turn">Player %1$d\'s turn</string>
+    <string name="players_removal">Player %1$d must select a triplet</string>
+    <string name="game_over">Game Over! Player %1$d wins</string>
+    <string name="waiting_for_game">Waiting for game</string>
 </resources>

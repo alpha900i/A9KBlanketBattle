@@ -33,6 +33,7 @@ import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.ui.AppNavHost
 import com.alpha900i.a9kblanketbattle.ui.AppNavigationController
 import com.alpha900i.a9kblanketbattle.ui.AppViewModel
+import com.alpha900i.a9kblanketbattle.ui.InfoSectionState
 import com.alpha900i.a9kblanketbattle.ui.StartScreenActions
 import com.alpha900i.a9kblanketbattle.ui.UiState
 import com.alpha900i.a9kblanketbattle.ui.theme.A9KBlanketBattleTheme
@@ -111,7 +112,7 @@ fun MainScreen(
     gameState: GameState,
     uiState: UiState,
     startScreenActions: StartScreenActions,
-    infoSectionMessage: String,
+    infoSectionMessage: InfoSectionState,
     activator: () -> Unit,
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
