@@ -78,7 +78,7 @@ class AppViewModel() : ViewModel() {
 
     val infoMessage: StateFlow<InfoSectionState> = gameState.map { state ->
         when {
-            !state.gameIsActive -> InfoSectionState.GameOver(state.activePlayerIndex)
+            !state.gameIsActive -> InfoSectionState.GameOver(state.winnerIndex)
             state.deletableTriplets.size > 1 -> InfoSectionState.PlayerRemoval(state.activePlayerIndex)
             else ->  InfoSectionState.PlayerTurn(state.activePlayerIndex)
         }

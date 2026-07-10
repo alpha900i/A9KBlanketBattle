@@ -5,6 +5,7 @@ data class GameState(
     val hands: List<Hand>,
     val activePlayerIndex: Int,
     val gameIsActive: Boolean,
+    val winnerIndex: Int,
     val deletableTriplets: Set<TripletOnBoard>
 ) {
     companion object {
@@ -49,6 +50,7 @@ data class GameState(
                 ),
                 activePlayerIndex = 0,
                 gameIsActive = false,
+                winnerIndex = -1,
                 deletableTriplets = setOf()
             )
         }

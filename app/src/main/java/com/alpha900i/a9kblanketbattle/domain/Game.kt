@@ -31,7 +31,7 @@ class Game {
         move: Move,
         stateUpdater: (GameState) -> Unit
     ) {
-        val (newBoard, handChanges, gameOver, deletableTriplets) = gameState.board.applyMove(move, gameState.activePlayerIndex)
+        val (newBoard, handChanges, gameOver, winnerIndex, deletableTriplets) = gameState.board.applyMove(move, gameState.activePlayerIndex)
         //modify hands
         val newHands = gameState.hands.mapIndexed { index, hand ->
             hand.applyChange(handChanges[index])
@@ -46,9 +46,10 @@ class Game {
             val newState = GameState(
                 board = newBoard,
                 hands = newHands,
-                activePlayerIndex = newPlayerIndex,
+                activePlayerIndex = if (!gameOver) newPlayerIndex else winnerIndex,
                 gameIsActive = moveIsExpected,
-                deletableTriplets = deletableTriplets
+                winnerIndex = winnerIndex,
+                deletableTriplets = if (!gameOver) deletableTriplets else setOf()
             )
             stateUpdater(newState)
         } else {   // if game is not over, but there is something to delete - we do not change player
@@ -57,6 +58,7 @@ class Game {
                 hands = newHands,
                 activePlayerIndex = gameState.activePlayerIndex,
                 gameIsActive = gameState.gameIsActive,
+                winnerIndex = -1,
                 deletableTriplets = deletableTriplets
             )
             stateUpdater(newState)
@@ -68,7 +70,7 @@ class Game {
         tripletToRemove: TripletOnBoard,
         stateUpdater: (GameState) -> Unit
     ) {
-        val (newBoard, handChanges, gameOver, deletableTriplets) = gameState.board.applyRemoval(tripletToRemove)
+        val (newBoard, handChanges, gameOver, winnerIndex, deletableTriplets) = gameState.board.applyRemoval(tripletToRemove)
         val newHands = gameState.hands.mapIndexed { index, hand ->
             hand.applyChange(handChanges[index])
         }
@@ -83,6 +85,7 @@ class Game {
             hands = newHands,
             activePlayerIndex = newPlayerIndex,
             gameIsActive = moveIsExpected,
+            winnerIndex = winnerIndex,
             deletableTriplets = deletableTriplets
         )
         stateUpdater(newState)

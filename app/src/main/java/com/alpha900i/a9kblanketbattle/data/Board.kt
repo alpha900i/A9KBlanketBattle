@@ -56,6 +56,7 @@ data class MoveResult(
     val board: Board,
     val handChanges: List<HandChange>,
     val gameOver: Boolean,
+    val winnerIndex: Int,
     val deletableTriplets: Set<TripletOnBoard>
 )
 
@@ -77,7 +78,7 @@ data class Board(
             deltaKittens = deltaKittens,
             playerIndex = playerIndex
         )
-        val gameOver = checkForGameOver(
+        val (gameOver, winnerIndex) = checkForGameOver(
             mutableCells = mutableCells,
         )
 
@@ -98,6 +99,7 @@ data class Board(
             Board(immutableCells),
             handChanges,
             gameOver,
+            winnerIndex,
             deletableTriplets
         )
     }
@@ -124,6 +126,7 @@ data class Board(
             Board(immutableCells),
             handChanges,
             false,           //we wouldn't get here if there was an active gameover, and triplet removal can't initiate one
+            -1,
             setOf()     //no removal after removal
         )
     }
@@ -296,7 +299,7 @@ data class Board(
 
     private fun checkForGameOver(
         mutableCells: MutableList<MutableList<Cell>>,
-    ): Boolean {
+    ): Pair<Boolean, Int> {
         val cellDeltas = listOf(
             Pair(1, 0),
             Pair(0, 1),
@@ -315,12 +318,12 @@ data class Board(
                             cellDelta
                         )
                     ) {
-                        return true
+                        return Pair(true, cellOwner)
                     }
                 }
             }
         }
-        return false
+        return Pair(false, -1)
     }
 
     private fun isCatTriplet(
