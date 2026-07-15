@@ -1,10 +1,7 @@
 package com.alpha900i.a9kblanketbattle.domain
 
-import android.util.Log
-import com.alpha900i.a9kblanketbattle.data.Board
 import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
-import com.alpha900i.a9kblanketbattle.data.Hand
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 
 class Game {

@@ -67,15 +67,16 @@ data class Board(
     //first it sets pieces and processes possible boops
     //second it removes possible triplets
     fun applyMove(move: Move, playerIndex: Int): MoveResult {
-        val deltaCats = mutableListOf(0, 0)
-        val deltaKittens = mutableListOf(0, 0)
+        val handChanges: MutableList<HandChange> = mutableListOf(
+            HandChange.emptyHand(),
+            HandChange.emptyHand()
+        )
         val mutableCells = cells.map { it.toMutableList() }.toMutableList()
 
         setPieceAndBoop(
             move = move,
             mutableCells = mutableCells,
-            deltaCats = deltaCats,
-            deltaKittens = deltaKittens,
+            handChanges = handChanges,
             playerIndex = playerIndex
         )
         val (gameOver, winnerIndex) = checkForGameOver(
@@ -89,12 +90,7 @@ data class Board(
 
 
         val immutableCells = mutableCells.map { it.toList() }
-        val handChanges = deltaKittens.zip(deltaCats) { deltaKitten, deltaCat ->
-            HandChange(
-                deltaKitten = deltaKitten,
-                deltaCat = deltaCat
-            )
-        }
+
         return MoveResult(
             Board(immutableCells),
             handChanges,
@@ -105,23 +101,19 @@ data class Board(
     }
 
     fun applyRemoval(tripletOnBoard: TripletOnBoard): MoveResult {
-        val deltaCats = mutableListOf(0, 0)
-        val deltaKittens = mutableListOf(0, 0)
+        val handChanges: MutableList<HandChange> = mutableListOf(
+            HandChange.emptyHand(),
+            HandChange.emptyHand()
+        )
         val mutableCells = cells.map { it.toMutableList() }.toMutableList()
 
         removeTriplet(
             mutableCells = mutableCells,
             tripletOnBoard = tripletOnBoard,
-            deltaCats = deltaCats
+            handChanges = handChanges
         )
 
         val immutableCells = mutableCells.map { it.toList() }
-        val handChanges = deltaKittens.zip(deltaCats) { deltaKitten, deltaCat ->
-            HandChange(
-                deltaKitten = deltaKitten,
-                deltaCat = deltaCat
-            )
-        }
         return MoveResult(
             Board(immutableCells),
             handChanges,
@@ -141,8 +133,7 @@ data class Board(
     private fun setPieceAndBoop(
         move: Move,
         mutableCells: MutableList<MutableList<Cell>>,
-        deltaCats: MutableList<Int>,
-        deltaKittens: MutableList<Int>,
+        handChanges: MutableList<HandChange>,
         playerIndex: Int
     ) {
         val (moveX, moveY, moveType) = move
@@ -175,11 +166,14 @@ data class Board(
                         }
                     } else {
                         //receiver cell is not on board - time to fall of board
+                        val owner = mutableCells[checkX][checkY].owner
                         if (mutableCells[checkX][checkY].type == CellType.CAT) {
-                            deltaCats[mutableCells[checkX][checkY].owner]++
+                            handChanges[owner] =
+                                handChanges[owner].copy(deltaCurrentCat = handChanges[owner].deltaCurrentCat + 1)
                         }
                         if (mutableCells[checkX][checkY].type == CellType.KITTEN) {
-                            deltaKittens[mutableCells[checkX][checkY].owner]++
+                            handChanges[owner] =
+                                handChanges[owner].copy(deltaCurrentKitten = handChanges[owner].deltaCurrentKitten + 1)
                         }
                         mutableCells[checkX][checkY] = Cell.emptyCell()
                     }
@@ -196,10 +190,12 @@ data class Board(
             owner = playerIndex
         )
         if (cellType == CellType.CAT) {
-            deltaCats[playerIndex]--
+            handChanges[playerIndex] =
+                handChanges[playerIndex].copy(deltaCurrentCat = handChanges[playerIndex].deltaCurrentCat - 1)
         }
         if (cellType == CellType.KITTEN) {
-            deltaKittens[playerIndex]--
+            handChanges[playerIndex] =
+                handChanges[playerIndex].copy(deltaCurrentKitten = handChanges[playerIndex].deltaCurrentKitten - 1)
         }
     }
 
@@ -274,7 +270,7 @@ data class Board(
     private fun removeTriplet(
         mutableCells: MutableList<MutableList<Cell>>,
         tripletOnBoard: TripletOnBoard?,
-        deltaCats: MutableList<Int>
+        handChanges: MutableList<HandChange>
     ) {
         if (tripletOnBoard == null) {
             return
@@ -291,8 +287,17 @@ data class Board(
         }
 
         (0..2).forEach { shift ->
-            val cellOwner = mutableCells[rowIndex + shift * dx][columnIndex + shift * dy].owner
-            deltaCats[cellOwner]++
+            val cell = mutableCells[rowIndex + shift * dx][columnIndex + shift * dy]
+            val cellOwner = cell.owner
+            val cellType = cell.type
+
+            val kittenTransformed = if (cellType == CellType.KITTEN) 1 else 0
+            handChanges[cellOwner] = handChanges[cellOwner].copy(
+                deltaMaxKitten = handChanges[cellOwner].deltaMaxKitten - kittenTransformed,
+                deltaCurrentCat = handChanges[cellOwner].deltaCurrentCat + 1,
+                deltaMaxCat = handChanges[cellOwner].deltaMaxCat + kittenTransformed
+            )
+
             mutableCells[rowIndex + shift * dx][columnIndex + shift * dy] = Cell.emptyCell()
         }
     }

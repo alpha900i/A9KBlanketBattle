@@ -12,7 +12,7 @@ data class GameState(
         const val DEFAULT_WIDTH = 6
         const val DEFAULT_HEIGHT = 6
         const val DEFAULT_CAT_START = 0
-        const val DEFAULT_CAT_MAX = 8
+        const val DEFAULT_CAT_MAX = 0
         const val DEFAULT_KITTEN_START = 8
         const val DEFAULT_KITTEN_MAX = 8
 

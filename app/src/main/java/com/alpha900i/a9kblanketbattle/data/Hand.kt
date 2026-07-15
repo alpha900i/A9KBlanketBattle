@@ -10,10 +10,10 @@ data class Hand(
 ) {
     fun applyChange(handChange: HandChange): Hand {
         return Hand(
-            kittenCurrent = kittenCurrent + handChange.deltaKitten,
-            kittenMax = kittenMax,
-            catCurrent = catCurrent + handChange.deltaCat,
-            catMax = catMax,
+            kittenCurrent = kittenCurrent + handChange.deltaCurrentKitten,
+            kittenMax = kittenMax + handChange.deltaMaxKitten,
+            catCurrent = catCurrent + handChange.deltaCurrentCat,
+            catMax = catMax + handChange.deltaMaxCat,
         )
     }
 }
