@@ -102,7 +102,7 @@ data class Board(
             mutableCells = mutableCells,
         )
 
-        val deletableTriplets = getTriplets(
+        val deletableTriplets = getDeletableTriplets(
             mutableCells = mutableCells,
             playerIndex = playerIndex
         )
@@ -249,14 +249,14 @@ data class Board(
 
         mutableCells[move.row][move.column] = Cell.emptyCell()
         handChanges[playerIndex] = handChanges[playerIndex].copy(
-            deltaCurrentCat =  handChanges[playerIndex].deltaCurrentCat + 1
+            deltaCurrentCat = handChanges[playerIndex].deltaCurrentCat + 1
         )
     }
 
     //this method gets us all deletable triplets for current player that exist on board right now
     //triplets are grouped by players
-    //triplet is defined by its top-left corner and "shift", leading from this corner to next item
-    private fun getTriplets(
+    //triplet is defined by its top-left or bottom-left corner and "shift", leading from this corner to next item
+    private fun getDeletableTriplets(
         mutableCells: MutableList<MutableList<Cell>>,
         playerIndex: Int
     ): MutableSet<TripletOnBoard> {
@@ -264,7 +264,8 @@ data class Board(
         val cellDeltas = listOf(
             Pair(1, 0),
             Pair(0, 1),
-            Pair(1, 1)
+            Pair(1, 1),
+            Pair(1, -1)
         )
         //for each cell
         //check horizontal/vertical/diagonal triplet to down/right direction
@@ -301,10 +302,10 @@ data class Board(
         cellDelta: Pair<Int, Int>
     ): Boolean {
         val (dx, dy) = cellDelta
-        if (rowIndex + 2 * dx >= mutableCells.size) {
+        if (rowIndex + 2 * dx >= mutableCells.size || rowIndex + 2 * dx < 0) {
             return false
         }
-        if (columnIndex + 2 * dy >= mutableCells[rowIndex].size) {
+        if (columnIndex + 2 * dy >= mutableCells[rowIndex].size || columnIndex + 2 * dy < 0) {
             return false
         }
         val owner = mutableCells[rowIndex][columnIndex].owner
