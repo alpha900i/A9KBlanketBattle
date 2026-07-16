@@ -100,6 +100,7 @@ data class Board(
 
         val (gameOver, winnerIndex) = checkForGameOver(
             mutableCells = mutableCells,
+            playerIndex = playerIndex
         )
 
         val deletableTriplets = getDeletableTriplets(
@@ -359,31 +360,41 @@ data class Board(
 
     private fun checkForGameOver(
         mutableCells: MutableList<MutableList<Cell>>,
+        playerIndex: Int
     ): Pair<Boolean, Int> {
         val cellDeltas = listOf(
             Pair(1, 0),
             Pair(0, 1),
             Pair(1, 1)
         )
+        var catCount: Int = 0
         //for each cell
         //check horizontal/vertical/diagonal triplet to down/right direction
         (0..<mutableCells.size).forEach { rowIndex ->
             (0..<mutableCells[rowIndex].size).forEach { columnIndex ->
-                cellDeltas.forEach { cellDelta ->
-                    val cellOwner = mutableCells[rowIndex][columnIndex].owner
-                    if (isCatTriplet(
-                            mutableCells,
-                            rowIndex,
-                            columnIndex,
-                            cellDelta
-                        )
-                    ) {
-                        return Pair(true, cellOwner)
+                if (mutableCells[rowIndex][columnIndex].owner == playerIndex) {
+                    cellDeltas.forEach { cellDelta ->
+                        if (isCatTriplet(
+                                mutableCells,
+                                rowIndex,
+                                columnIndex,
+                                cellDelta
+                            )
+                        ) {
+                            return Pair(true, mutableCells[rowIndex][columnIndex].owner)
+                        }
+                    }
+                    if (mutableCells[rowIndex][columnIndex].type == CellType.CAT) {
+                        catCount++
                     }
                 }
             }
         }
-        return Pair(false, -1)
+        return if (catCount == 8) {
+            Pair(true, playerIndex)
+        } else {
+            Pair(false, -1)
+        }
     }
 
     private fun isCatTriplet(
