@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,12 +25,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alpha900i.a9kblanketbattle.R
+import com.alpha900i.a9kblanketbattle.data.Cell
 import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.Hand
@@ -75,11 +77,19 @@ fun GameScreen(
                 isHumanTurn = isHumanTurn,
                 setKittenMove = {
                     Log.d("HandBlock", "Set kitten move")
-                    moveType = MoveType.KITTEN
+                    moveType = MoveType.SET_KITTEN
                 },
                 setCatMove = {
                     Log.d("HandBlock", "Set cat move")
-                    moveType = MoveType.CAT
+                    moveType = MoveType.SET_CAT
+                },
+                setPromoteKittenMove = {
+                    Log.d("HandBlock", "Set cat move")
+                    moveType = MoveType.PROMOTE_KITTEN
+                },
+                setReturnCatMove = {
+                    Log.d("HandBlock", "Set cat move")
+                    moveType = MoveType.RETURN_CAT
                 },
                 modifier = Modifier.weight(1f)
             )
@@ -158,7 +168,7 @@ fun BoardSection(
                             .border(4.dp, Color.White)
                             .background(backgroundColor)
                             .clickable(
-                                enabled = isHumanTurn && moveType != null,
+                                enabled = isCellEnabled(isHumanTurn, cell, moveType, gameState.activePlayerIndex),
                                 onClick = {
                                     submitMove(
                                         Move(rowIndex, colIndex, moveType!!)
@@ -181,6 +191,27 @@ fun BoardSection(
     }
 }
 
+@Composable
+private fun isCellEnabled(
+    isHumanTurn: Boolean,
+    cell: Cell,
+    moveType: MoveType?,
+    activePlayerIndex: Int
+): Boolean {
+    if (!isHumanTurn) {
+        return false;
+    }
+    if (moveType == null) {
+        return false
+    }
+    return when (moveType) {
+        MoveType.SET_KITTEN -> cell.type == CellType.EMPTY
+        MoveType.SET_CAT -> cell.type == CellType.EMPTY
+        MoveType.PROMOTE_KITTEN -> cell.type == CellType.KITTEN && cell.owner == activePlayerIndex
+        MoveType.RETURN_CAT -> cell.type == CellType.CAT && cell.owner == activePlayerIndex
+    }
+}
+
 fun getHighlights(triplets: Set<TripletOnBoard?>): Set<Pair<Int, Int>> =
     triplets
         .filterNotNull()
@@ -195,6 +226,8 @@ fun HandsSection(
     isHumanTurn: Boolean,
     setKittenMove: () -> Unit,
     setCatMove: () -> Unit,
+    setPromoteKittenMove: () -> Unit,
+    setReturnCatMove: () -> Unit,
     modifier: Modifier
 ) {
     Row(
@@ -207,6 +240,8 @@ fun HandsSection(
                 handIndex = index,
                 setKittenMove = setKittenMove,
                 setCatMove = setCatMove,
+                setPromoteKittenMove = setPromoteKittenMove,
+                setReturnCatMove = setReturnCatMove,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -274,6 +309,8 @@ fun HandBlock(
     handIndex: Int,
     setKittenMove: () -> Unit,
     setCatMove: () -> Unit,
+    setPromoteKittenMove: () -> Unit,
+    setReturnCatMove: () -> Unit,
     modifier: Modifier
 ) {
     var kittenActive by remember(isActiveHand) { mutableStateOf(false) }
@@ -320,6 +357,30 @@ fun HandBlock(
                 modifier = Modifier.weight(1f),
             )
         }
+        Row(
+            modifier = Modifier.weight(1f)
+        ) {
+            Button(
+                onClick = setPromoteKittenMove,
+                enabled = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.kittenMax != 0),
+                shape = RectangleShape,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "K->C",
+                )
+            }
+            Button(
+                onClick = setReturnCatMove,
+                enabled = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.catMax != 0),
+                shape = RectangleShape,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "C->0",
+                )
+            }
+        }
     }
 }
 
@@ -359,6 +420,9 @@ fun PieceBlock(
                 minFontSize = 12.sp,
                 maxFontSize = 64.sp,   // default is 112.sp if not set
                 stepSize = 1.sp        // granularity for scaling steps
+            ),
+            style = TextStyle(
+                textAlign = TextAlign.Center
             ),
             modifier = Modifier
                 .fillMaxWidth(1f)

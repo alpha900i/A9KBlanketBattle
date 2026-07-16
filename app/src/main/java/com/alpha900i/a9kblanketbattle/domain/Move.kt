@@ -1,8 +1,10 @@
 package com.alpha900i.a9kblanketbattle.domain
 
 enum class MoveType {
-    KITTEN,
-    CAT
+    SET_KITTEN,
+    SET_CAT,
+    PROMOTE_KITTEN,
+    RETURN_CAT
 }
 data class Move(
     val row: Int,

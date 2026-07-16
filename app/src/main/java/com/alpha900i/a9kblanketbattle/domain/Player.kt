@@ -36,11 +36,11 @@ class BotPlayerA(override val index: Int) : Player{
         gameState.board.cells.forEachIndexed { rowIndex, row ->
             row.forEachIndexed { colIndex, cell ->
                 if (cell.type == CellType.EMPTY) {
-                    return Move(rowIndex, colIndex, MoveType.KITTEN)
+                    return Move(rowIndex, colIndex, MoveType.SET_KITTEN)
                 }
             }
         }
-        return Move(3, 2, MoveType.KITTEN)
+        return Move(3, 2, MoveType.SET_KITTEN)
     }
 }
 class HumanPlayer(override val index: Int): Player {

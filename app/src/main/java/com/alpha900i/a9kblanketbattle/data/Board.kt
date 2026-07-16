@@ -11,8 +11,9 @@ enum class CellType {
 
     fun isPushable(moveType: MoveType): Boolean {
         return when (moveType) {
-            MoveType.CAT -> (this == CAT || this == KITTEN)
-            MoveType.KITTEN -> (this == KITTEN)
+            MoveType.SET_CAT -> (this == CAT || this == KITTEN)
+            MoveType.SET_KITTEN -> (this == KITTEN)
+            else -> false
         }
     }
 }
@@ -73,12 +74,30 @@ data class Board(
         )
         val mutableCells = cells.map { it.toMutableList() }.toMutableList()
 
-        setPieceAndBoop(
-            move = move,
-            mutableCells = mutableCells,
-            handChanges = handChanges,
-            playerIndex = playerIndex
-        )
+        if (move.moveType == MoveType.SET_CAT || move.moveType == MoveType.SET_KITTEN) {
+            setPieceAndBoop(
+                move = move,
+                mutableCells = mutableCells,
+                handChanges = handChanges,
+                playerIndex = playerIndex
+            )
+        } else if (move.moveType == MoveType.PROMOTE_KITTEN) {
+            ascendKitten(
+                move = move,
+                mutableCells = mutableCells,
+                handChanges = handChanges,
+                playerIndex = playerIndex
+            )
+        } else if (move.moveType == MoveType.RETURN_CAT) {
+            returnCat(
+                move = move,
+                mutableCells = mutableCells,
+                handChanges = handChanges,
+                playerIndex = playerIndex
+            )
+        }
+
+
         val (gameOver, winnerIndex) = checkForGameOver(
             mutableCells = mutableCells,
         )
@@ -180,7 +199,7 @@ data class Board(
                 }
             }
         }
-        val cellType = if (moveType == MoveType.CAT) {
+        val cellType = if (moveType == MoveType.SET_CAT) {
             CellType.CAT
         } else {
             CellType.KITTEN
@@ -197,6 +216,41 @@ data class Board(
             handChanges[playerIndex] =
                 handChanges[playerIndex].copy(deltaCurrentKitten = handChanges[playerIndex].deltaCurrentKitten - 1)
         }
+    }
+
+
+    private fun ascendKitten(
+        move: Move,
+        mutableCells: MutableList<MutableList<Cell>>,
+        handChanges: MutableList<HandChange>,
+        playerIndex: Int
+    ) {
+        assert(
+            mutableCells[move.row][move.column].type == CellType.KITTEN && mutableCells[move.row][move.column].owner == playerIndex
+        )
+
+        mutableCells[move.row][move.column] = Cell.emptyCell()
+        handChanges[playerIndex] = handChanges[playerIndex].copy(
+            deltaMaxKitten = handChanges[playerIndex].deltaMaxKitten - 1,
+            deltaCurrentCat = handChanges[playerIndex].deltaCurrentCat + 1,
+            deltaMaxCat = handChanges[playerIndex].deltaMaxCat + 1,
+        )
+    }
+
+    private fun returnCat(
+        move: Move,
+        mutableCells: MutableList<MutableList<Cell>>,
+        handChanges: MutableList<HandChange>,
+        playerIndex: Int
+    ) {
+        assert(
+            mutableCells[move.row][move.column].type == CellType.CAT && mutableCells[move.row][move.column].owner == playerIndex
+        )
+
+        mutableCells[move.row][move.column] = Cell.emptyCell()
+        handChanges[playerIndex] = handChanges[playerIndex].copy(
+            deltaCurrentCat =  handChanges[playerIndex].deltaCurrentCat + 1
+        )
     }
 
     //this method gets us all deletable triplets for current player that exist on board right now
