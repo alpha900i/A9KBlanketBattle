@@ -241,6 +241,7 @@ fun AnimatedBoardSection(
                         cellWidthDp = cellWidthDp,
                         cellHeightDp = cellHeightDp
                     )
+
                     is AnimatedPiece.AppearingPiece -> AnimatedAppearingPiece(
                         piece = piece,
                         cellWidth = cellWidth,
@@ -248,6 +249,7 @@ fun AnimatedBoardSection(
                         cellWidthDp = cellWidthDp,
                         cellHeightDp = cellHeightDp
                     )
+
                     is AnimatedPiece.DisappearingPiece -> AnimatedDisappearingPiece(
                         piece = piece,
                         cellWidth = cellWidth,
@@ -260,6 +262,7 @@ fun AnimatedBoardSection(
         }
     }
 }
+
 @Composable
 fun AnimatedMovingPiece(
     piece: AnimatedPiece.MovingPiece,
@@ -300,6 +303,7 @@ fun AnimatedMovingPiece(
         }
     }
 }
+
 @Composable
 fun AnimatedAppearingPiece(
     piece: AnimatedPiece.AppearingPiece,
@@ -338,6 +342,7 @@ fun AnimatedAppearingPiece(
         }
     }
 }
+
 @Composable
 fun AnimatedDisappearingPiece(
     piece: AnimatedPiece.DisappearingPiece,
@@ -376,6 +381,7 @@ fun AnimatedDisappearingPiece(
         }
     }
 }
+
 //yes, we pass board as additional parameter, although it is in GameState
 //thing is, there are two boards here - sometimes we need one, sometimes - another
 @Composable
@@ -601,7 +607,7 @@ fun HandBlock(
             .background(Color.White)
     ) {
         Text(
-            text = "Player #$handIndex",
+            text = "Player #${handIndex + 1}",
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth(1f)
