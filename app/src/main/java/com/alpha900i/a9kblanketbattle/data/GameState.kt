@@ -1,7 +1,9 @@
 package com.alpha900i.a9kblanketbattle.data
 
 data class GameState(
+    val oldBoard: Board,
     val board: Board,
+    val pendingEffects: List<VisualEffect>,
     val hands: List<Hand>,
     val activePlayerIndex: Int,
     val gameIsActive: Boolean,
@@ -27,13 +29,20 @@ data class GameState(
             )
         }
         fun startingState(width: Int, height: Int, catStart: Int, catMax: Int, kittenStart: Int, kittenMax:Int): GameState {
-            val cells = List(height) {
+            val oldCells = List(height) {
+                List(width) {
+                    Cell.emptyCell()
+                }
+            }
+            val newCells = List(height) {
                 List(width) {
                     Cell.emptyCell()
                 }
             }
             return GameState(
-                Board(cells),
+                oldBoard = Board(oldCells),
+                board = Board(newCells),
+                pendingEffects = listOf(),
                 hands = listOf(
                     Hand(
                         kittenCurrent = kittenStart,

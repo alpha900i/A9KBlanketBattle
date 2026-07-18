@@ -3,6 +3,7 @@ package com.alpha900i.a9kblanketbattle.domain
 import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
+import com.alpha900i.a9kblanketbattle.data.VisualEffect
 
 class Game {
     suspend fun makeMove(
@@ -28,7 +29,7 @@ class Game {
         move: Move,
         stateUpdater: (GameState) -> Unit
     ) {
-        val (newBoard, handChanges, gameOver, winnerIndex, deletableTriplets) = gameState.board.applyMove(move, gameState.activePlayerIndex)
+        val (newBoard, pendingEffects, handChanges, gameOver, winnerIndex, deletableTriplets) = gameState.board.applyMove(move, gameState.activePlayerIndex)
         //modify hands
         val newHands = gameState.hands.mapIndexed { index, hand ->
             hand.applyChange(handChanges[index])
@@ -42,6 +43,8 @@ class Game {
             val moveIsExpected = emptyCount > 0 && !gameOver
             val newState = GameState(
                 board = newBoard,
+                oldBoard = gameState.board,
+                pendingEffects = pendingEffects,
                 hands = newHands,
                 activePlayerIndex = if (!gameOver) newPlayerIndex else winnerIndex,
                 gameIsActive = moveIsExpected,
@@ -52,6 +55,8 @@ class Game {
         } else {   // if game is not over, but there is something to delete - we do not change player
             val newState = GameState(
                 board = newBoard,
+                oldBoard = gameState.board,
+                pendingEffects = pendingEffects,
                 hands = newHands,
                 activePlayerIndex = gameState.activePlayerIndex,
                 gameIsActive = gameState.gameIsActive,
@@ -67,7 +72,7 @@ class Game {
         tripletToRemove: TripletOnBoard,
         stateUpdater: (GameState) -> Unit
     ) {
-        val (newBoard, handChanges, gameOver, winnerIndex, deletableTriplets) = gameState.board.applyRemoval(tripletToRemove)
+        val (newBoard, pendingEffects, handChanges, gameOver, winnerIndex, deletableTriplets) = gameState.board.applyRemoval(tripletToRemove)
         val newHands = gameState.hands.mapIndexed { index, hand ->
             hand.applyChange(handChanges[index])
         }
@@ -79,6 +84,8 @@ class Game {
         val moveIsExpected = emptyCount > 0 && !gameOver
         val newState = GameState(
             board = newBoard,
+            oldBoard = gameState.board,
+            pendingEffects = pendingEffects,
             hands = newHands,
             activePlayerIndex = newPlayerIndex,
             gameIsActive = moveIsExpected,

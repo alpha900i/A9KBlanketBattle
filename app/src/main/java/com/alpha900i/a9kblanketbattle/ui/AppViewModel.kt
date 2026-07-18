@@ -60,6 +60,11 @@ class AppViewModel() : ViewModel() {
     fun updateGameState(newState: GameState) {
         _gameState.update { newState }
     }
+    fun onAnimationComplete() {
+        _gameState.update { currentState ->
+            currentState.copy(pendingEffects = listOf())
+        }
+    }
 
 
 

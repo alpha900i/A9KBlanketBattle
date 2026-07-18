@@ -101,6 +101,9 @@ fun MainContent(
             submitRemoval = { tripletToRemove ->
                 viewModel.submitRemoval(gameState.activePlayerIndex, tripletToRemove)
             },
+            onAnimationComplete = {
+                viewModel.onAnimationComplete()
+            },
             navController = navController,
             contentPadding = innerPadding
         )
@@ -116,6 +119,7 @@ fun MainScreen(
     activator: () -> Unit,
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
+    onAnimationComplete: () -> Unit,
     navController: NavHostController,
     contentPadding: PaddingValues
 ) {
@@ -128,6 +132,7 @@ fun MainScreen(
             activator = activator,
             submitMove = submitMove,
             submitRemoval = submitRemoval,
+            onAnimationComplete = onAnimationComplete,
             navController = navController
         )
     }

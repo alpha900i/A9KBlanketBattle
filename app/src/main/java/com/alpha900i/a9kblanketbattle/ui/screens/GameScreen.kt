@@ -1,6 +1,9 @@
 package com.alpha900i.a9kblanketbattle.ui.screens
 
 import android.util.Log
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,6 +14,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Button
@@ -26,21 +32,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alpha900i.a9kblanketbattle.R
+import com.alpha900i.a9kblanketbattle.data.Board
 import com.alpha900i.a9kblanketbattle.data.Cell
 import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.Hand
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
+import com.alpha900i.a9kblanketbattle.data.VisualEffect
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
 import com.alpha900i.a9kblanketbattle.ui.InfoSectionState
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @Composable
 fun GameScreen(
@@ -50,6 +68,7 @@ fun GameScreen(
     activator: () -> Unit,
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
+    onAnimationComplete: () -> Unit
 ) {
     LaunchedEffect(Unit) {
         activator()
@@ -63,11 +82,12 @@ fun GameScreen(
         InfoSection(
             infoSectionMessage = infoSectionMessage
         )
-        BoardSection(
+        AnimatedBoardSection(
             gameState = gameState,
             highlightedTriplet = highlightedTriplet,
             isHumanTurn = isHumanTurn,
             submitMove = submitMove,
+            onAnimationComplete = onAnimationComplete,
             moveType = moveType,
             modifier = Modifier.weight(4f)
         )
@@ -116,9 +136,131 @@ fun InfoSection(infoSectionMessage: InfoSectionState) {
     )
 }
 
+data class MovingPiece(
+    val startPos: Pair<Int, Int>,
+    val endPos: Pair<Int, Int>,
+    val owner: Int,
+    val type: CellType,
+    val offset: Animatable<Float, AnimationVector1D>
+)
+@Composable
+fun AnimatedBoardSection(
+    gameState: GameState,
+    highlightedTriplet: TripletOnBoard?,
+    isHumanTurn: Boolean,
+    submitMove: (Move) -> Unit,
+    onAnimationComplete: () -> Unit,
+    moveType: MoveType?,
+    modifier: Modifier
+) {
+    if (gameState.pendingEffects.isEmpty()) {
+        BoardSection(
+            gameState = gameState,
+            board = gameState.board,
+            hiddenCells = setOf(),
+            highlightedTriplet = highlightedTriplet,
+            isHumanTurn = isHumanTurn,
+            submitMove = submitMove,
+            moveType = moveType,
+            modifier = modifier
+        )
+    } else {
+        // State for ongoing animations
+        var movingPieces by remember { mutableStateOf(listOf<MovingPiece>()) }
+        var containerSize by remember { mutableStateOf(IntSize.Zero) }
+
+        // When effects change, start animations
+        LaunchedEffect(gameState.pendingEffects) {
+            val moveEffects = gameState.pendingEffects.filterIsInstance<VisualEffect.MovePiece>()
+            movingPieces = moveEffects.map { effect ->
+                MovingPiece(
+                    startPos = (effect.fromRow to effect.fromColumn),
+                    endPos = (effect.toRow to effect.toColumn),
+                    owner = effect.owner,
+                    type = effect.type,
+                    offset = Animatable(0f, 0f)
+                )
+            }
+            // Animate all in parallel
+            coroutineScope {
+                val animationJobs = mutableListOf<Job>()
+                movingPieces.forEach { piece ->
+                    val job = launch {
+                        piece.offset.animateTo(1f, animationSpec = tween(300))
+                    }
+                    animationJobs.add(job)
+                }
+                animationJobs.joinAll()
+                onAnimationComplete()
+            }
+        }
+
+        Box(modifier = modifier
+            .onGloballyPositioned { containerSize = it.size }
+        ) {
+            // Static board (old board) – but hide pieces that are moving
+            val cellHeight = containerSize.height / gameState.board.getHeight()
+            val cellWidth = containerSize.width / gameState.board.getWidth()
+            val cellHeightDp = with(LocalDensity.current) { cellHeight.toDp() }
+            val cellWidthDp = with(LocalDensity.current) { cellWidth.toDp() }
+
+            val hiddenCells = movingPieces.map { it.startPos }.toSet()
+            BoardSection(
+                gameState = gameState,
+                board = gameState.oldBoard,
+                hiddenCells = hiddenCells,
+                highlightedTriplet = highlightedTriplet,
+                isHumanTurn = isHumanTurn,
+                submitMove = submitMove,
+                moveType = moveType,
+                modifier = modifier
+            )
+            // Overlay for moving pieces
+            movingPieces.forEach { piece ->
+                val progress = piece.offset.value
+                val startRow = piece.startPos.first
+                val startCol = piece.startPos.second
+                val endRow = piece.endPos.first
+                val endCol = piece.endPos.second
+
+                val startOffsetX = startCol * cellWidth
+                val endOffsetX = endCol * cellWidth
+                val startOffsetY = startRow * cellHeight
+                val endOffsetY = endRow * cellHeight
+                val actualX = (startOffsetX + (endOffsetX - startOffsetX) * progress).roundToInt()
+                val actualY = (startOffsetY + (endOffsetY - startOffsetY) * progress).roundToInt()
+
+                val painter = painterByCellType(piece.type)
+                if (painter != null) {
+                    Box(
+                        modifier = Modifier
+                            .height(cellHeightDp)
+                            .width(cellWidthDp)
+                            .offset { IntOffset(x = actualX, y = actualY) }
+                            .border(4.dp, Color.White)
+                            .background(Color.Gray)
+                    ) {
+                        Image(
+                            painter = painter,
+                            contentDescription = "Icon",
+                            modifier = Modifier.fillMaxSize(1f),
+                            colorFilter = ColorFilter.tint(colorByCellOwner(piece.owner)),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+//yes, we pass board as additional parameter, although it is in GameState
+//thing is, there are two boards here - sometimes we need one, sometimes - another
 @Composable
 fun BoardSection(
     gameState: GameState,
+    board: Board,
+    hiddenCells: Set<Pair<Int, Int>>,
     highlightedTriplet: TripletOnBoard?,
     isHumanTurn: Boolean,
     submitMove: (Move) -> Unit,
@@ -135,23 +277,17 @@ fun BoardSection(
         modifier = modifier
             .fillMaxWidth(1f)
     ) {
-        gameState.board.cells.forEachIndexed { rowIndex, row ->
+        board.cells.forEachIndexed { rowIndex, row ->
             Row(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(1f)
             ) {
                 row.forEachIndexed { colIndex, cell ->
-                    val painter = when (cell.type) {
-                        CellType.CAT -> painterResource(R.drawable.ic_cat)
-                        CellType.KITTEN -> painterResource(R.drawable.ic_kitten)
-                        CellType.EMPTY -> null
-                    }
-                    val playerColor = when (cell.owner) {
-                        0 -> Color.Blue
-                        1 -> Color.Red
-                        else -> Color.Yellow
-                    }
+                    val painter = if (hiddenCells.contains(rowIndex to colIndex)) {
+                        null
+                    } else painterByCellType(cell.type)
+                    val playerColor = colorByCellOwner(cell.owner)
                     val backgroundColor =
                         if (superHighlightedCells.contains(Pair(rowIndex, colIndex))) {
                             Color.Green
@@ -168,7 +304,12 @@ fun BoardSection(
                             .border(4.dp, Color.White)
                             .background(backgroundColor)
                             .clickable(
-                                enabled = isCellEnabled(isHumanTurn, cell, moveType, gameState.activePlayerIndex),
+                                enabled = isCellEnabled(
+                                    isHumanTurn,
+                                    cell,
+                                    moveType,
+                                    gameState.activePlayerIndex
+                                ),
                                 onClick = {
                                     submitMove(
                                         Move(rowIndex, colIndex, moveType!!)
@@ -189,6 +330,20 @@ fun BoardSection(
             }
         }
     }
+}
+
+
+@Composable
+private fun painterByCellType(cellType: CellType): Painter? = when (cellType) {
+    CellType.CAT -> painterResource(R.drawable.ic_cat)
+    CellType.KITTEN -> painterResource(R.drawable.ic_kitten)
+    CellType.EMPTY -> null
+}
+@Composable
+private fun colorByCellOwner(cellOwner: Int): Color = when (cellOwner) {
+    0 -> Color.Blue
+    1 -> Color.Red
+    else -> Color.Yellow
 }
 
 @Composable

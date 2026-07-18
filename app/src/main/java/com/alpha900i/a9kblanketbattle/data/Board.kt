@@ -55,6 +55,7 @@ data class TripletOnBoard(
 
 data class MoveResult(
     val board: Board,
+    val pendingEffects: List<VisualEffect>,
     val handChanges: List<HandChange>,
     val gameOver: Boolean,
     val winnerIndex: Int,
@@ -64,6 +65,9 @@ data class MoveResult(
 data class Board(
     val cells: List<List<Cell>>
 ) {
+    fun getHeight(): Int = cells.size
+    fun getWidth(): Int = cells[0].size
+
     //general move application
     //first it sets pieces and processes possible boops
     //second it removes possible triplets
@@ -73,23 +77,24 @@ data class Board(
             HandChange.emptyHand()
         )
         val mutableCells = cells.map { it.toMutableList() }.toMutableList()
+        var pendingEffects: List<VisualEffect> = listOf()
 
         if (move.moveType == MoveType.SET_CAT || move.moveType == MoveType.SET_KITTEN) {
-            setPieceAndBoop(
+            pendingEffects = setPieceAndBoop(
                 move = move,
                 mutableCells = mutableCells,
                 handChanges = handChanges,
                 playerIndex = playerIndex
             )
         } else if (move.moveType == MoveType.PROMOTE_KITTEN) {
-            ascendKitten(
+            pendingEffects = ascendKitten(
                 move = move,
                 mutableCells = mutableCells,
                 handChanges = handChanges,
                 playerIndex = playerIndex
             )
         } else if (move.moveType == MoveType.RETURN_CAT) {
-            returnCat(
+            pendingEffects = returnCat(
                 move = move,
                 mutableCells = mutableCells,
                 handChanges = handChanges,
@@ -113,6 +118,7 @@ data class Board(
 
         return MoveResult(
             Board(immutableCells),
+            pendingEffects = pendingEffects,
             handChanges,
             gameOver,
             winnerIndex,
@@ -127,7 +133,7 @@ data class Board(
         )
         val mutableCells = cells.map { it.toMutableList() }.toMutableList()
 
-        removeTriplet(
+        val pendingEffects: List<VisualEffect> = removeTriplet(
             mutableCells = mutableCells,
             tripletOnBoard = tripletOnBoard,
             handChanges = handChanges
@@ -136,6 +142,7 @@ data class Board(
         val immutableCells = mutableCells.map { it.toList() }
         return MoveResult(
             Board(immutableCells),
+            pendingEffects = VisualEffect.emptyList(),
             handChanges,
             false,           //we wouldn't get here if there was an active gameover, and triplet removal can't initiate one
             -1,
@@ -155,7 +162,7 @@ data class Board(
         mutableCells: MutableList<MutableList<Cell>>,
         handChanges: MutableList<HandChange>,
         playerIndex: Int
-    ) {
+    ): List<VisualEffect> {
         val (moveX, moveY, moveType) = move
         val cellDeltas = listOf(
             Pair(1, 0),
@@ -167,6 +174,7 @@ data class Board(
             Pair(1, -1),
             Pair(-1, 1)
         )
+        var pendingEffects: MutableList<VisualEffect> = mutableListOf()
 
         for ((dx, dy) in cellDeltas) {
             val checkX = moveX + dx
@@ -184,6 +192,17 @@ data class Board(
                             mutableCells[receiverX][receiverY] = mutableCells[checkX][checkY];
                             mutableCells[checkX][checkY] = Cell.emptyCell()
                         }
+
+                        pendingEffects.add(
+                            VisualEffect.MovePiece(
+                                fromRow = checkX,
+                                fromColumn = checkY,
+                                toRow = receiverX,
+                                toColumn = receiverY,
+                                owner = mutableCells[receiverX][receiverY].owner,
+                                type = mutableCells[receiverX][receiverY].type
+                            )
+                        )
                     } else {
                         //receiver cell is not on board - time to fall of board
                         val owner = mutableCells[checkX][checkY].owner
@@ -196,6 +215,12 @@ data class Board(
                                 handChanges[owner].copy(deltaCurrentKitten = handChanges[owner].deltaCurrentKitten + 1)
                         }
                         mutableCells[checkX][checkY] = Cell.emptyCell()
+                        pendingEffects.add(
+                            VisualEffect.RemovePiece(
+                                row = checkX,
+                                column = checkY
+                            )
+                        )
                     }
                 }
             }
@@ -217,6 +242,8 @@ data class Board(
             handChanges[playerIndex] =
                 handChanges[playerIndex].copy(deltaCurrentKitten = handChanges[playerIndex].deltaCurrentKitten - 1)
         }
+        
+        return pendingEffects
     }
 
 
@@ -225,7 +252,7 @@ data class Board(
         mutableCells: MutableList<MutableList<Cell>>,
         handChanges: MutableList<HandChange>,
         playerIndex: Int
-    ) {
+    ): List<VisualEffect> {
         assert(
             mutableCells[move.row][move.column].type == CellType.KITTEN && mutableCells[move.row][move.column].owner == playerIndex
         )
@@ -236,6 +263,12 @@ data class Board(
             deltaCurrentCat = handChanges[playerIndex].deltaCurrentCat + 1,
             deltaMaxCat = handChanges[playerIndex].deltaMaxCat + 1,
         )
+        return listOf(
+            VisualEffect.RemovePiece(
+                row = move.row,
+                column = move.column
+            )
+        )
     }
 
     private fun returnCat(
@@ -243,7 +276,7 @@ data class Board(
         mutableCells: MutableList<MutableList<Cell>>,
         handChanges: MutableList<HandChange>,
         playerIndex: Int
-    ) {
+    ): List<VisualEffect> {
         assert(
             mutableCells[move.row][move.column].type == CellType.CAT && mutableCells[move.row][move.column].owner == playerIndex
         )
@@ -251,6 +284,13 @@ data class Board(
         mutableCells[move.row][move.column] = Cell.emptyCell()
         handChanges[playerIndex] = handChanges[playerIndex].copy(
             deltaCurrentCat = handChanges[playerIndex].deltaCurrentCat + 1
+        )
+
+        return listOf(
+            VisualEffect.RemovePiece(
+                row = move.row,
+                column = move.column
+            )
         )
     }
 
@@ -327,23 +367,26 @@ data class Board(
         mutableCells: MutableList<MutableList<Cell>>,
         tripletOnBoard: TripletOnBoard?,
         handChanges: MutableList<HandChange>
-    ) {
+    ): List<VisualEffect> {
+        var pendingEffects: MutableList<VisualEffect> = mutableListOf()
         if (tripletOnBoard == null) {
-            return
+            return pendingEffects
         }
         val rowIndex = tripletOnBoard.row
         val columnIndex = tripletOnBoard.column
         val dx = tripletOnBoard.rowShift
         val dy = tripletOnBoard.columnShift
         if (rowIndex + 2 * dx >= mutableCells.size) {
-            return
+            return pendingEffects
         }
         if (columnIndex + 2 * dy >= mutableCells[rowIndex].size) {
-            return
+            return pendingEffects
         }
 
         (0..2).forEach { shift ->
-            val cell = mutableCells[rowIndex + shift * dx][columnIndex + shift * dy]
+            val targetRow = rowIndex + shift * dx
+            val targetColumn = columnIndex + shift * dy
+            val cell = mutableCells[targetRow][targetColumn]
             val cellOwner = cell.owner
             val cellType = cell.type
 
@@ -353,9 +396,16 @@ data class Board(
                 deltaCurrentCat = handChanges[cellOwner].deltaCurrentCat + 1,
                 deltaMaxCat = handChanges[cellOwner].deltaMaxCat + kittenTransformed
             )
-
-            mutableCells[rowIndex + shift * dx][columnIndex + shift * dy] = Cell.emptyCell()
+            
+            mutableCells[targetRow][targetColumn] = Cell.emptyCell()
+            pendingEffects.add(
+                VisualEffect.RemovePiece(
+                    row = targetRow,
+                    column = targetColumn
+                )
+            )
         }
+        return pendingEffects
     }
 
     private fun checkForGameOver(
