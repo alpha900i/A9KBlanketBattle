@@ -2,7 +2,6 @@ package com.alpha900i.a9kblanketbattle.ui.screens
 
 import android.util.Log
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,6 +28,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
@@ -39,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -53,6 +55,7 @@ import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.data.VisualEffect
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
+import com.alpha900i.a9kblanketbattle.ui.AnimatedPiece
 import com.alpha900i.a9kblanketbattle.ui.InfoSectionState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -136,13 +139,6 @@ fun InfoSection(infoSectionMessage: InfoSectionState) {
     )
 }
 
-data class MovingPiece(
-    val startPos: Pair<Int, Int>,
-    val endPos: Pair<Int, Int>,
-    val owner: Int,
-    val type: CellType,
-    val offset: Animatable<Float, AnimationVector1D>
-)
 @Composable
 fun AnimatedBoardSection(
     gameState: GameState,
@@ -166,25 +162,44 @@ fun AnimatedBoardSection(
         )
     } else {
         // State for ongoing animations
-        var movingPieces by remember { mutableStateOf(listOf<MovingPiece>()) }
+        var animatedPieces by remember(gameState.pendingEffects) { mutableStateOf(listOf<AnimatedPiece>()) }
         var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
         // When effects change, start animations
         LaunchedEffect(gameState.pendingEffects) {
-            val moveEffects = gameState.pendingEffects.filterIsInstance<VisualEffect.MovePiece>()
-            movingPieces = moveEffects.map { effect ->
-                MovingPiece(
-                    startPos = (effect.fromRow to effect.fromColumn),
-                    endPos = (effect.toRow to effect.toColumn),
-                    owner = effect.owner,
-                    type = effect.type,
-                    offset = Animatable(0f, 0f)
-                )
+            animatedPieces = gameState.pendingEffects.map { effect ->
+                when (effect) {
+                    is VisualEffect.MovePiece ->
+                        AnimatedPiece.MovingPiece(
+                            startPos = (effect.fromRow to effect.fromColumn),
+                            endPos = (effect.toRow to effect.toColumn),
+                            owner = effect.owner,
+                            type = effect.type,
+                            offset = Animatable(0f, 0f)
+                        )
+
+                    is VisualEffect.AddPiece ->
+                        AnimatedPiece.AppearingPiece(
+                            pos = (effect.row to effect.column),
+                            owner = effect.owner,
+                            type = effect.type,
+                            offset = Animatable(0f, 0f)
+                        )
+
+                    is VisualEffect.RemovePiece ->
+                        AnimatedPiece.DisappearingPiece(
+                            pos = (effect.row to effect.column),
+                            owner = effect.owner,
+                            type = effect.type,
+                            offset = Animatable(0f, 0f)
+                        )
+                }
+
             }
             // Animate all in parallel
             coroutineScope {
                 val animationJobs = mutableListOf<Job>()
-                movingPieces.forEach { piece ->
+                animatedPieces.forEach { piece ->
                     val job = launch {
                         piece.offset.animateTo(1f, animationSpec = tween(300))
                     }
@@ -195,8 +210,9 @@ fun AnimatedBoardSection(
             }
         }
 
-        Box(modifier = modifier
-            .onGloballyPositioned { containerSize = it.size }
+        Box(
+            modifier = modifier
+                .onGloballyPositioned { containerSize = it.size }
         ) {
             // Static board (old board) – but hide pieces that are moving
             val cellHeight = containerSize.height / gameState.board.getHeight()
@@ -204,7 +220,7 @@ fun AnimatedBoardSection(
             val cellHeightDp = with(LocalDensity.current) { cellHeight.toDp() }
             val cellWidthDp = with(LocalDensity.current) { cellWidth.toDp() }
 
-            val hiddenCells = movingPieces.map { it.startPos }.toSet()
+            val hiddenCells = animatedPieces.map { it.pos }.toSet()
             BoardSection(
                 gameState = gameState,
                 board = gameState.oldBoard,
@@ -216,44 +232,150 @@ fun AnimatedBoardSection(
                 modifier = modifier
             )
             // Overlay for moving pieces
-            movingPieces.forEach { piece ->
-                val progress = piece.offset.value
-                val startRow = piece.startPos.first
-                val startCol = piece.startPos.second
-                val endRow = piece.endPos.first
-                val endCol = piece.endPos.second
-
-                val startOffsetX = startCol * cellWidth
-                val endOffsetX = endCol * cellWidth
-                val startOffsetY = startRow * cellHeight
-                val endOffsetY = endRow * cellHeight
-                val actualX = (startOffsetX + (endOffsetX - startOffsetX) * progress).roundToInt()
-                val actualY = (startOffsetY + (endOffsetY - startOffsetY) * progress).roundToInt()
-
-                val painter = painterByCellType(piece.type)
-                if (painter != null) {
-                    Box(
-                        modifier = Modifier
-                            .height(cellHeightDp)
-                            .width(cellWidthDp)
-                            .offset { IntOffset(x = actualX, y = actualY) }
-                            .border(4.dp, Color.White)
-                            .background(Color.Gray)
-                    ) {
-                        Image(
-                            painter = painter,
-                            contentDescription = "Icon",
-                            modifier = Modifier.fillMaxSize(1f),
-                            colorFilter = ColorFilter.tint(colorByCellOwner(piece.owner)),
-                        )
-                    }
+            animatedPieces.forEach { piece ->
+                when (piece) {
+                    is AnimatedPiece.MovingPiece -> AnimatedMovingPiece(
+                        piece = piece,
+                        cellWidth = cellWidth,
+                        cellHeight = cellHeight,
+                        cellWidthDp = cellWidthDp,
+                        cellHeightDp = cellHeightDp
+                    )
+                    is AnimatedPiece.AppearingPiece -> AnimatedAppearingPiece(
+                        piece = piece,
+                        cellWidth = cellWidth,
+                        cellHeight = cellHeight,
+                        cellWidthDp = cellWidthDp,
+                        cellHeightDp = cellHeightDp
+                    )
+                    is AnimatedPiece.DisappearingPiece -> AnimatedDisappearingPiece(
+                        piece = piece,
+                        cellWidth = cellWidth,
+                        cellHeight = cellHeight,
+                        cellWidthDp = cellWidthDp,
+                        cellHeightDp = cellHeightDp
+                    )
                 }
             }
         }
     }
 }
+@Composable
+fun AnimatedMovingPiece(
+    piece: AnimatedPiece.MovingPiece,
+    cellWidth: Int,
+    cellHeight: Int,
+    cellWidthDp: Dp,
+    cellHeightDp: Dp
+) {
+    val progress = piece.offset.value
+    val startRow = piece.startPos.first
+    val startCol = piece.startPos.second
+    val endRow = piece.endPos.first
+    val endCol = piece.endPos.second
 
+    val startOffsetX = startCol * cellWidth
+    val endOffsetX = endCol * cellWidth
+    val startOffsetY = startRow * cellHeight
+    val endOffsetY = endRow * cellHeight
+    val actualX = (startOffsetX + (endOffsetX - startOffsetX) * progress).roundToInt()
+    val actualY = (startOffsetY + (endOffsetY - startOffsetY) * progress).roundToInt()
 
+    val painter = painterByCellType(piece.type)
+    if (painter != null) {
+        Box(
+            modifier = Modifier
+                .height(cellHeightDp)
+                .width(cellWidthDp)
+                .offset { IntOffset(x = actualX, y = actualY) }
+                .border(4.dp, Color.White)
+                .background(Color.Gray)
+        ) {
+            Image(
+                painter = painter,
+                contentDescription = "Icon",
+                modifier = Modifier.fillMaxSize(1f),
+                colorFilter = ColorFilter.tint(colorByCellOwner(piece.owner)),
+            )
+        }
+    }
+}
+@Composable
+fun AnimatedAppearingPiece(
+    piece: AnimatedPiece.AppearingPiece,
+    cellWidth: Int,
+    cellHeight: Int,
+    cellWidthDp: Dp,
+    cellHeightDp: Dp
+) {
+    val progress = piece.offset.value
+    val row = piece.pos.first
+    val column = piece.pos.second
+
+    val offsetX = column * cellWidth
+    val offsetY = row * cellHeight
+    val alpha = progress
+    val scale = progress
+
+    val painter = painterByCellType(piece.type)
+    if (painter != null) {
+        Box(
+            modifier = Modifier
+                .height(cellHeightDp)
+                .width(cellWidthDp)
+                .offset { IntOffset(x = offsetX, y = offsetY) }
+                .border(4.dp, Color.White)
+                .alpha(alpha)
+                .scale(scale)
+                .background(Color.Gray)
+        ) {
+            Image(
+                painter = painter,
+                contentDescription = "Icon",
+                modifier = Modifier.fillMaxSize(1f),
+                colorFilter = ColorFilter.tint(colorByCellOwner(piece.owner)),
+            )
+        }
+    }
+}
+@Composable
+fun AnimatedDisappearingPiece(
+    piece: AnimatedPiece.DisappearingPiece,
+    cellWidth: Int,
+    cellHeight: Int,
+    cellWidthDp: Dp,
+    cellHeightDp: Dp
+) {
+    val progress = piece.offset.value
+    val row = piece.pos.first
+    val column = piece.pos.second
+
+    val offsetX = column * cellWidth
+    val offsetY = row * cellHeight
+    val alpha = 1.0f - progress
+    val scale = 1.0f - progress
+
+    val painter = painterByCellType(piece.type)
+    if (painter != null) {
+        Box(
+            modifier = Modifier
+                .height(cellHeightDp)
+                .width(cellWidthDp)
+                .offset { IntOffset(x = offsetX, y = offsetY) }
+                .border(4.dp, Color.White)
+                .alpha(alpha)
+                .scale(scale)
+                .background(Color.Gray)
+        ) {
+            Image(
+                painter = painter,
+                contentDescription = "Icon",
+                modifier = Modifier.fillMaxSize(1f),
+                colorFilter = ColorFilter.tint(colorByCellOwner(piece.owner)),
+            )
+        }
+    }
+}
 //yes, we pass board as additional parameter, although it is in GameState
 //thing is, there are two boards here - sometimes we need one, sometimes - another
 @Composable
@@ -267,10 +389,10 @@ fun BoardSection(
     moveType: MoveType?,
     modifier: Modifier
 ) {
-    val superHighlightedCells: Set<Pair<Int, Int>> = remember (highlightedTriplet) {
+    val superHighlightedCells: Set<Pair<Int, Int>> = remember(highlightedTriplet) {
         getHighlights(setOf(highlightedTriplet))
     }
-    val highlightedCells: Set<Pair<Int, Int>>  = remember (gameState.deletableTriplets) {
+    val highlightedCells: Set<Pair<Int, Int>> = remember(gameState.deletableTriplets) {
         getHighlights(gameState.deletableTriplets)
     }
     Column(
@@ -339,6 +461,7 @@ private fun painterByCellType(cellType: CellType): Painter? = when (cellType) {
     CellType.KITTEN -> painterResource(R.drawable.ic_kitten)
     CellType.EMPTY -> null
 }
+
 @Composable
 private fun colorByCellOwner(cellOwner: Int): Color = when (cellOwner) {
     0 -> Color.Blue
@@ -371,8 +494,8 @@ fun getHighlights(triplets: Set<TripletOnBoard?>): Set<Pair<Int, Int>> =
     triplets
         .filterNotNull()
         .flatMap { triplet ->
-        triplet.getCells()
-    }.toSet()
+            triplet.getCells()
+        }.toSet()
 
 
 @Composable
@@ -402,6 +525,7 @@ fun HandsSection(
         }
     }
 }
+
 @Composable
 fun TripletRemovalSection(
     gameState: GameState,
@@ -410,7 +534,7 @@ fun TripletRemovalSection(
     submitRemoval: (TripletOnBoard) -> Unit,
     modifier: Modifier
 ) {
-    var selectedTriplet: TripletOnBoard? by remember{mutableStateOf(null)}
+    var selectedTriplet: TripletOnBoard? by remember { mutableStateOf(null) }
     Column(modifier = modifier.fillMaxWidth(1f)) {
         Row(
             modifier = modifier

@@ -9,9 +9,17 @@ sealed class VisualEffect {
         val owner: Int,
         val type: CellType
     ) : VisualEffect()
+    data class AddPiece(
+        val row: Int,
+        val column: Int,
+        val owner: Int,
+        val type: CellType
+    ) : VisualEffect()
     data class RemovePiece(
         val row: Int,
-        val column: Int
+        val column: Int,
+        val owner: Int,
+        val type: CellType
     ) : VisualEffect()
 
     companion object {

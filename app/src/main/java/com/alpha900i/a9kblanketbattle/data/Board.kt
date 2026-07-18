@@ -205,20 +205,23 @@ data class Board(
                         )
                     } else {
                         //receiver cell is not on board - time to fall of board
-                        val owner = mutableCells[checkX][checkY].owner
-                        if (mutableCells[checkX][checkY].type == CellType.CAT) {
-                            handChanges[owner] =
-                                handChanges[owner].copy(deltaCurrentCat = handChanges[owner].deltaCurrentCat + 1)
+                        val cellOwner = mutableCells[checkX][checkY].owner
+                        val cellType = mutableCells[checkX][checkY].type
+                        if (cellType == CellType.CAT) {
+                            handChanges[cellOwner] =
+                                handChanges[cellOwner].copy(deltaCurrentCat = handChanges[cellOwner].deltaCurrentCat + 1)
                         }
-                        if (mutableCells[checkX][checkY].type == CellType.KITTEN) {
-                            handChanges[owner] =
-                                handChanges[owner].copy(deltaCurrentKitten = handChanges[owner].deltaCurrentKitten + 1)
+                        if (cellType == CellType.KITTEN) {
+                            handChanges[cellOwner] =
+                                handChanges[cellOwner].copy(deltaCurrentKitten = handChanges[cellOwner].deltaCurrentKitten + 1)
                         }
                         mutableCells[checkX][checkY] = Cell.emptyCell()
                         pendingEffects.add(
                             VisualEffect.RemovePiece(
                                 row = checkX,
-                                column = checkY
+                                column = checkY,
+                                owner = cellOwner,
+                                type = cellType
                             )
                         )
                     }
@@ -242,6 +245,15 @@ data class Board(
             handChanges[playerIndex] =
                 handChanges[playerIndex].copy(deltaCurrentKitten = handChanges[playerIndex].deltaCurrentKitten - 1)
         }
+
+        pendingEffects.add(
+            VisualEffect.AddPiece(
+                row = moveX,
+                column = moveY,
+                owner = playerIndex,
+                type = cellType
+            )
+        )
         
         return pendingEffects
     }
@@ -266,7 +278,9 @@ data class Board(
         return listOf(
             VisualEffect.RemovePiece(
                 row = move.row,
-                column = move.column
+                column = move.column,
+                owner = playerIndex,
+                type = CellType.KITTEN
             )
         )
     }
@@ -289,7 +303,9 @@ data class Board(
         return listOf(
             VisualEffect.RemovePiece(
                 row = move.row,
-                column = move.column
+                column = move.column,
+                owner = playerIndex,
+                type = CellType.CAT
             )
         )
     }
@@ -401,7 +417,9 @@ data class Board(
             pendingEffects.add(
                 VisualEffect.RemovePiece(
                     row = targetRow,
-                    column = targetColumn
+                    column = targetColumn,
+                    owner = cellOwner,
+                    type = cellType
                 )
             )
         }
