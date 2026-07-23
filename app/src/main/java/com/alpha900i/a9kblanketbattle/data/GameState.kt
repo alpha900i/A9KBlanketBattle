@@ -14,9 +14,9 @@ data class GameState(
         const val DEFAULT_WIDTH = 6
         const val DEFAULT_HEIGHT = 6
         const val DEFAULT_CAT_START = 0
-        const val DEFAULT_CAT_MAX = 0
+        const val DEFAULT_CAT_MAX = DEFAULT_CAT_START
         const val DEFAULT_KITTEN_START = 8
-        const val DEFAULT_KITTEN_MAX = 8
+        const val DEFAULT_KITTEN_MAX = DEFAULT_KITTEN_START
 
         fun startingState(gameIsActive: Boolean): GameState {
             return startingState(

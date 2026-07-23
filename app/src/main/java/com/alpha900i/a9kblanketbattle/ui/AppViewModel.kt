@@ -1,20 +1,23 @@
 package com.alpha900i.a9kblanketbattle.ui
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.alpha900i.a9kblanketbattle.MainApplication
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
+import com.alpha900i.a9kblanketbattle.data.repository.DataStoreRepository
 import com.alpha900i.a9kblanketbattle.domain.Game
 import com.alpha900i.a9kblanketbattle.domain.HumanPlayer
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.Player
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -48,7 +51,9 @@ sealed class InfoSectionState {
     abstract val formatArgs: Array<out Any>
 }
 
-class AppViewModel() : ViewModel() {
+class AppViewModel(
+    val dataStoreRepository: DataStoreRepository
+) : ViewModel() {
     private val _gameState = MutableStateFlow(
         GameState.startingState(gameIsActive = false)
     )
@@ -101,6 +106,34 @@ class AppViewModel() : ViewModel() {
     }
 
 
+    //data store section
+    val width: Flow<Int> = dataStoreRepository.width
+    fun setWidth(width: Int) {
+        viewModelScope.launch {
+            dataStoreRepository.setWidth(width = width)
+        }
+    }
+
+    val height: Flow<Int> = dataStoreRepository.height
+    fun setHeight(height: Int) {
+        viewModelScope.launch {
+            dataStoreRepository.setHeight(height = height)
+        }
+    }
+
+    val kittenStart: Flow<Int> = dataStoreRepository.kittenStart
+    fun setKittenStart(kittenStart: Int) {
+        viewModelScope.launch {
+            dataStoreRepository.setKittenStart(kittenStart = kittenStart)
+        }
+    }
+
+    val catStart: Flow<Int> = dataStoreRepository.catStart
+    fun setCatStart(catStart: Int) {
+        viewModelScope.launch {
+            dataStoreRepository.setCatStart(catStart = catStart)
+        }
+    }
 
 
     init {
@@ -139,7 +172,11 @@ class AppViewModel() : ViewModel() {
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                AppViewModel()
+                val application = (this[APPLICATION_KEY] as MainApplication)
+                val dataStoreRepository = application.container.dataStoreRepository
+                AppViewModel(
+                    dataStoreRepository = dataStoreRepository
+                )
             }
         }
     }

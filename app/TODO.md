@@ -16,5 +16,7 @@
 5. Better UI for Start Screen
 6. Documentation/comments
 7. Back-out updates - actual button, confirmation
+8. lib.version.toml to single style - either module or group/name
+9. At start kittenMax = kittenStart, catMax = catStart
 ## QUESTIONS
 1. Board (and maybe someone else) kinda does a lot with incoming params, isn't it? It uses them as return value. Not pure.
