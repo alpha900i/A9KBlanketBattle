@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
+import com.alpha900i.a9kblanketbattle.ui.Constants
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -14,11 +15,6 @@ class DataStoreRepository(
     private val dataStore: DataStore<Preferences>
 ) {
     companion object {
-        const val DEFAULT_WIDTH = 6
-        const val DEFAULT_HEIGHT = 6
-        const val DEFAULT_CAT_START = 0
-        const val DEFAULT_KITTEN_START = 8
-
         private val WIDTH_KEY = intPreferencesKey("width")
         private val HEIGHT_KEY = intPreferencesKey("height")
         private val KITTEN_START_KEY = intPreferencesKey("kitten_start")
@@ -28,7 +24,7 @@ class DataStoreRepository(
     val width: Flow<Int> =
         getIntValue(
             key = WIDTH_KEY,
-            defaultValue = DEFAULT_WIDTH
+            defaultValue = Constants.DEFAULT_WIDTH
         )
     suspend fun setWidth(width: Int) =
         setIntValue(
@@ -39,7 +35,7 @@ class DataStoreRepository(
     val height: Flow<Int> =
         getIntValue(
             key = HEIGHT_KEY,
-            defaultValue = DEFAULT_HEIGHT
+            defaultValue = Constants.DEFAULT_HEIGHT
         )
     suspend fun setHeight(height: Int) =
         setIntValue(
@@ -50,7 +46,7 @@ class DataStoreRepository(
     val kittenStart: Flow<Int> =
         getIntValue(
             key = KITTEN_START_KEY,
-            defaultValue = DEFAULT_KITTEN_START
+            defaultValue = Constants.DEFAULT_KITTEN_START
         )
     suspend fun setKittenStart(kittenStart: Int) =
         setIntValue(
@@ -61,7 +57,7 @@ class DataStoreRepository(
     val catStart: Flow<Int> =
         getIntValue(
             key = CAT_START_KEY,
-            defaultValue = DEFAULT_CAT_START
+            defaultValue = Constants.DEFAULT_CAT_START
         )
     suspend fun setCatStart(catStart: Int) =
         setIntValue(

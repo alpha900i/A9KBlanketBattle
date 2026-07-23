@@ -63,10 +63,10 @@ class AppViewModel(
     private val _gameState = MutableStateFlow(
         GameState.startingState(
             gameIsActive = false,
-            width = DataStoreRepository.DEFAULT_WIDTH,
-            height = DataStoreRepository.DEFAULT_HEIGHT,
-            kittenStart = DataStoreRepository.DEFAULT_KITTEN_START,
-            catStart = DataStoreRepository.DEFAULT_CAT_START
+            width = Constants.DEFAULT_WIDTH,
+            height = Constants.DEFAULT_HEIGHT,
+            kittenStart = Constants.DEFAULT_KITTEN_START,
+            catStart = Constants.DEFAULT_CAT_START
         )
     )
     val gameState: StateFlow<GameState> = _gameState.asStateFlow();

@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alpha900i.a9kblanketbattle.R
-import com.alpha900i.a9kblanketbattle.data.repository.DataStoreRepository
+import com.alpha900i.a9kblanketbattle.ui.Constants
 import com.alpha900i.a9kblanketbattle.ui.SettingsAction
 import kotlinx.coroutines.flow.Flow
 
@@ -28,25 +28,25 @@ fun SettingsScreen(
         IntSetting(
             title = stringResource(R.string.width_setting_title),
             getter = settingsAction.getWidth(),
-            defaultValue = DataStoreRepository.DEFAULT_WIDTH,
+            defaultValue = Constants.DEFAULT_WIDTH,
             setter = settingsAction::setWidth
         )
         IntSetting(
             title = stringResource(R.string.height_setting_title),
             getter = settingsAction.getHeight(),
-            defaultValue = DataStoreRepository.DEFAULT_HEIGHT,
+            defaultValue = Constants.DEFAULT_HEIGHT,
             setter = settingsAction::setHeight
         )
         IntSetting(
             title = stringResource(R.string.start_kitten_setting_title),
             getter = settingsAction.getKittenStart(),
-            defaultValue = DataStoreRepository.DEFAULT_KITTEN_START,
+            defaultValue = Constants.DEFAULT_KITTEN_START,
             setter = settingsAction::setKittenStart
         )
         IntSetting(
             title = stringResource(R.string.start_cat_setting_title),
             getter = settingsAction.getCatStart(),
-            defaultValue = DataStoreRepository.DEFAULT_CAT_START,
+            defaultValue = Constants.DEFAULT_CAT_START,
             setter = settingsAction::setCatStart
         )
     }
