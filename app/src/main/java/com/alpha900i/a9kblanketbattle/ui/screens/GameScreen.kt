@@ -68,13 +68,13 @@ fun GameScreen(
     gameState: GameState,
     isHumanTurn: Boolean,
     infoSectionMessage: InfoSectionState,
-    activator: () -> Unit,
+    startNewGame: () -> Unit,
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
     onAnimationComplete: () -> Unit
 ) {
     LaunchedEffect(Unit) {
-        activator()
+        startNewGame()
     }
     var moveType by remember(gameState.activePlayerIndex) { mutableStateOf<MoveType?>(null) }
     var highlightedTriplet by remember { mutableStateOf<TripletOnBoard?>(null) }

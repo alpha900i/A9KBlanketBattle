@@ -1,5 +1,6 @@
 package com.alpha900i.a9kblanketbattle.domain
 
+import android.util.Log
 import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
@@ -17,6 +18,7 @@ interface Player {
     )
     fun submitMove(move: Move) {}
     fun submitRemoval(tripletOnBoard: TripletOnBoard) {}
+    fun reset() {}
 }
 
 class BotPlayerA(override val index: Int) : Player{
@@ -51,6 +53,8 @@ class HumanPlayer(override val index: Int): Player {
         gameState: GameState,
         applier: (Move) -> Unit
     ) {
+        Log.d("Player", "Make move")
+        deferredMove?.cancel()
         deferredMove = CompletableDeferred()
         try {
             applier(deferredMove!!.await())
@@ -62,6 +66,7 @@ class HumanPlayer(override val index: Int): Player {
         gameState: GameState,
         applier: (TripletOnBoard) -> Unit
     ) {
+        deferredRemoval?.cancel()
         deferredRemoval = CompletableDeferred()
         try {
             applier(deferredRemoval!!.await())
@@ -75,5 +80,12 @@ class HumanPlayer(override val index: Int): Player {
     }
     override fun submitRemoval(removal: TripletOnBoard) {
         deferredRemoval?.complete(removal)
+    }
+    override fun reset() {
+        Log.d("Player", "Reset")
+        deferredMove?.cancel()
+        deferredMove = null
+        deferredRemoval?.cancel()
+        deferredRemoval = null
     }
 }

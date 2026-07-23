@@ -94,7 +94,7 @@ fun MainContent(
             uiState = uiState,
             startScreenActions = startScreenActions,
             infoSectionMessage = infoSectionMessage,
-            activator = viewModel::activateGame,
+            startNewGame = viewModel::startNewGame,
             submitMove = { move ->
                 viewModel.submitMove(gameState.activePlayerIndex, move)
             },
@@ -116,7 +116,7 @@ fun MainScreen(
     uiState: UiState,
     startScreenActions: StartScreenActions,
     infoSectionMessage: InfoSectionState,
-    activator: () -> Unit,
+    startNewGame: () -> Unit,
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
     onAnimationComplete: () -> Unit,
@@ -129,7 +129,7 @@ fun MainScreen(
             gameState = gameState,
             uiState = uiState,
             infoSectionMessage = infoSectionMessage,
-            activator = activator,
+            startNewGame = startNewGame,
             submitMove = submitMove,
             submitRemoval = submitRemoval,
             onAnimationComplete = onAnimationComplete,

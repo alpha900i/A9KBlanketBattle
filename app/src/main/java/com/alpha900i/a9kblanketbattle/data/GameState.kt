@@ -18,7 +18,7 @@ data class GameState(
         const val DEFAULT_KITTEN_START = 8
         const val DEFAULT_KITTEN_MAX = 8
 
-        fun startingState(): GameState {
+        fun startingState(gameIsActive: Boolean): GameState {
             return startingState(
                 width = DEFAULT_WIDTH,
                 height = DEFAULT_HEIGHT,
@@ -26,22 +26,20 @@ data class GameState(
                 catMax = DEFAULT_CAT_MAX,
                 kittenStart = DEFAULT_KITTEN_START,
                 kittenMax = DEFAULT_KITTEN_MAX,
+                gameIsActive = gameIsActive
             )
         }
-        fun startingState(width: Int, height: Int, catStart: Int, catMax: Int, kittenStart: Int, kittenMax:Int): GameState {
-            val oldCells = List(height) {
-                List(width) {
-                    Cell.emptyCell()
-                }
-            }
-            val newCells = List(height) {
-                List(width) {
-                    Cell.emptyCell()
-                }
-            }
+        fun startingState(width: Int,
+                          height: Int,
+                          catStart: Int,
+                          catMax: Int,
+                          kittenStart: Int,
+                          kittenMax:Int,
+                          gameIsActive: Boolean
+        ): GameState {
             return GameState(
-                oldBoard = Board(oldCells),
-                board = Board(newCells),
+                oldBoard = Board.emptyBoard(width = width, height = height),
+                board = Board.emptyBoard(width = width, height = height),
                 pendingEffects = listOf(),
                 hands = listOf(
                     Hand(
@@ -58,7 +56,7 @@ data class GameState(
                     )
                 ),
                 activePlayerIndex = 0,
-                gameIsActive = false,
+                gameIsActive = gameIsActive,
                 winnerIndex = -1,
                 deletableTriplets = setOf()
             )

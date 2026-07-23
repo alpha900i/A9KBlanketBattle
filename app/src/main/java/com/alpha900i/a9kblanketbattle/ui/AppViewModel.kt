@@ -1,6 +1,7 @@
 package com.alpha900i.a9kblanketbattle.ui
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -9,11 +10,11 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
-import com.alpha900i.a9kblanketbattle.domain.BotPlayerA
 import com.alpha900i.a9kblanketbattle.domain.Game
 import com.alpha900i.a9kblanketbattle.domain.HumanPlayer
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.Player
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -49,13 +50,16 @@ sealed class InfoSectionState {
 
 class AppViewModel() : ViewModel() {
     private val _gameState = MutableStateFlow(
-        GameState.startingState()
+        GameState.startingState(gameIsActive = false)
     )
     val gameState: StateFlow<GameState> = _gameState.asStateFlow();
-    fun activateGame() {
-        _gameState.update { currentState ->
-            currentState.copy(gameIsActive = true)
+    fun startNewGame() {
+        gameLoopJob?.cancel()
+        players.forEach { it.reset() }
+        _gameState.update {
+            GameState.startingState(gameIsActive = true)
         }
+        startGameLoop()
     }
     fun updateGameState(newState: GameState) {
         _gameState.update { newState }
@@ -100,13 +104,25 @@ class AppViewModel() : ViewModel() {
 
 
     init {
-        viewModelScope.launch {
+        startGameLoop()
+    }
+
+
+    private var gameLoopJob: Job? = null
+
+    private fun startGameLoop() {
+        gameLoopJob?.cancel()
+        gameLoopJob = viewModelScope.launch {
             gameState.collect { state ->
-                if (state.gameIsActive) {
-                    setHumanTurn(players[state.activePlayerIndex] is HumanPlayer)
-                    game.makeMove(players, state) { newState ->
-                        updateGameState(newState = newState)
+                try {
+                    if (state.gameIsActive) {
+                        setHumanTurn(players[state.activePlayerIndex] is HumanPlayer)
+                        game.makeMove(players, state) { newState ->
+                            updateGameState(newState = newState)
+                        }
                     }
+                } catch (e: Exception) {
+                    Log.d("viewModel", "Exception: ${e.message}")
                 }
             }
         }
