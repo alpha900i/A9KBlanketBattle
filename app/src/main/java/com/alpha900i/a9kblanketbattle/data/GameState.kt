@@ -18,17 +18,34 @@ data class GameState(
         const val DEFAULT_KITTEN_START = 8
         const val DEFAULT_KITTEN_MAX = DEFAULT_KITTEN_START
 
-        fun startingState(gameIsActive: Boolean): GameState {
+        fun startingState(
+            width: Int,
+            height: Int,
+            kittenStart: Int,
+            catStart: Int,
+            gameIsActive: Boolean
+        ): GameState {
             return startingState(
-                width = DEFAULT_WIDTH,
-                height = DEFAULT_HEIGHT,
-                catStart = DEFAULT_CAT_START,
-                catMax = DEFAULT_CAT_MAX,
-                kittenStart = DEFAULT_KITTEN_START,
-                kittenMax = DEFAULT_KITTEN_MAX,
+                width = width,
+                height = height,
+                catStart = catStart,
+                catMax = catStart,
+                kittenStart = kittenStart,
+                kittenMax = kittenStart,
                 gameIsActive = gameIsActive
             )
         }
+//        fun startingState(gameIsActive: Boolean): GameState {
+//            return startingState(
+//                width = DEFAULT_WIDTH,
+//                height = DEFAULT_HEIGHT,
+//                catStart = DEFAULT_CAT_START,
+//                catMax = DEFAULT_CAT_MAX,
+//                kittenStart = DEFAULT_KITTEN_START,
+//                kittenMax = DEFAULT_KITTEN_MAX,
+//                gameIsActive = gameIsActive
+//            )
+//        }
         fun startingState(width: Int,
                           height: Int,
                           catStart: Int,

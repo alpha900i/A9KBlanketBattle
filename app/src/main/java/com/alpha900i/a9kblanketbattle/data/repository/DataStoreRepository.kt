@@ -22,7 +22,7 @@ class DataStoreRepository(
         private val WIDTH_KEY = intPreferencesKey("width")
         private val HEIGHT_KEY = intPreferencesKey("height")
         private val KITTEN_START_KEY = intPreferencesKey("kitten_start")
-        private val CAT_START_KEY = intPreferencesKey("kitten_start")
+        private val CAT_START_KEY = intPreferencesKey("cat_start")
     }
 
     val width: Flow<Int> =

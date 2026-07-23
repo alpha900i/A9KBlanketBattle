@@ -8,4 +8,8 @@
     <string name="players_removal">Player %1$d must select a triplet</string>
     <string name="game_over">Game Over! Player %1$d wins</string>
     <string name="waiting_for_game">Waiting for game</string>
+    <string name="width_setting_title">Width</string>
+    <string name="height_setting_title">Height</string>
+    <string name="start_kitten_setting_title">Start kitten amount</string>
+    <string name="start_cat_setting_title">Start cat amount</string>
 </resources>

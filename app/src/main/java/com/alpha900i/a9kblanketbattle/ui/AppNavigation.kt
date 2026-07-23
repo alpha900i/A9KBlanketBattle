@@ -25,6 +25,7 @@ fun AppNavHost(
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
     onAnimationComplete: () -> Unit,
+    settingsAction: SettingsAction,
     navController: NavHostController = rememberNavController(),
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -49,7 +50,9 @@ fun AppNavHost(
             )
         }
         composable(route = Screen.SETTINGS.name) {
-            SettingsScreen()
+            SettingsScreen(
+                settingsAction = settingsAction
+            )
         }
     }
 }

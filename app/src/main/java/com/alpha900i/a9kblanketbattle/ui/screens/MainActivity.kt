@@ -34,9 +34,11 @@ import com.alpha900i.a9kblanketbattle.ui.AppNavHost
 import com.alpha900i.a9kblanketbattle.ui.AppNavigationController
 import com.alpha900i.a9kblanketbattle.ui.AppViewModel
 import com.alpha900i.a9kblanketbattle.ui.InfoSectionState
+import com.alpha900i.a9kblanketbattle.ui.SettingsAction
 import com.alpha900i.a9kblanketbattle.ui.StartScreenActions
 import com.alpha900i.a9kblanketbattle.ui.UiState
 import com.alpha900i.a9kblanketbattle.ui.theme.A9KBlanketBattleTheme
+import kotlinx.coroutines.flow.Flow
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,6 +82,17 @@ fun MainContent(
         }
 
     }
+    val settingsAction = object : SettingsAction{
+        override fun getWidth(): Flow<Int> = viewModel.width
+        override fun getHeight(): Flow<Int> = viewModel.height
+        override fun getKittenStart(): Flow<Int> = viewModel.kittenStart
+        override fun getCatStart(): Flow<Int> = viewModel.catStart
+
+        override fun setWidth(width: Int) = viewModel.setWidth(width = width)
+        override fun setHeight(height: Int) = viewModel.setHeight(height = height)
+        override fun setKittenStart(kittenStart: Int) = viewModel.setKittenStart(kittenStart = kittenStart)
+        override fun setCatStart(catStart: Int) = viewModel.setCatStart(catStart = catStart)
+    }
 
     Scaffold(
         topBar = {
@@ -104,6 +117,7 @@ fun MainContent(
             onAnimationComplete = {
                 viewModel.onAnimationComplete()
             },
+            settingsAction = settingsAction,
             navController = navController,
             contentPadding = innerPadding
         )
@@ -120,6 +134,7 @@ fun MainScreen(
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
     onAnimationComplete: () -> Unit,
+    settingsAction: SettingsAction,
     navController: NavHostController,
     contentPadding: PaddingValues
 ) {
@@ -133,6 +148,7 @@ fun MainScreen(
             submitMove = submitMove,
             submitRemoval = submitRemoval,
             onAnimationComplete = onAnimationComplete,
+            settingsAction = settingsAction,
             navController = navController
         )
     }

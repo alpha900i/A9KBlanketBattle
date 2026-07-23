@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -30,23 +31,28 @@ import kotlinx.coroutines.launch
 data class UiState(
     val isHumanTurn: Boolean
 )
+
 sealed class InfoSectionState {
-    data class PlayerTurn(val playerIndex: Int): InfoSectionState() {
+    data class PlayerTurn(val playerIndex: Int) : InfoSectionState() {
         override val resourceId: Int = R.string.players_turn
         override val formatArgs = arrayOf(playerIndex + 1)
     }
-    data class PlayerRemoval(val playerIndex: Int): InfoSectionState() {
+
+    data class PlayerRemoval(val playerIndex: Int) : InfoSectionState() {
         override val resourceId = R.string.players_removal
         override val formatArgs = arrayOf(playerIndex + 1)
     }
-    data class GameOver(val playerIndex: Int): InfoSectionState() {
+
+    data class GameOver(val playerIndex: Int) : InfoSectionState() {
         override val resourceId = R.string.game_over
         override val formatArgs = arrayOf(playerIndex + 1)
     }
-    object WaitingForGame: InfoSectionState() {
+
+    object WaitingForGame : InfoSectionState() {
         override val resourceId = R.string.waiting_for_game
         override val formatArgs = emptyArray<Any>()
     }
+
     abstract val resourceId: Int
     abstract val formatArgs: Array<out Any>
 }
@@ -55,26 +61,42 @@ class AppViewModel(
     val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
     private val _gameState = MutableStateFlow(
-        GameState.startingState(gameIsActive = false)
+        GameState.startingState(
+            gameIsActive = false,
+            width = DataStoreRepository.DEFAULT_WIDTH,
+            height = DataStoreRepository.DEFAULT_HEIGHT,
+            kittenStart = DataStoreRepository.DEFAULT_KITTEN_START,
+            catStart = DataStoreRepository.DEFAULT_CAT_START
+        )
     )
     val gameState: StateFlow<GameState> = _gameState.asStateFlow();
     fun startNewGame() {
-        gameLoopJob?.cancel()
-        players.forEach { it.reset() }
-        _gameState.update {
-            GameState.startingState(gameIsActive = true)
+        viewModelScope.launch {
+            gameLoopJob?.cancel()
+            players.forEach { it.reset() }
+            _gameState.update {
+                GameState.startingState(
+                    width = width.first(),
+                    height = height.first(),
+                    kittenStart = kittenStart.first(),
+                    catStart = catStart.first(),
+                    gameIsActive = true
+                )
+            }
+
+            startGameLoop()
         }
-        startGameLoop()
     }
+
     fun updateGameState(newState: GameState) {
         _gameState.update { newState }
     }
+
     fun onAnimationComplete() {
         _gameState.update { currentState ->
             currentState.copy(pendingEffects = listOf())
         }
     }
-
 
 
     private val _uiState = MutableStateFlow(
@@ -94,13 +116,14 @@ class AppViewModel(
         when {
             !state.gameIsActive -> InfoSectionState.GameOver(state.winnerIndex)
             state.deletableTriplets.size > 1 -> InfoSectionState.PlayerRemoval(state.activePlayerIndex)
-            else ->  InfoSectionState.PlayerTurn(state.activePlayerIndex)
+            else -> InfoSectionState.PlayerTurn(state.activePlayerIndex)
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, InfoSectionState.WaitingForGame)
 
     fun submitMove(activePlayerIndex: Int, move: Move) {
         players[activePlayerIndex].submitMove(move)
     }
+
     fun submitRemoval(activePlayerIndex: Int, tripletOnBoard: TripletOnBoard) {
         players[activePlayerIndex].submitRemoval(tripletOnBoard)
     }
