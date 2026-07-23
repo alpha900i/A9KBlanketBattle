@@ -191,18 +191,17 @@ data class Board(
                         if (mutableCells[receiverX][receiverY].type == CellType.EMPTY) {
                             mutableCells[receiverX][receiverY] = mutableCells[checkX][checkY];
                             mutableCells[checkX][checkY] = Cell.emptyCell()
-                        }
-
-                        pendingEffects.add(
-                            VisualEffect.MovePiece(
-                                fromRow = checkX,
-                                fromColumn = checkY,
-                                toRow = receiverX,
-                                toColumn = receiverY,
-                                owner = mutableCells[receiverX][receiverY].owner,
-                                type = mutableCells[receiverX][receiverY].type
+                            pendingEffects.add(
+                                VisualEffect.MovePiece(
+                                    fromRow = checkX,
+                                    fromColumn = checkY,
+                                    toRow = receiverX,
+                                    toColumn = receiverY,
+                                    owner = mutableCells[receiverX][receiverY].owner,
+                                    type = mutableCells[receiverX][receiverY].type
+                                )
                             )
-                        )
+                        }
                     } else {
                         //receiver cell is not on board - time to fall of board
                         val cellOwner = mutableCells[checkX][checkY].owner

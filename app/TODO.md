@@ -7,8 +7,7 @@
 3. CatCount == 8 in Board.isGameOver - move to settings/constants?
 4. RemoveTriplet - assert as defensives instead of ifs?
 5. contentDescriptions for images
-6. Strange artifacts of animations when L case with two triplets is proposed
-7. Custom logs
+6. Custom logs
 ## TERTIARY
 1. Readme
 2. Tests
