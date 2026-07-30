@@ -11,13 +11,6 @@ data class GameState(
     val deletableTriplets: Set<TripletOnBoard>
 ) {
     companion object {
-        const val DEFAULT_WIDTH = 6
-        const val DEFAULT_HEIGHT = 6
-        const val DEFAULT_CAT_START = 0
-        const val DEFAULT_CAT_MAX = DEFAULT_CAT_START
-        const val DEFAULT_KITTEN_START = 8
-        const val DEFAULT_KITTEN_MAX = DEFAULT_KITTEN_START
-
         fun startingState(
             width: Int,
             height: Int,
@@ -35,17 +28,6 @@ data class GameState(
                 gameIsActive = gameIsActive
             )
         }
-//        fun startingState(gameIsActive: Boolean): GameState {
-//            return startingState(
-//                width = DEFAULT_WIDTH,
-//                height = DEFAULT_HEIGHT,
-//                catStart = DEFAULT_CAT_START,
-//                catMax = DEFAULT_CAT_MAX,
-//                kittenStart = DEFAULT_KITTEN_START,
-//                kittenMax = DEFAULT_KITTEN_MAX,
-//                gameIsActive = gameIsActive
-//            )
-//        }
         fun startingState(width: Int,
                           height: Int,
                           catStart: Int,
