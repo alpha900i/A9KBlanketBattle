@@ -72,7 +72,7 @@ class DataStoreRepository(
     val firstPlayerType: Flow<PlayerType> =
         getStringValue(
             key = FIRST_PLAYER_TYPE_KEY,
-            defaultValue = PlayerType.BOT_A.name
+            defaultValue = Constants.DEFAULT_FIRST_PLAYER_TYPE.name
         ).map { PlayerType.getByName(it) }
     suspend fun setFirstPlayerType(playerType: PlayerType) =
         setStringValue(
@@ -83,7 +83,7 @@ class DataStoreRepository(
     val secondPlayerType: Flow<PlayerType> =
         getStringValue(
             key = SECOND_PLAYER_TYPE_KEY,
-            defaultValue = PlayerType.BOT_A.name
+            defaultValue = Constants.DEFAULT_SECOND_PLAYER_TYPE.name
         ).map { PlayerType.getByName(it) }
     suspend fun setSecondPlayerType(playerType: PlayerType) =
         setStringValue(

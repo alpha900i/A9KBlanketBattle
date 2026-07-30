@@ -66,13 +66,13 @@ fun SettingsScreen(
         PlayerTypeSetting(
             title = "Player 1",
             getter = settingsAction.getFirstPlayerType(),
-            defaultValue = PlayerType.BOT_A,
+            defaultValue = Constants.DEFAULT_FIRST_PLAYER_TYPE,
             setter = settingsAction::setFirstPlayerType,
         )
         PlayerTypeSetting(
             title = "Player 2",
             getter = settingsAction.getSecondPlayerType(),
-            defaultValue = PlayerType.BOT_A,
+            defaultValue = Constants.DEFAULT_SECOND_PLAYER_TYPE,
             setter = settingsAction::setSecondPlayerType,
         )
         Button(

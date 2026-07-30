@@ -182,8 +182,8 @@ class AppViewModel(
             dataStoreRepository.setHeight(height = Constants.DEFAULT_HEIGHT)
             dataStoreRepository.setKittenStart(kittenStart = Constants.DEFAULT_KITTEN_START)
             dataStoreRepository.setCatStart(catStart = Constants.DEFAULT_CAT_START)
-            dataStoreRepository.setFirstPlayerType(playerType = PlayerType.HUMAN)
-            dataStoreRepository.setSecondPlayerType(playerType = PlayerType.HUMAN)
+            dataStoreRepository.setFirstPlayerType(playerType = Constants.DEFAULT_FIRST_PLAYER_TYPE)
+            dataStoreRepository.setSecondPlayerType(playerType = Constants.DEFAULT_SECOND_PLAYER_TYPE)
         }
     }
 
