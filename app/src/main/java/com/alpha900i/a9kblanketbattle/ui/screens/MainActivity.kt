@@ -97,6 +97,8 @@ fun MainContent(
         override fun setCatStart(catStart: Int) = viewModel.setCatStart(catStart = catStart)
         override fun setFirstPlayerType(playerType: PlayerType) = viewModel.setFirstPlayerType(playerType = playerType)
         override fun setSecondPlayerType(playerType: PlayerType) = viewModel.setSecondPlayerType(playerType = playerType)
+
+        override fun restoreDefaults() = viewModel.restoreDefaults()
     }
 
     Scaffold(

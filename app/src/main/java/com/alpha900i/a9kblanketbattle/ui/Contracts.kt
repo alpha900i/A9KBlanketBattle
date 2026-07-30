@@ -23,4 +23,6 @@ interface SettingsAction {
     fun setCatStart(catStart: Int)
     fun setFirstPlayerType(playerType: PlayerType)
     fun setSecondPlayerType(playerType: PlayerType)
+
+    fun restoreDefaults()
 }

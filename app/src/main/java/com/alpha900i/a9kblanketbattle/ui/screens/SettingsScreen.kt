@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -74,6 +75,14 @@ fun SettingsScreen(
             defaultValue = PlayerType.BOT_A,
             setter = settingsAction::setSecondPlayerType,
         )
+        Button(
+            onClick = settingsAction::restoreDefaults,
+            modifier = Modifier.fillMaxWidth(1f)
+        ) {
+            Text(
+                text = "Restore defaults"
+            )
+        }
     }
 }
 

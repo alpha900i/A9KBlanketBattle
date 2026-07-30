@@ -176,6 +176,17 @@ class AppViewModel(
         }
     }
 
+    fun restoreDefaults() {
+        viewModelScope.launch {
+            dataStoreRepository.setWidth(width = Constants.DEFAULT_WIDTH)
+            dataStoreRepository.setHeight(height = Constants.DEFAULT_HEIGHT)
+            dataStoreRepository.setKittenStart(kittenStart = Constants.DEFAULT_KITTEN_START)
+            dataStoreRepository.setCatStart(catStart = Constants.DEFAULT_CAT_START)
+            dataStoreRepository.setFirstPlayerType(playerType = PlayerType.HUMAN)
+            dataStoreRepository.setSecondPlayerType(playerType = PlayerType.HUMAN)
+        }
+    }
+
 
 
     init {
