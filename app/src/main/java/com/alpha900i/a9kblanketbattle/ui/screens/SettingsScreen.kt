@@ -64,13 +64,13 @@ fun SettingsScreen(
             setter = settingsAction::setCatStart
         )
         PlayerTypeSetting(
-            title = "Player 1",
+            title = stringResource(R.string.player_1_setting_title),
             getter = settingsAction.getFirstPlayerType(),
             defaultValue = Constants.DEFAULT_FIRST_PLAYER_TYPE,
             setter = settingsAction::setFirstPlayerType,
         )
         PlayerTypeSetting(
-            title = "Player 2",
+            title = stringResource(R.string.player_2_setting_title),
             getter = settingsAction.getSecondPlayerType(),
             defaultValue = Constants.DEFAULT_SECOND_PLAYER_TYPE,
             setter = settingsAction::setSecondPlayerType,
@@ -80,7 +80,7 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxWidth(1f)
         ) {
             Text(
-                text = "Restore defaults"
+                text = stringResource(R.string.restore_defaults_button_title)
             )
         }
     }
