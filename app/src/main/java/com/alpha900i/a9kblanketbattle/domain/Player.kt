@@ -6,34 +6,65 @@ import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import kotlinx.coroutines.CompletableDeferred
 
+enum class PlayerType(
+    val title: String
+) {
+    HUMAN(
+        title = "Human"
+    ),
+    BOT_A(
+        title = "Bot A"
+    );
+
+    fun makePlayer(index: Int): Player {
+        return when (this) {
+            HUMAN -> HumanPlayer(index)
+            BOT_A -> BotPlayerA(index)
+        }
+    }
+
+    companion object {
+        fun getAllValues(): Array<PlayerType> {
+            return enumValues<PlayerType>()
+        }
+        fun getByName(name: String): PlayerType {
+            return enumValues<PlayerType>().firstOrNull { it.name == name } ?: BOT_A
+        }
+    }
+}
+
 interface Player {
     val index: Int
     suspend fun makeMove(
         gameState: GameState,
         applier: (Move) -> Unit
     )
+
     suspend fun removeTriplet(
         gameState: GameState,
         applier: (TripletOnBoard) -> Unit
     )
+
     fun submitMove(move: Move) {}
     fun submitRemoval(tripletOnBoard: TripletOnBoard) {}
     fun reset() {}
 }
 
-class BotPlayerA(override val index: Int) : Player{
+class BotPlayerA(override val index: Int) : Player {
     override suspend fun makeMove(
         gameState: GameState,
         applier: (Move) -> Unit
     ) {
         applier(formMove(gameState))
     }
+
     override suspend fun removeTriplet(
         gameState: GameState,
         applier: (TripletOnBoard) -> Unit
     ) {
         applier(gameState.deletableTriplets.first())
     }
+
     private fun formMove(gameState: GameState): Move {
         gameState.board.cells.forEachIndexed { rowIndex, row ->
             row.forEachIndexed { colIndex, cell ->
@@ -45,7 +76,8 @@ class BotPlayerA(override val index: Int) : Player{
         return Move(3, 2, MoveType.SET_KITTEN)
     }
 }
-class HumanPlayer(override val index: Int): Player {
+
+class HumanPlayer(override val index: Int) : Player {
     private var deferredMove: CompletableDeferred<Move>? = null
     private var deferredRemoval: CompletableDeferred<TripletOnBoard>? = null
 
@@ -62,6 +94,7 @@ class HumanPlayer(override val index: Int): Player {
             deferredMove = null   // ✅ clear even if applier throws
         }
     }
+
     override suspend fun removeTriplet(
         gameState: GameState,
         applier: (TripletOnBoard) -> Unit
@@ -78,9 +111,11 @@ class HumanPlayer(override val index: Int): Player {
     override fun submitMove(move: Move) {
         deferredMove?.complete(move)
     }
+
     override fun submitRemoval(removal: TripletOnBoard) {
         deferredRemoval?.complete(removal)
     }
+
     override fun reset() {
         Log.d("Player", "Reset")
         deferredMove?.cancel()

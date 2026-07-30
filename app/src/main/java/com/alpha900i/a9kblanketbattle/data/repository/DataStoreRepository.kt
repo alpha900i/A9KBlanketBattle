@@ -5,6 +5,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import com.alpha900i.a9kblanketbattle.domain.PlayerType
 import com.alpha900i.a9kblanketbattle.ui.Constants
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -19,6 +21,8 @@ class DataStoreRepository(
         private val HEIGHT_KEY = intPreferencesKey("height")
         private val KITTEN_START_KEY = intPreferencesKey("kitten_start")
         private val CAT_START_KEY = intPreferencesKey("cat_start")
+        private val FIRST_PLAYER_TYPE_KEY = stringPreferencesKey("first_player_type")
+        private val SECOND_PLAYER_TYPE_KEY = stringPreferencesKey("second_player_type")
     }
 
     val width: Flow<Int> =
@@ -65,6 +69,28 @@ class DataStoreRepository(
             key = CAT_START_KEY
         )
 
+    val firstPlayerType: Flow<PlayerType> =
+        getStringValue(
+            key = FIRST_PLAYER_TYPE_KEY,
+            defaultValue = PlayerType.BOT_A.name
+        ).map { PlayerType.getByName(it) }
+    suspend fun setFirstPlayerType(playerType: PlayerType) =
+        setStringValue(
+            value = playerType.name,
+            key = FIRST_PLAYER_TYPE_KEY
+        )
+
+    val secondPlayerType: Flow<PlayerType> =
+        getStringValue(
+            key = SECOND_PLAYER_TYPE_KEY,
+            defaultValue = PlayerType.BOT_A.name
+        ).map { PlayerType.getByName(it) }
+    suspend fun setSecondPlayerType(playerType: PlayerType) =
+        setStringValue(
+            value = playerType.name,
+            key = SECOND_PLAYER_TYPE_KEY
+        )
+
 
     fun getIntValue(key: Preferences.Key<Int>, defaultValue: Int): Flow<Int> {
         return dataStore.data
@@ -81,6 +107,26 @@ class DataStoreRepository(
             }
     }
     suspend fun setIntValue(value: Int, key: Preferences.Key<Int>) {
+        dataStore.edit { preferences ->
+            preferences[key] = value
+        }
+    }
+
+    fun getStringValue(key: Preferences.Key<String>, defaultValue: String): Flow<String> {
+        return dataStore.data
+            .catch {
+                if (it is IOException) {
+                    emit(emptyPreferences())
+                } else {
+                    throw it
+                }
+            }
+            .map { preferences ->
+                val value = preferences[key] ?: defaultValue
+                value
+            }
+    }
+    suspend fun setStringValue(value: String, key: Preferences.Key<String>) {
         dataStore.edit { preferences ->
             preferences[key] = value
         }

@@ -30,6 +30,7 @@ import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.domain.Move
+import com.alpha900i.a9kblanketbattle.domain.PlayerType
 import com.alpha900i.a9kblanketbattle.ui.AppNavHost
 import com.alpha900i.a9kblanketbattle.ui.AppNavigationController
 import com.alpha900i.a9kblanketbattle.ui.AppViewModel
@@ -87,11 +88,15 @@ fun MainContent(
         override fun getHeight(): Flow<Int> = viewModel.height
         override fun getKittenStart(): Flow<Int> = viewModel.kittenStart
         override fun getCatStart(): Flow<Int> = viewModel.catStart
+        override fun getFirstPlayerType(): Flow<PlayerType> = viewModel.firstPlayerType
+        override fun getSecondPlayerType(): Flow<PlayerType> = viewModel.secondPlayerType
 
         override fun setWidth(width: Int) = viewModel.setWidth(width = width)
         override fun setHeight(height: Int) = viewModel.setHeight(height = height)
         override fun setKittenStart(kittenStart: Int) = viewModel.setKittenStart(kittenStart = kittenStart)
         override fun setCatStart(catStart: Int) = viewModel.setCatStart(catStart = catStart)
+        override fun setFirstPlayerType(playerType: PlayerType) = viewModel.setFirstPlayerType(playerType = playerType)
+        override fun setSecondPlayerType(playerType: PlayerType) = viewModel.setSecondPlayerType(playerType = playerType)
     }
 
     Scaffold(

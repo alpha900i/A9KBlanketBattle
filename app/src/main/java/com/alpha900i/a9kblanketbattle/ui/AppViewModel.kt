@@ -16,6 +16,7 @@ import com.alpha900i.a9kblanketbattle.domain.Game
 import com.alpha900i.a9kblanketbattle.domain.HumanPlayer
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.Player
+import com.alpha900i.a9kblanketbattle.domain.PlayerType
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -73,7 +74,10 @@ class AppViewModel(
     fun startNewGame() {
         viewModelScope.launch {
             gameLoopJob?.cancel()
-            players.forEach { it.reset() }
+            players = listOf(
+                firstPlayerType.first().makePlayer(0),
+                secondPlayerType.first().makePlayer(0)
+            )
             _gameState.update {
                 GameState.startingState(
                     width = width.first(),
@@ -158,6 +162,21 @@ class AppViewModel(
         }
     }
 
+    val firstPlayerType: Flow<PlayerType> = dataStoreRepository.firstPlayerType
+    fun setFirstPlayerType(playerType: PlayerType) {
+        viewModelScope.launch {
+            dataStoreRepository.setFirstPlayerType(playerType = playerType)
+        }
+    }
+
+    val secondPlayerType: Flow<PlayerType> = dataStoreRepository.secondPlayerType
+    fun setSecondPlayerType(playerType: PlayerType) {
+        viewModelScope.launch {
+            dataStoreRepository.setSecondPlayerType(playerType = playerType)
+        }
+    }
+
+
 
     init {
         startGameLoop()
@@ -186,7 +205,7 @@ class AppViewModel(
 
 
     private val game: Game = Game()
-    private val players: List<Player> = listOf(
+    private var players: List<Player> = listOf(
         HumanPlayer(index = 0),
         HumanPlayer(index = 1)
     )
