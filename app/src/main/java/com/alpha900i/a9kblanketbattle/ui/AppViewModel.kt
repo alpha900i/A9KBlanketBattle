@@ -76,7 +76,7 @@ class AppViewModel(
             gameLoopJob?.cancel()
             players = listOf(
                 firstPlayerType.first().makePlayer(0),
-                secondPlayerType.first().makePlayer(0)
+                secondPlayerType.first().makePlayer(1)
             )
             _gameState.update {
                 GameState.startingState(
