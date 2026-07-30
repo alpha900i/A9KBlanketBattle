@@ -72,8 +72,13 @@ class BotPlayerA(override val index: Int) : Player {
         gameState.board.cells.forEachIndexed { rowIndex, row ->
             row.forEachIndexed { colIndex, cell ->
                 if (cell.type == CellType.EMPTY) {
-                    Log.d("Player","Player $index goes to $rowIndex x $colIndex")
-                    return Move(rowIndex, colIndex, MoveType.SET_KITTEN)
+                    val moveType = if (gameState.hands[index].catCurrent > 0) {
+                        MoveType.SET_CAT
+                    } else {
+                        MoveType.SET_KITTEN
+                    }
+                    Log.d("Player","Bot-player $index goes to $rowIndex x $colIndex with $moveType; hand ${gameState.hands[index]}")
+                    return Move(rowIndex, colIndex, moveType)
                 }
             }
         }
