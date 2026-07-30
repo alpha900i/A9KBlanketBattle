@@ -9,7 +9,6 @@
 6. Custom logs
 7. cellDeltas for Board functions could be common?
 8. Back buttons for game/settings (with confirmation for game)
-9. Two bot game doesn't work properly
 ## TERTIARY
 1. Readme
 2. Tests

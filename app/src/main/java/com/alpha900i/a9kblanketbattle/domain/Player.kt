@@ -5,6 +5,7 @@ import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.delay
 
 enum class PlayerType(
     val title: String
@@ -55,6 +56,7 @@ class BotPlayerA(override val index: Int) : Player {
         gameState: GameState,
         applier: (Move) -> Unit
     ) {
+        delay(500)
         applier(formMove(gameState))
     }
 
@@ -69,6 +71,7 @@ class BotPlayerA(override val index: Int) : Player {
         gameState.board.cells.forEachIndexed { rowIndex, row ->
             row.forEachIndexed { colIndex, cell ->
                 if (cell.type == CellType.EMPTY) {
+                    Log.d("Player","Player $index goes to $rowIndex x $colIndex")
                     return Move(rowIndex, colIndex, MoveType.SET_KITTEN)
                 }
             }
