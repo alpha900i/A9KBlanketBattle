@@ -4,6 +4,7 @@ import android.util.Log
 import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
+import com.alpha900i.a9kblanketbattle.ui.Constants
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 
@@ -56,7 +57,7 @@ class BotPlayerA(override val index: Int) : Player {
         gameState: GameState,
         applier: (Move) -> Unit
     ) {
-        delay(500)
+        delay(Constants.BOT_DELAY_TIME)
         applier(formMove(gameState))
     }
 

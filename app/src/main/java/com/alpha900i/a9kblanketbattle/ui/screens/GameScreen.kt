@@ -56,6 +56,7 @@ import com.alpha900i.a9kblanketbattle.data.VisualEffect
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
 import com.alpha900i.a9kblanketbattle.ui.AnimatedPiece
+import com.alpha900i.a9kblanketbattle.ui.Constants
 import com.alpha900i.a9kblanketbattle.ui.InfoSectionState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -201,7 +202,7 @@ fun AnimatedBoardSection(
                 val animationJobs = mutableListOf<Job>()
                 animatedPieces.forEach { piece ->
                     val job = launch {
-                        piece.offset.animateTo(1f, animationSpec = tween(300))
+                        piece.offset.animateTo(1f, animationSpec = tween(Constants.ANIMATION_TIME))
                     }
                     animationJobs.add(job)
                 }
