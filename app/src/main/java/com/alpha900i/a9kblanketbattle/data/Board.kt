@@ -358,10 +358,12 @@ data class Board(
         cellDelta: Pair<Int, Int>
     ): Boolean {
         val (dx, dy) = cellDelta
-        if (rowIndex + 2 * dx >= mutableCells.size || rowIndex + 2 * dx < 0) {
+        val furthestRowIndex = rowIndex + 2 * dx
+        val furthestColumnIndex = columnIndex + 2 * dy
+        if (furthestRowIndex >= mutableCells.size || furthestRowIndex < 0) {
             return false
         }
-        if (columnIndex + 2 * dy >= mutableCells[rowIndex].size || columnIndex + 2 * dy < 0) {
+        if (furthestColumnIndex >= mutableCells[rowIndex].size || furthestColumnIndex < 0) {
             return false
         }
         val owner = mutableCells[rowIndex][columnIndex].owner
@@ -472,10 +474,12 @@ data class Board(
         cellDelta: Pair<Int, Int>
     ): Boolean {
         val (dx, dy) = cellDelta
-        if (rowIndex + 2 * dx >= mutableCells.size) {
+        val furthestRowIndex = rowIndex + 2 * dx
+        val furthestColumnIndex = columnIndex + 2 * dy
+        if (furthestRowIndex >= mutableCells.size || furthestRowIndex < 0) {
             return false
         }
-        if (columnIndex + 2 * dy >= mutableCells[rowIndex].size) {
+        if (furthestColumnIndex >= mutableCells[rowIndex].size || furthestColumnIndex < 0) {
             return false
         }
         val owner = mutableCells[rowIndex][columnIndex].owner
