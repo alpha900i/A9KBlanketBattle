@@ -71,7 +71,7 @@ data class Board(
     //general move application
     //first it sets pieces and processes possible boops
     //second it removes possible triplets
-    fun applyMove(move: Move, playerIndex: Int): MoveResult {
+    fun applyMove(move: Move, playerIndex: Int, maxPieceAmount: Int): MoveResult {
         val handChanges: MutableList<HandChange> = mutableListOf(
             HandChange.emptyHand(),
             HandChange.emptyHand()
@@ -105,7 +105,8 @@ data class Board(
 
         val (gameOver, winnerIndex) = checkForGameOver(
             mutableCells = mutableCells,
-            playerIndex = playerIndex
+            playerIndex = playerIndex,
+            maxPieceAmount = maxPieceAmount
         )
 
         val deletableTriplets = getDeletableTriplets(
@@ -429,7 +430,8 @@ data class Board(
 
     private fun checkForGameOver(
         mutableCells: MutableList<MutableList<Cell>>,
-        playerIndex: Int
+        playerIndex: Int,
+        maxPieceAmount: Int
     ): Pair<Boolean, Int> {
         val cellDeltas = listOf(
             Pair(1, 0),
@@ -460,7 +462,7 @@ data class Board(
                 }
             }
         }
-        return if (catCount == 8) {
+        return if (catCount == maxPieceAmount) {
             Pair(true, playerIndex)
         } else {
             Pair(false, -1)

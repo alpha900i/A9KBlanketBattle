@@ -8,7 +8,8 @@ data class GameState(
     val activePlayerIndex: Int,
     val gameIsActive: Boolean,
     val winnerIndex: Int,
-    val deletableTriplets: Set<TripletOnBoard>
+    val deletableTriplets: Set<TripletOnBoard>,
+    val maxPieceAmount: Int
 ) {
     companion object {
         fun startingState(
@@ -57,7 +58,8 @@ data class GameState(
                 activePlayerIndex = 0,
                 gameIsActive = gameIsActive,
                 winnerIndex = -1,
-                deletableTriplets = setOf()
+                deletableTriplets = setOf(),
+                maxPieceAmount = kittenMax + catMax
             )
         }
     }
