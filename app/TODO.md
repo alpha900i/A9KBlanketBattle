@@ -3,12 +3,11 @@
 ## SECONDARY
 1. Back buttons for game/settings (with confirmation for game)
 2. Custom logs
-3. cellDeltas for Board functions could be common?
-4. "Selected piece type" better visuals
-5. "Game over" visuals
-6. RemoveTriplet - assert as defensives instead of ifs?
-7. NumSpinners for settings
-8. Better autoselect for piece
+3. "Selected piece type" better visuals
+4. "Game over" visuals
+5. RemoveTriplet - assert as defensives instead of ifs?
+6. NumSpinners for settings
+7. Better autoselect for piece
 ## TERTIARY
 1. Readme
 2. Tests

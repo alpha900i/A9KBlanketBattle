@@ -165,19 +165,9 @@ data class Board(
         playerIndex: Int
     ): List<VisualEffect> {
         val (moveX, moveY, moveType) = move
-        val cellDeltas = listOf(
-            Pair(1, 0),
-            Pair(-1, 0),
-            Pair(0, 1),
-            Pair(0, -1),
-            Pair(1, 1),
-            Pair(-1, -1),
-            Pair(1, -1),
-            Pair(-1, 1)
-        )
         var pendingEffects: MutableList<VisualEffect> = mutableListOf()
 
-        for ((dx, dy) in cellDeltas) {
+        for ((dx, dy) in cellDeltas8directions) {
             val checkX = moveX + dx
             val checkY = moveY + dy
             val receiverX = moveX + 2 * dx;
@@ -318,17 +308,11 @@ data class Board(
         playerIndex: Int
     ): MutableSet<TripletOnBoard> {
         val result = mutableSetOf<TripletOnBoard>()
-        val cellDeltas = listOf(
-            Pair(1, 0),
-            Pair(0, 1),
-            Pair(1, 1),
-            Pair(1, -1)
-        )
         //for each cell
         //check horizontal/vertical/diagonal triplet to down/right direction
         (0..<mutableCells.size).forEach { rowIndex ->
             (0..<mutableCells[rowIndex].size).forEach { columnIndex ->
-                cellDeltas.forEach { cellDelta ->
+                cellDeltas4directions.forEach { cellDelta ->
                     val cellOwner = mutableCells[rowIndex][columnIndex].owner
                     if (isTriplet(
                             mutableCells,
@@ -433,19 +417,13 @@ data class Board(
         playerIndex: Int,
         maxPieceAmount: Int
     ): Pair<Boolean, Int> {
-        val cellDeltas = listOf(
-            Pair(1, 0),
-            Pair(0, 1),
-            Pair(1, 1),
-            Pair(1, -1)
-        )
         var catCount: Int = 0
         //for each cell
         //check horizontal/vertical/diagonal triplet to down/right direction
         (0..<mutableCells.size).forEach { rowIndex ->
             (0..<mutableCells[rowIndex].size).forEach { columnIndex ->
                 if (mutableCells[rowIndex][columnIndex].owner == playerIndex) {
-                    cellDeltas.forEach { cellDelta ->
+                    cellDeltas4directions.forEach { cellDelta ->
                         if (isCatTriplet(
                                 mutableCells,
                                 rowIndex,
@@ -504,5 +482,23 @@ data class Board(
             }
             return Board(cells)
         }
+        //cell shifts when we need 4 directions - left, down, left-down, left-up
+        val cellDeltas4directions = listOf(
+            Pair(1, 0),
+            Pair(0, 1),
+            Pair(1, 1),
+            Pair(1, -1)
+        )
+        //cell shifts when we need check all 8 directions
+        val cellDeltas8directions = listOf(
+            Pair(1, 0),
+            Pair(-1, 0),
+            Pair(0, 1),
+            Pair(0, -1),
+            Pair(1, 1),
+            Pair(-1, -1),
+            Pair(1, -1),
+            Pair(-1, 1)
+        )
     }
 }
