@@ -1,6 +1,7 @@
 package com.alpha900i.a9kblanketbattle.ui.screens
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -70,10 +72,41 @@ fun GameScreen(
     isHumanTurn: Boolean,
     infoSectionMessage: InfoSectionState,
     startNewGame: () -> Unit,
+    cancelGame: () -> Unit,
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
     onAnimationComplete: () -> Unit
 ) {
+    var showAlertDialog by remember { mutableStateOf(false)}
+    BackHandler(enabled = true) {
+        showAlertDialog = true
+    }
+    if (showAlertDialog) {
+        AlertDialog(
+            onDismissRequest = { showAlertDialog = false }, // called when tapping outside or back button
+            title = { Text(stringResource(R.string.confirm_button_title)) },
+            text = { Text(stringResource(R.string.game_cancel_confirmation)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showAlertDialog = false
+                        cancelGame()
+                    }
+                ) {
+                    Text(stringResource(R.string.yes_button_title))
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showAlertDialog = false }
+                ) {
+                    Text(stringResource(R.string.no_button_title))
+                }
+            }
+        )
+    }
+
+
     LaunchedEffect(Unit) {
         startNewGame()
     }

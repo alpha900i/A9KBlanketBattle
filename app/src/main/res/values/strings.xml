@@ -15,4 +15,12 @@
     <string name="player_1_setting_title">Player 1</string>
     <string name="player_2_setting_title">Player 2</string>
     <string name="restore_defaults_button_title">Restore defaults</string>
+    <string name="back_button_content_description">Back button</string>
+    <string name="settings_screen_title">Settings</string>
+    <string name="game_screen_title">Blanket Battle</string>
+    <string name="start_game_screen_title">Blanket Battle</string>
+    <string name="confirm_button_title">Confirm</string>
+    <string name="game_cancel_confirmation">Are you sure you want to quit and cancel active game?</string>
+    <string name="yes_button_title">Yes</string>
+    <string name="no_button_title">No</string>
 </resources>

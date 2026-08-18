@@ -22,6 +22,7 @@ fun AppNavHost(
     uiState: UiState,
     infoSectionMessage: InfoSectionState,
     startNewGame: () -> Unit,
+    cancelGame: () -> Unit,
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
     onAnimationComplete: () -> Unit,
@@ -44,6 +45,7 @@ fun AppNavHost(
                 isHumanTurn = uiState.isHumanTurn,
                 infoSectionMessage = infoSectionMessage,
                 startNewGame = startNewGame,
+                cancelGame = cancelGame,
                 submitMove = submitMove,
                 submitRemoval = submitRemoval,
                 onAnimationComplete = onAnimationComplete
