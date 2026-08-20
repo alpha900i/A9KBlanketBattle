@@ -1,12 +1,12 @@
 # TODO
 ## PRIMARY
 ## SECONDARY
-1. Custom logs
-2. "Selected piece type" better visuals
-3. "Game over" visuals
-4. RemoveTriplet - assert as defensives instead of ifs?
-5. NumSpinners for settings
-6. Better autoselect for piece
+1. "Selected piece type" better visuals
+2. "Game over" visuals
+3. RemoveTriplet - assert as defensives instead of ifs?
+4. NumSpinners for settings
+5. Better autoselect for piece
+6. Do not confirm exit on completed/clear game
 ## TERTIARY
 1. Readme
 2. Tests
