@@ -1,10 +1,10 @@
 package com.alpha900i.a9kblanketbattle.domain
 
-import android.util.Log
 import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.ui.Constants
+import com.alpha900i.a9kblanketbattle.util.CustomLog
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 
@@ -77,7 +77,7 @@ class BotPlayerA(override val index: Int) : Player {
                     } else {
                         MoveType.SET_KITTEN
                     }
-                    Log.d("Player","Bot-player $index goes to $rowIndex x $colIndex with $moveType; hand ${gameState.hands[index]}")
+                    CustomLog.d("Player","Bot-player $index goes to $rowIndex x $colIndex with $moveType; hand ${gameState.hands[index]}")
                     return Move(rowIndex, colIndex, moveType)
                 }
             }
@@ -94,7 +94,7 @@ class HumanPlayer(override val index: Int) : Player {
         gameState: GameState,
         applier: (Move) -> Unit
     ) {
-        Log.d("Player", "Make move")
+        CustomLog.d("Player", "Make move")
         deferredMove?.cancel()
         deferredMove = CompletableDeferred()
         try {
@@ -126,7 +126,7 @@ class HumanPlayer(override val index: Int) : Player {
     }
 
     override fun reset() {
-        Log.d("Player", "Reset")
+        CustomLog.d("Player", "Reset")
         deferredMove?.cancel()
         deferredMove = null
         deferredRemoval?.cancel()

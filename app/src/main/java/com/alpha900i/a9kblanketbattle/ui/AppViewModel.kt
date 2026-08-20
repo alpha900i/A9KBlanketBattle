@@ -1,6 +1,5 @@
 package com.alpha900i.a9kblanketbattle.ui
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -17,6 +16,7 @@ import com.alpha900i.a9kblanketbattle.domain.HumanPlayer
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.Player
 import com.alpha900i.a9kblanketbattle.domain.PlayerType
+import com.alpha900i.a9kblanketbattle.util.CustomLog
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -208,7 +208,7 @@ class AppViewModel(
                         }
                     }
                 } catch (e: Exception) {
-                    Log.d("viewModel", "Exception: ${e.message}")
+                    CustomLog.d("viewModel", "Exception: ${e.message}")
                 }
             }
         }

@@ -1,6 +1,5 @@
 package com.alpha900i.a9kblanketbattle.ui.screens
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -60,6 +59,7 @@ import com.alpha900i.a9kblanketbattle.domain.MoveType
 import com.alpha900i.a9kblanketbattle.ui.AnimatedPiece
 import com.alpha900i.a9kblanketbattle.ui.Constants
 import com.alpha900i.a9kblanketbattle.ui.InfoSectionState
+import com.alpha900i.a9kblanketbattle.util.CustomLog
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
@@ -133,19 +133,19 @@ fun GameScreen(
                 gameState = gameState,
                 isHumanTurn = isHumanTurn,
                 setKittenMove = {
-                    Log.d("HandBlock", "Set kitten move")
+                    CustomLog.d("HandBlock", "Set kitten move")
                     moveType = MoveType.SET_KITTEN
                 },
                 setCatMove = {
-                    Log.d("HandBlock", "Set cat move")
+                    CustomLog.d("HandBlock", "Set cat move")
                     moveType = MoveType.SET_CAT
                 },
                 setPromoteKittenMove = {
-                    Log.d("HandBlock", "Set cat move")
+                    CustomLog.d("HandBlock", "Set cat move")
                     moveType = MoveType.PROMOTE_KITTEN
                 },
                 setReturnCatMove = {
-                    Log.d("HandBlock", "Set cat move")
+                    CustomLog.d("HandBlock", "Set cat move")
                     moveType = MoveType.RETURN_CAT
                 },
                 modifier = Modifier.weight(1f)
@@ -714,7 +714,7 @@ fun PieceBlock(
     modifier: Modifier,
 ) {
 
-    Log.d("TEST", "PieceBlock $title build $isActivePiece")
+    CustomLog.d("TEST", "PieceBlock $title build $isActivePiece")
     val pieceColor = if (isActivePiece) Color.Blue else Color.White
     Column(
         modifier = modifier
