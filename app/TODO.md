@@ -5,8 +5,8 @@
 2. "Game over" visuals
 3. RemoveTriplet - assert as defensives instead of ifs?
 4. NumSpinners for settings
-5. Better autoselect for piece
-6. Do not confirm exit on completed/clear game
+5. Do not confirm exit on completed/clear game
+6. Move animations are eaten if triplet removal happens same turn
 ## TERTIARY
 1. Readme
 2. Tests

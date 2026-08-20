@@ -632,8 +632,26 @@ fun HandBlock(
     setReturnCatMove: () -> Unit,
     modifier: Modifier
 ) {
-    var kittenActive by remember(isActiveHand) { mutableStateOf(false) }
-    var catActive by remember(isActiveHand) { mutableStateOf(false) }
+    CustomLog.d("HandBlock $handIndex $isActiveHand $hand")
+    var kittenIsDefault by remember( hand) {
+        CustomLog.d("kittenIsDefault $handIndex $isActiveHand $hand - ${hand.kittenCurrent > 0}")
+        mutableStateOf(hand.kittenCurrent > 0)
+    }
+    var catIsDefault by remember( hand) {
+        CustomLog.d("catIsDefault $handIndex $isActiveHand $hand - ${hand.kittenCurrent == 0 && hand.catCurrent > 0}")
+        mutableStateOf(hand.kittenCurrent == 0 && hand.catCurrent > 0)
+    }
+    var kittenActive by remember(isActiveHand, kittenIsDefault) { mutableStateOf(kittenIsDefault) }
+    var catActive by remember(isActiveHand, catIsDefault) { mutableStateOf(catIsDefault) }
+    LaunchedEffect(kittenIsDefault, catIsDefault, isActiveHand) {
+        CustomLog.d("Hand", "Launched effect $kittenIsDefault $catIsDefault")
+        if (kittenIsDefault) {
+            setKittenMove()
+        }
+        if (catIsDefault) {
+            setCatMove()
+        }
+    }
 
     Column(
         modifier = modifier
@@ -654,7 +672,7 @@ fun HandBlock(
                 hand.kittenCurrent,
                 hand.kittenMax,
                 isActiveHand = isActiveHand,
-                isActivePiece = kittenActive,
+                isActivePiece = kittenActive && isActiveHand,
                 onClick = {
                     kittenActive = true
                     catActive = false
@@ -667,7 +685,7 @@ fun HandBlock(
                 hand.catCurrent,
                 hand.catMax,
                 isActiveHand = isActiveHand,
-                isActivePiece = catActive,
+                isActivePiece = catActive && isActiveHand,
                 onClick = {
                     kittenActive = false
                     catActive = true
