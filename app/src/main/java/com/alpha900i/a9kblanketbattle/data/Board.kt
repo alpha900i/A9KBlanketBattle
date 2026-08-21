@@ -473,6 +473,10 @@ data class Board(
         return true
     }
 
+    fun hasPieces() : Boolean {
+        return cells.any { line -> line.any { cell -> cell.type != CellType.EMPTY }}
+    }
+
     companion object {
         fun emptyBoard(width: Int, height: Int): Board {
             val cells = List(height) {

@@ -16,4 +16,8 @@ data class Hand(
             catMax = catMax + handChange.deltaMaxCat,
         )
     }
+
+    fun changed(): Boolean {
+        return kittenCurrent != kittenMax || catCurrent != catMax
+    }
 }

@@ -77,19 +77,22 @@ fun GameScreen(
     submitRemoval: (TripletOnBoard) -> Unit,
     onAnimationComplete: () -> Unit
 ) {
-    var showAlertDialog by remember { mutableStateOf(false)}
+    var cancelConfirmationNeeded by remember { mutableStateOf(false)}
     BackHandler(enabled = true) {
-        showAlertDialog = true
+        cancelConfirmationNeeded = gameState.gameInProgress()
+        if (!cancelConfirmationNeeded) {
+            cancelGame()
+        }
     }
-    if (showAlertDialog) {
+    if (cancelConfirmationNeeded) {
         AlertDialog(
-            onDismissRequest = { showAlertDialog = false }, // called when tapping outside or back button
+            onDismissRequest = { cancelConfirmationNeeded = false }, // called when tapping outside or back button
             title = { Text(stringResource(R.string.confirm_button_title)) },
             text = { Text(stringResource(R.string.game_cancel_confirmation)) },
             confirmButton = {
                 Button(
                     onClick = {
-                        showAlertDialog = false
+                        cancelConfirmationNeeded = false
                         cancelGame()
                     }
                 ) {
@@ -98,7 +101,7 @@ fun GameScreen(
             },
             dismissButton = {
                 Button(
-                    onClick = { showAlertDialog = false }
+                    onClick = { cancelConfirmationNeeded = false }
                 ) {
                     Text(stringResource(R.string.no_button_title))
                 }

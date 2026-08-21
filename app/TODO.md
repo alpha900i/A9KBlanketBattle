@@ -5,8 +5,7 @@
 2. "Game over" visuals
 3. RemoveTriplet - assert as defensives instead of ifs?
 4. NumSpinners for settings
-5. Do not confirm exit on completed/clear game
-6. Move animations are eaten if triplet removal happens same turn
+5. Move animations are eaten if triplet removal happens same turn
 ## TERTIARY
 1. Readme
 2. Tests
@@ -16,5 +15,6 @@
 6. Better UI for Start Screen
 7. Documentation/comments
 8. lib.version.toml to single style - either module or group/name
+9. Lint
 ## QUESTIONS
 1. Board (and maybe someone else) kinda does a lot with incoming params, isn't it? It uses them as return value. Not pure.
