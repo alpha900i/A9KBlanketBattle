@@ -7,6 +7,12 @@ object Constants {
     const val DEFAULT_HEIGHT = 6
     const val DEFAULT_CAT_START = 0
     const val DEFAULT_KITTEN_START = 8
+
+    const val MIN_WIDTH = 1
+    const val MIN_HEIGHT = 1
+    const val MIN_CAT_START = 0
+    const val MIN_KITTEN_START = 0
+
     val DEFAULT_FIRST_PLAYER_TYPE = PlayerType.HUMAN
     val DEFAULT_SECOND_PLAYER_TYPE = PlayerType.BOT_A
 

@@ -136,6 +136,7 @@ class AppViewModel(
     //data store section
     val width: Flow<Int> = dataStoreRepository.width
     fun setWidth(width: Int) {
+        CustomLog.d("Setter", "Set width $width")
         viewModelScope.launch {
             dataStoreRepository.setWidth(width = width)
         }
@@ -143,6 +144,7 @@ class AppViewModel(
 
     val height: Flow<Int> = dataStoreRepository.height
     fun setHeight(height: Int) {
+        CustomLog.d("Setter", "Set height $height")
         viewModelScope.launch {
             dataStoreRepository.setHeight(height = height)
         }
@@ -150,6 +152,7 @@ class AppViewModel(
 
     val kittenStart: Flow<Int> = dataStoreRepository.kittenStart
     fun setKittenStart(kittenStart: Int) {
+        CustomLog.d("Setter", "Set kittenStart $kittenStart")
         viewModelScope.launch {
             dataStoreRepository.setKittenStart(kittenStart = kittenStart)
         }
@@ -157,6 +160,7 @@ class AppViewModel(
 
     val catStart: Flow<Int> = dataStoreRepository.catStart
     fun setCatStart(catStart: Int) {
+        CustomLog.d("Setter", "Set catStart $catStart")
         viewModelScope.launch {
             dataStoreRepository.setCatStart(catStart = catStart)
         }

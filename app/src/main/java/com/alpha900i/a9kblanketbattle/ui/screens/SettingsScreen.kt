@@ -43,24 +43,28 @@ fun SettingsScreen(
             title = stringResource(R.string.width_setting_title),
             getter = settingsAction.getWidth(),
             defaultValue = Constants.DEFAULT_WIDTH,
+            minValue = Constants.MIN_WIDTH,
             setter = settingsAction::setWidth
         )
         IntSetting(
             title = stringResource(R.string.height_setting_title),
             getter = settingsAction.getHeight(),
             defaultValue = Constants.DEFAULT_HEIGHT,
+            minValue = Constants.MIN_HEIGHT,
             setter = settingsAction::setHeight
         )
         IntSetting(
             title = stringResource(R.string.start_kitten_setting_title),
             getter = settingsAction.getKittenStart(),
             defaultValue = Constants.DEFAULT_KITTEN_START,
+            minValue = Constants.MIN_KITTEN_START,
             setter = settingsAction::setKittenStart
         )
         IntSetting(
             title = stringResource(R.string.start_cat_setting_title),
             getter = settingsAction.getCatStart(),
             defaultValue = Constants.DEFAULT_CAT_START,
+            minValue = Constants.MIN_CAT_START,
             setter = settingsAction::setCatStart
         )
         PlayerTypeSetting(
@@ -91,9 +95,11 @@ fun IntSetting(
     title: String,
     getter: Flow<Int>,
     defaultValue: Int,
+    minValue: Int,
     setter: (Int) -> Unit
 ) {
-    val value by getter.collectAsStateWithLifecycle(defaultValue)
+    val intValue by getter.collectAsStateWithLifecycle(defaultValue)
+    var textValue by remember(intValue) {mutableStateOf("$intValue")}
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth(1f)
@@ -104,12 +110,18 @@ fun IntSetting(
                 .weight(4f)
         )
         TextField(
-            value = value.toString(),
+            value = textValue,
             onValueChange = {
+                textValue = it
                 try {
-                    setter(Integer.parseInt(it).coerceAtLeast(defaultValue))
+                    val fieldValue = Integer.parseInt(textValue)
+                    if (fieldValue >= minValue) {
+                        setter(fieldValue)
+                    } else {
+                        textValue = "$minValue"
+                    }
                 } catch (_: Exception) {
-                    setter(defaultValue)
+                    //nothing. If value is bad, we just ignore it
                 }
             },
             colors = TextFieldDefaults.colors(
