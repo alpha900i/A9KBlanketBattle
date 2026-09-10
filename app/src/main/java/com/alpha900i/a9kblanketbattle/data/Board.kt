@@ -153,7 +153,7 @@ data class Board(
         val immutableCells = mutableCells.map { it.toList() }
         return MoveResult(
             Board(immutableCells),
-            pendingEffects = VisualEffect.emptyList(),
+            pendingEffects = pendingEffects,
             handChanges,
             false,           //we wouldn't get here if there was an active gameover, and triplet removal can't initiate one
             -1,
