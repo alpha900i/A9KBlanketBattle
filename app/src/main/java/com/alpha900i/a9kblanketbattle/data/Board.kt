@@ -114,7 +114,17 @@ data class Board(
             playerIndex = playerIndex
         )
 
-
+        //if we have one triplet to delete - we autodelete it here
+        //only exception - winning triplet. We don't want to delete it
+        if (deletableTriplets.size == 1 && !gameOver) {
+            val removalEffect: List<VisualEffect> = removeTriplet(
+                mutableCells = mutableCells,
+                tripletOnBoard = deletableTriplets.first(),
+                handChanges = handChanges
+            )
+            pendingEffects = pendingEffects + removalEffect
+            deletableTriplets.clear()
+        }
         val immutableCells = mutableCells.map { it.toList() }
 
         return MoveResult(

@@ -4,7 +4,6 @@
 1. "Selected piece type" better visuals
 2. "Game over" visuals
 3. RemoveTriplet - assert as defensives instead of ifs?
-4. Move animations are eaten if triplet removal happens same turn
 ## TERTIARY
 1. Readme
 2. Tests
