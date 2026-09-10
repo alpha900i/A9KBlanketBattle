@@ -377,13 +377,10 @@ data class Board(
     //cats just removed (delta cats)
     private fun removeTriplet(
         mutableCells: MutableList<MutableList<Cell>>,
-        tripletOnBoard: TripletOnBoard?,
+        tripletOnBoard: TripletOnBoard,
         handChanges: MutableList<HandChange>
     ): List<VisualEffect> {
-        var pendingEffects: MutableList<VisualEffect> = mutableListOf()
-        if (tripletOnBoard == null) {
-            return pendingEffects
-        }
+        val pendingEffects: MutableList<VisualEffect> = mutableListOf()
         val rowIndex = tripletOnBoard.row
         val columnIndex = tripletOnBoard.column
         val dx = tripletOnBoard.rowShift
