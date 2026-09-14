@@ -13,5 +13,6 @@
 6. Better UI for Start Screen
 7. Documentation/comments
 8. Lint
+9. Extract dimens
 ## QUESTIONS
 1. Board (and maybe someone else) kinda does a lot with incoming params, isn't it? It uses them as return value. Not pure.
