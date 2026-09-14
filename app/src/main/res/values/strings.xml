@@ -4,7 +4,11 @@
     <string name="start_game_button_title">Start game</string>
     <string name="settings_button_title">Settings</string>
     <string name="exit_game_button_title">Exit game</string>
-    <string name="players_turn">Player %1$d\'s turn</string>
+    <string name="player_turn">Player %1$d\'s turn</string>
+    <string name="player_set_kitten_turn">Player %1$d must select empty cell for kitten</string>
+    <string name="player_set_cat_turn">Player %1$d must select empty cell for cat</string>
+    <string name="player_promote_kitten_turn">Player %1$d must select kitten for promotion</string>
+    <string name="player_remove_cat_turn">Player %1$d must select cat for removal</string>
     <string name="players_removal">Player %1$d must select a triplet</string>
     <string name="game_over">Game Over! Player %1$d wins</string>
     <string name="waiting_for_game">Waiting for game</string>

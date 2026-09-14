@@ -3,6 +3,7 @@
 ## SECONDARY
 1. "Selected piece type" better visuals
 2. "Game over" visuals
+3. Extended set of info states - depending not just on game state, but on UI state
 ## TERTIARY
 1. Readme
 2. Tests

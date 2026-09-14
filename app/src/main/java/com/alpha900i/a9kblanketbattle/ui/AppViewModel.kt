@@ -34,8 +34,24 @@ data class UiState(
 )
 
 sealed class InfoSectionState {
-    data class PlayerTurn(val playerIndex: Int) : InfoSectionState() {
-        override val resourceId: Int = R.string.players_turn
+    data class PlayerGeneralTurn(val playerIndex: Int) : InfoSectionState() {
+        override val resourceId: Int = R.string.player_turn
+        override val formatArgs = arrayOf(playerIndex + 1)
+    }
+    data class PlayerSetKittenTurn(val playerIndex: Int) : InfoSectionState() {
+        override val resourceId: Int = R.string.player_set_kitten_turn
+        override val formatArgs = arrayOf(playerIndex + 1)
+    }
+    data class PlayerSetCatTurn(val playerIndex: Int) : InfoSectionState() {
+        override val resourceId: Int = R.string.player_set_cat_turn
+        override val formatArgs = arrayOf(playerIndex + 1)
+    }
+    data class PlayerPromoteKittenTurn(val playerIndex: Int) : InfoSectionState() {
+        override val resourceId: Int = R.string.player_promote_kitten_turn
+        override val formatArgs = arrayOf(playerIndex + 1)
+    }
+    data class PlayerRemovesCat(val playerIndex: Int) : InfoSectionState() {
+        override val resourceId: Int = R.string.player_remove_cat_turn
         override val formatArgs = arrayOf(playerIndex + 1)
     }
 
@@ -120,7 +136,7 @@ class AppViewModel(
         when {
             !state.gameIsActive -> InfoSectionState.GameOver(state.winnerIndex)
             state.deletableTriplets.size > 1 -> InfoSectionState.PlayerRemoval(state.activePlayerIndex)
-            else -> InfoSectionState.PlayerTurn(state.activePlayerIndex)
+            else -> InfoSectionState.PlayerGeneralTurn(state.activePlayerIndex)
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, InfoSectionState.WaitingForGame)
 
