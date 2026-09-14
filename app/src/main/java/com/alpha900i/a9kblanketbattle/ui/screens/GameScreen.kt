@@ -486,7 +486,8 @@ fun BoardSection(
                             Image(
                                 painter = painter,
                                 contentDescription = "Icon",
-                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Inside,
+                                modifier = Modifier.fillMaxSize().padding(6.dp),
                                 colorFilter = ColorFilter.tint(playerColor)
                             )
                         }

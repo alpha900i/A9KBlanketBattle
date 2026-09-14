@@ -3,16 +3,16 @@
     android:height="64dp"
     android:viewportWidth="64"
     android:viewportHeight="64">
-  <path
-      android:pathData="M24,8 l0,48"
-      android:strokeWidth="3"
-      android:strokeColor="#000"/>
-  <path
-      android:pathData="M24,32 l20,-24"
-      android:strokeWidth="3"
-      android:strokeColor="#000"/>
-  <path
-      android:pathData="M24,32 l20,24"
-      android:strokeWidth="3"
-      android:strokeColor="#000"/>
+  <group
+      android:scaleX="0.65"
+      android:scaleY="0.65"
+      android:pivotX="32"
+      android:pivotY="32">
+    <path
+        android:fillColor="#000000"
+        android:pathData="M 18 22 L 12 4 L 28 16 Q 32 14 36 16 L 52 4 L 46 22 Q 54 25 54 34 Q 54 40 48 43 Q 56 48 56 54 Q 56 58 50 58 L 14 58 Q 8 58 8 54 Q 8 48 16 43 Q 10 40 10 34 Q 10 25 18 22 Z" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M 50 54 Q 60 52 58 44 Q 56 36 48 38 Q 42 40 44 46 Q 46 50 50 54 Z" />
+  </group>
 </vector>
