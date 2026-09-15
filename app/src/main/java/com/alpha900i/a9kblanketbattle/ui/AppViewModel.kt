@@ -143,12 +143,12 @@ class AppViewModel(
 
     val infoMessage: StateFlow<InfoSectionState> = combine(gameState, uiState) { gameState, uiState ->
         when {
+            !gameState.gameIsActive -> InfoSectionState.GameOver(gameState.winnerIndex)
+            gameState.deletableTriplets.size > 1 -> InfoSectionState.PlayerRemoval(gameState.activePlayerIndex)
             uiState.selectedMoveType == MoveType.SET_KITTEN -> InfoSectionState.PlayerSetKittenTurn(gameState.activePlayerIndex)
             uiState.selectedMoveType == MoveType.SET_CAT -> InfoSectionState.PlayerSetCatTurn(gameState.activePlayerIndex)
             uiState.selectedMoveType == MoveType.PROMOTE_KITTEN -> InfoSectionState.PlayerPromoteKittenTurn(gameState.activePlayerIndex)
             uiState.selectedMoveType == MoveType.RETURN_CAT -> InfoSectionState.PlayerRemoveCat(gameState.activePlayerIndex)
-            !gameState.gameIsActive -> InfoSectionState.GameOver(gameState.winnerIndex)
-            gameState.deletableTriplets.size > 1 -> InfoSectionState.PlayerRemoval(gameState.activePlayerIndex)
             else -> InfoSectionState.PlayerGeneralTurn(gameState.activePlayerIndex)
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, InfoSectionState.WaitingForGame)
