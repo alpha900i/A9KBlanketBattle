@@ -639,12 +639,14 @@ fun HandBlock(
     var kittenActive by remember(isActiveHand, kittenIsDefault) { mutableStateOf(kittenIsDefault) }
     var catActive by remember(isActiveHand, catIsDefault) { mutableStateOf(catIsDefault) }
     LaunchedEffect(kittenIsDefault, catIsDefault, isActiveHand) {
-        CustomLog.d("Hand", "Launched effect $kittenIsDefault $catIsDefault")
-        if (kittenIsDefault) {
-            setKittenMove()
-        }
-        if (catIsDefault) {
-            setCatMove()
+        if (isActiveHand) {
+            CustomLog.d("Hand", "Launched effect $kittenIsDefault $catIsDefault")
+            if (kittenIsDefault) {
+                setKittenMove()
+            }
+            if (catIsDefault) {
+                setCatMove()
+            }
         }
     }
 
