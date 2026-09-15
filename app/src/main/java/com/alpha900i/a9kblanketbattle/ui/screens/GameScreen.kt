@@ -514,12 +514,10 @@ private fun isCellEnabled(
     activePlayerIndex: Int
 ): Boolean {
     if (!isHumanTurn) {
-        return false;
-    }
-    if (moveType == null) {
         return false
     }
     return when (moveType) {
+        null -> false
         MoveType.SET_KITTEN -> cell.type == CellType.EMPTY
         MoveType.SET_CAT -> cell.type == CellType.EMPTY
         MoveType.PROMOTE_KITTEN -> cell.type == CellType.KITTEN && cell.owner == activePlayerIndex
