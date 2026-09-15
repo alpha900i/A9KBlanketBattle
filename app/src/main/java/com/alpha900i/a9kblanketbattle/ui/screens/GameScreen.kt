@@ -9,12 +9,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
@@ -35,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -672,7 +675,7 @@ fun HandBlock(
             modifier = Modifier.weight(1f)
         ) {
             PieceBlock(
-                "Kitten",
+                painterByCellType(cellType = CellType.KITTEN),
                 hand.kittenCurrent,
                 hand.kittenMax,
                 isActiveHand = isActiveHand,
@@ -685,7 +688,7 @@ fun HandBlock(
                 modifier = Modifier.weight(1f)
             )
             PieceBlock(
-                "Cat",
+                painterByCellType(cellType = CellType.CAT),
                 hand.catCurrent,
                 hand.catMax,
                 isActiveHand = isActiveHand,
@@ -701,24 +704,35 @@ fun HandBlock(
         Row(
             modifier = Modifier.weight(1f)
         ) {
+
             Button(
                 onClick = setPromoteKittenMove,
                 enabled = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.kittenMax != 0),
                 shape = RectangleShape,
+                contentPadding = PaddingValues(0.dp),   // <-- remove internal padding
                 modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = "K->C",
+                Image(
+                    painter = painterResource(R.drawable.ic_promote) ,
+                    contentDescription = "Icon",
+                    colorFilter = ColorFilter.tint(Color.Black),
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize(1f)
                 )
             }
             Button(
                 onClick = setReturnCatMove,
                 enabled = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.catMax != 0),
                 shape = RectangleShape,
+                contentPadding = PaddingValues(0.dp),   // <-- remove internal padding
                 modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = "C->0",
+                Image(
+                    painter = painterResource(R.drawable.ic_remove_cat) ,
+                    contentDescription = "Icon",
+                    colorFilter = ColorFilter.tint(Color.Black),
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize(1f)
                 )
             }
         }
@@ -727,7 +741,7 @@ fun HandBlock(
 
 @Composable
 fun PieceBlock(
-    title: String,
+    painter: Painter?,
     current: Int,
     max: Int,
     isActiveHand: Boolean,
@@ -735,10 +749,8 @@ fun PieceBlock(
     onClick: () -> Unit,
     modifier: Modifier,
 ) {
-
-    CustomLog.d("TEST", "PieceBlock $title build $isActivePiece")
     val pieceColor = if (isActivePiece) Color.Blue else Color.White
-    Column(
+    Row(
         modifier = modifier
             .fillMaxSize(1f)
             .border(1.dp, Color.Gray)
@@ -748,26 +760,29 @@ fun PieceBlock(
                 onClick = onClick
             )
     ) {
-        Text(
-            text = title,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth(1f)
-                .border(1.dp, Color.Gray)
-        )
+        if (painter != null) {
+            Image(
+                painter = painter,
+                contentDescription = "Icon",
+                colorFilter = ColorFilter.tint(Color.Black),
+                modifier = Modifier.fillMaxHeight(1f)
+                    .weight(1f)
+            )
+        }
         BasicText(
             text = "$current/$max",
             autoSize = TextAutoSize.StepBased(
                 minFontSize = 12.sp,
-                maxFontSize = 64.sp,   // default is 112.sp if not set
+                maxFontSize = 32.sp,   // default is 112.sp if not set
                 stepSize = 1.sp        // granularity for scaling steps
             ),
             style = TextStyle(
                 textAlign = TextAlign.Center
             ),
             modifier = Modifier
-                .fillMaxWidth(1f)
+                .fillMaxHeight(1f)
                 .border(1.dp, Color.Gray)
+                .weight(1f)
         )
     }
 }

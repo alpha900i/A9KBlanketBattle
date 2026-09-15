@@ -1,0 +1,45 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <!-- Kitten (left, smaller) -->
+    <group
+        android:translateX="3.8"
+        android:translateY="19"
+        android:scaleX="0.3"
+        android:scaleY="0.5"
+        android:pivotX="0"
+        android:pivotY="0">
+        <path
+            android:strokeColor="#000000"
+            android:strokeWidth="3"
+            android:pathData="M 18 22 L 12 4 L 28 16 Q 32 14 36 16 L 52 4 L 46 22 Q 54 25 54 34 Q 54 40 48 43 Q 56 48 56 54 Q 56 58 50 58 L 14 58 Q 8 58 8 54 Q 8 48 16 43 Q 10 40 10 34 Q 10 25 18 22 Z"/>
+        <path
+            android:strokeColor="#000000"
+            android:strokeWidth="3"
+            android:pathData="M 50 54 Q 60 52 58 44 Q 56 36 48 38 Q 42 40 44 46 Q 46 50 50 54 Z"/>
+    </group>
+    <!-- Arrow -->
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="1"
+        android:pathData="M 24 37 L 28 37 L 28 33 L 34 40 L 28 47 L 28 43 L 24 43 Z"/>
+    <!-- Cat (right, larger) -->
+    <group
+        android:translateX="32.9"
+        android:translateY="7.0"
+        android:scaleX="0.45"
+        android:scaleY="0.7"
+        android:pivotX="0"
+        android:pivotY="0">
+        <path
+            android:strokeColor="#000000"
+            android:strokeWidth="3"
+            android:pathData="M 22 16 L 20 4 L 30 13 Q 32 12 34 13 L 44 4 L 42 16 Q 48 18 48 26 Q 48 32 44 35 Q 54 40 54 50 L 54 58 L 10 58 L 10 50 Q 10 40 20 35 Q 16 32 16 26 Q 16 18 22 16 Z"/>
+        <path
+            android:strokeColor="#000000"
+            android:strokeWidth="3"
+            android:pathData="M 52 48 Q 66 44 62 30 Q 58 20 52 22 Q 58 30 56 40 Q 54 48 46 52 Z"/>
+    </group>
+</vector>
