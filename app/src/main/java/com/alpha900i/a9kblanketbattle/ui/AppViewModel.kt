@@ -19,6 +19,7 @@ import com.alpha900i.a9kblanketbattle.domain.Player
 import com.alpha900i.a9kblanketbattle.domain.PlayerType
 import com.alpha900i.a9kblanketbattle.util.CustomLog
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,6 +36,37 @@ data class UiState(
     val selectedMoveType: MoveType?
 )
 
+enum class TempMessageType {
+    CANT_SET_KITTEN,
+    CANT_SET_CAT,
+    CANT_PROMOTE_KITTEN,
+    CANT_REMOVE_CAT
+}
+sealed class InfoSectionTempState {
+    object NoHint: InfoSectionTempState() {
+        override val resourceId: Int = 0
+        override val formatArgs = emptyArray<Any>()
+    }
+    data class CantSetKitten(val playerIndex: Int): InfoSectionTempState() {
+        override val resourceId: Int = R.string.cant_set_kitten_hint
+        override val formatArgs = arrayOf(playerIndex + 1)
+    }
+    data class CantSetCat(val playerIndex: Int): InfoSectionTempState() {
+        override val resourceId: Int = R.string.cant_set_cat_hint
+        override val formatArgs = arrayOf(playerIndex + 1)
+    }
+    data class CantPromoteKitten(val playerIndex: Int): InfoSectionTempState() {
+        override val resourceId: Int = R.string.cant_promote_kitten_hint
+        override val formatArgs = arrayOf(playerIndex + 1)
+    }
+    data class CantRemoveCat(val playerIndex: Int): InfoSectionTempState() {
+        override val resourceId: Int = R.string.cant_remove_cat_hint
+        override val formatArgs = arrayOf(playerIndex + 1)
+    }
+
+    abstract val resourceId: Int
+    abstract val formatArgs: Array<out Any>
+}
 sealed class InfoSectionState {
     data class PlayerGeneralTurn(val playerIndex: Int) : InfoSectionState() {
         override val resourceId: Int = R.string.player_turn
@@ -66,6 +98,8 @@ sealed class InfoSectionState {
         override val resourceId = R.string.game_over
         override val formatArgs = arrayOf(playerIndex + 1)
     }
+
+    data class TempMessage(override val resourceId: Int, override val formatArgs: Array<out Any>) : InfoSectionState() {}
 
     object WaitingForGame : InfoSectionState() {
         override val resourceId = R.string.waiting_for_game
@@ -140,9 +174,34 @@ class AppViewModel(
     }
 
 
+    private var _tempMessageJob: Job? = null
+    private val _infoTempMessage: MutableStateFlow<InfoSectionTempState> = MutableStateFlow(InfoSectionTempState.NoHint)
+    val infoTempMessage: StateFlow<InfoSectionTempState> = _infoTempMessage.asStateFlow()
+    fun setTempMessage(playerIndex: Int, tempMessageType: TempMessageType) {
+        val tempMessage = when (tempMessageType) {
+            TempMessageType.CANT_SET_KITTEN -> InfoSectionTempState.CantSetKitten(playerIndex = playerIndex)
+            TempMessageType.CANT_SET_CAT -> InfoSectionTempState.CantSetCat(playerIndex = playerIndex)
+            TempMessageType.CANT_PROMOTE_KITTEN -> InfoSectionTempState.CantPromoteKitten(playerIndex = playerIndex)
+            TempMessageType.CANT_REMOVE_CAT -> InfoSectionTempState.CantRemoveCat(playerIndex = playerIndex)
+        }
+        setTempMessage(tempMessage)
+    }
+    fun setTempMessage(tempMessage: InfoSectionTempState) {
+        _tempMessageJob?.cancel()
+        _infoTempMessage.value = tempMessage
+        _infoTempMessage.update { tempMessage }
+        _tempMessageJob = viewModelScope.launch {
+            delay(1000)
+            // Only clear if this hint is still the current one
+            if (_infoTempMessage.value == tempMessage) _infoTempMessage.value = InfoSectionTempState.NoHint
+        }
+    }
 
-    val infoMessage: StateFlow<InfoSectionState> = combine(gameState, uiState) { gameState, uiState ->
+
+    val infoPermanentMessage: StateFlow<InfoSectionState> = combine(gameState, uiState, infoTempMessage) {
+        gameState, uiState, tempMessage ->
         when {
+            (tempMessage != InfoSectionTempState.NoHint) -> InfoSectionState.TempMessage(tempMessage.resourceId, tempMessage.formatArgs)
             !gameState.gameIsActive -> InfoSectionState.GameOver(gameState.winnerIndex)
             gameState.deletableTriplets.size > 1 -> InfoSectionState.PlayerRemoval(gameState.activePlayerIndex)
             uiState.selectedMoveType == MoveType.SET_KITTEN -> InfoSectionState.PlayerSetKittenTurn(gameState.activePlayerIndex)

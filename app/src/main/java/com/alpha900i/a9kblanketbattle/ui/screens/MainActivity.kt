@@ -46,6 +46,7 @@ import com.alpha900i.a9kblanketbattle.ui.InfoSectionState
 import com.alpha900i.a9kblanketbattle.ui.Screen
 import com.alpha900i.a9kblanketbattle.ui.SettingsAction
 import com.alpha900i.a9kblanketbattle.ui.StartScreenActions
+import com.alpha900i.a9kblanketbattle.ui.TempMessageType
 import com.alpha900i.a9kblanketbattle.ui.UiState
 import com.alpha900i.a9kblanketbattle.ui.theme.A9KBlanketBattleTheme
 import kotlinx.coroutines.flow.Flow
@@ -77,7 +78,7 @@ fun MainContent(
     val viewModel: AppViewModel = viewModel(factory = AppViewModel.Companion.Factory)
     val gameState by viewModel.gameState.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
-    val infoSectionMessage by viewModel.infoMessage.collectAsState()
+    val infoSectionMessage by viewModel.infoPermanentMessage.collectAsState()
     val startScreenActions = object: StartScreenActions{
         override fun startGame() {
             appNavigationController.navigateToGame()
@@ -96,6 +97,9 @@ fun MainContent(
     val gameScreenActions = object: GameScreenActions {
         override fun selectMoveType(moveType: MoveType) {
             viewModel.selectMoveType(moveType)
+        }
+        override fun setTempMessage(playerIndex: Int, tempMessageType: TempMessageType) {
+            viewModel.setTempMessage(playerIndex = playerIndex, tempMessageType = tempMessageType)
         }
     }
     val settingsAction = object : SettingsAction{

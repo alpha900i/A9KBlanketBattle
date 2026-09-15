@@ -12,6 +12,7 @@ interface StartScreenActions {
 
 interface GameScreenActions {
     fun selectMoveType(moveType: MoveType)
+    fun setTempMessage(playerIndex: Int, tempMessageType: TempMessageType)
 }
 
 interface SettingsAction {

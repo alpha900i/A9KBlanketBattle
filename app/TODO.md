@@ -3,7 +3,6 @@
 ## SECONDARY
 1. "Selected piece type" better visuals
 2. "Game over" visuals
-3. Extended set of info states - depending not just on game state, but on UI state
 ## TERTIARY
 1. Readme
 2. Tests
@@ -13,7 +12,10 @@
 6. Better UI for Start Screen
 7. Documentation/comments
 8. Lint
-9. Extract dimens
+9. Extract dimens && magic numbers (delays)
 10. Should screen's actions parameters be named just "actions"?
+11. Return cat/remove cat - uniform name
+12. Implement better "disabled button" visuals
+13. Decide on multiline info section
 ## QUESTIONS
 1. Board (and maybe someone else) kinda does a lot with incoming params, isn't it? It uses them as return value. Not pure.

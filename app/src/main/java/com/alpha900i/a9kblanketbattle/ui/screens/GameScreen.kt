@@ -63,6 +63,7 @@ import com.alpha900i.a9kblanketbattle.ui.AnimatedPiece
 import com.alpha900i.a9kblanketbattle.ui.Constants
 import com.alpha900i.a9kblanketbattle.ui.GameScreenActions
 import com.alpha900i.a9kblanketbattle.ui.InfoSectionState
+import com.alpha900i.a9kblanketbattle.ui.TempMessageType
 import com.alpha900i.a9kblanketbattle.util.CustomLog
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -144,6 +145,7 @@ fun GameScreen(
                 setCatMove = { gameScreenActions.selectMoveType(MoveType.SET_CAT) },
                 setPromoteKittenMove = { gameScreenActions.selectMoveType(MoveType.PROMOTE_KITTEN) },
                 setReturnCatMove = { gameScreenActions.selectMoveType(MoveType.RETURN_CAT) },
+                setTempMessage = gameScreenActions::setTempMessage,
                 modifier = Modifier.weight(1f)
             )
         } else {
@@ -480,7 +482,9 @@ fun BoardSection(
                                 painter = painter,
                                 contentDescription = "Icon",
                                 contentScale = ContentScale.Inside,
-                                modifier = Modifier.fillMaxSize().padding(6.dp),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(6.dp),
                                 colorFilter = ColorFilter.tint(playerColor)
                             )
                         }
@@ -541,7 +545,8 @@ fun HandsSection(
     setCatMove: () -> Unit,
     setPromoteKittenMove: () -> Unit,
     setReturnCatMove: () -> Unit,
-    modifier: Modifier
+    setTempMessage: (Int, TempMessageType) -> Unit,
+    modifier: Modifier,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(1f)
@@ -555,6 +560,7 @@ fun HandsSection(
                 setCatMove = setCatMove,
                 setPromoteKittenMove = setPromoteKittenMove,
                 setReturnCatMove = setReturnCatMove,
+                setTempMessage = setTempMessage,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -625,6 +631,7 @@ fun HandBlock(
     setCatMove: () -> Unit,
     setPromoteKittenMove: () -> Unit,
     setReturnCatMove: () -> Unit,
+    setTempMessage: (Int, TempMessageType) -> Unit,
     modifier: Modifier
 ) {
     CustomLog.d("HandBlock $handIndex $isActiveHand $hand")
@@ -670,10 +677,16 @@ fun HandBlock(
                 hand.kittenMax,
                 isActiveHand = isActiveHand,
                 isActivePiece = kittenActive && isActiveHand,
-                onClick = {
-                    kittenActive = true
-                    catActive = false
-                    setKittenMove()
+                onClick = { isEnabled ->
+                    if (isActiveHand) {
+                        if (isEnabled) {
+                            kittenActive = true
+                            catActive = false
+                            setKittenMove()
+                        } else {
+                            setTempMessage(handIndex, TempMessageType.CANT_SET_KITTEN)
+                        }
+                    }
                 },
                 modifier = Modifier.weight(1f)
             )
@@ -683,10 +696,16 @@ fun HandBlock(
                 hand.catMax,
                 isActiveHand = isActiveHand,
                 isActivePiece = catActive && isActiveHand,
-                onClick = {
-                    kittenActive = false
-                    catActive = true
-                    setCatMove()
+                onClick = { isEnabled ->
+                    if (isActiveHand) {
+                        if (isEnabled) {
+                            kittenActive = false
+                            catActive = true
+                            setCatMove()
+                        } else {
+                            setTempMessage(handIndex, TempMessageType.CANT_SET_CAT)
+                        }
+                    }
                 },
                 modifier = Modifier.weight(1f),
             )
@@ -694,10 +713,18 @@ fun HandBlock(
         Row(
             modifier = Modifier.weight(1f)
         ) {
-
+            val canPromoteKitten = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.kittenMax != 0)
+            val canRemoveCat = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.catMax != 0)
             Button(
-                onClick = setPromoteKittenMove,
-                enabled = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.kittenMax != 0),
+                onClick = {
+                    if (isActiveHand) {
+                        if (canPromoteKitten) {
+                            setPromoteKittenMove()
+                        } else {
+                            setTempMessage(handIndex, TempMessageType.CANT_PROMOTE_KITTEN)
+                        }
+                    }
+                },
                 shape = RectangleShape,
                 contentPadding = PaddingValues(0.dp),   // <-- remove internal padding
                 modifier = Modifier.weight(1f)
@@ -711,8 +738,15 @@ fun HandBlock(
                 )
             }
             Button(
-                onClick = setReturnCatMove,
-                enabled = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.catMax != 0),
+                onClick = {
+                    if (isActiveHand) {
+                        if (canRemoveCat) {
+                            setReturnCatMove()
+                        } else {
+                            setTempMessage(handIndex, TempMessageType.CANT_REMOVE_CAT)
+                        }
+                    }
+                },
                 shape = RectangleShape,
                 contentPadding = PaddingValues(0.dp),   // <-- remove internal padding
                 modifier = Modifier.weight(1f)
@@ -736,18 +770,20 @@ fun PieceBlock(
     max: Int,
     isActiveHand: Boolean,
     isActivePiece: Boolean,
-    onClick: () -> Unit,
+    onClick: (Boolean) -> Unit,
     modifier: Modifier,
 ) {
     val pieceColor = if (isActivePiece) Color.Blue else Color.White
+    val isEnabled = isActiveHand && current > 0
     Row(
         modifier = modifier
             .fillMaxSize(1f)
             .border(1.dp, Color.Gray)
             .background(pieceColor)
             .clickable(
-                enabled = isActiveHand && current > 0,
-                onClick = onClick
+                onClick = {
+                    onClick(isEnabled)
+                }
             )
     ) {
         if (painter != null) {
@@ -755,7 +791,8 @@ fun PieceBlock(
                 painter = painter,
                 contentDescription = "Icon",
                 colorFilter = ColorFilter.tint(Color.Black),
-                modifier = Modifier.fillMaxHeight(1f)
+                modifier = Modifier
+                    .fillMaxHeight(1f)
                     .weight(1f)
             )
         }
