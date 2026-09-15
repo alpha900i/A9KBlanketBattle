@@ -36,10 +36,12 @@ import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.domain.Move
+import com.alpha900i.a9kblanketbattle.domain.MoveType
 import com.alpha900i.a9kblanketbattle.domain.PlayerType
 import com.alpha900i.a9kblanketbattle.ui.AppNavHost
 import com.alpha900i.a9kblanketbattle.ui.AppNavigationController
 import com.alpha900i.a9kblanketbattle.ui.AppViewModel
+import com.alpha900i.a9kblanketbattle.ui.GameScreenActions
 import com.alpha900i.a9kblanketbattle.ui.InfoSectionState
 import com.alpha900i.a9kblanketbattle.ui.Screen
 import com.alpha900i.a9kblanketbattle.ui.SettingsAction
@@ -90,6 +92,12 @@ fun MainContent(
         }
 
     }
+
+    val gameScreenActions = object: GameScreenActions {
+        override fun selectMoveType(moveType: MoveType) {
+            viewModel.selectMoveType(moveType)
+        }
+    }
     val settingsAction = object : SettingsAction{
         override fun getWidth(): Flow<Int> = viewModel.width
         override fun getHeight(): Flow<Int> = viewModel.height
@@ -131,6 +139,7 @@ fun MainContent(
             gameState = gameState,
             uiState = uiState,
             startScreenActions = startScreenActions,
+            gameScreenActions = gameScreenActions,
             infoSectionMessage = infoSectionMessage,
             startNewGame = viewModel::startNewGame,
             cancelGame = {
@@ -157,6 +166,7 @@ fun MainScreen(
     gameState: GameState,
     uiState: UiState,
     startScreenActions: StartScreenActions,
+    gameScreenActions: GameScreenActions,
     infoSectionMessage: InfoSectionState,
     startNewGame: () -> Unit,
     cancelGame: () -> Unit,
@@ -170,6 +180,7 @@ fun MainScreen(
     Box(modifier = Modifier.padding(contentPadding)) {
         AppNavHost(
             startScreenActions = startScreenActions,
+            gameScreenActions = gameScreenActions,
             gameState = gameState,
             uiState = uiState,
             infoSectionMessage = infoSectionMessage,

@@ -18,6 +18,7 @@ import com.alpha900i.a9kblanketbattle.ui.screens.StartScreen
 @Composable
 fun AppNavHost(
     startScreenActions: StartScreenActions,
+    gameScreenActions: GameScreenActions,
     gameState: GameState,
     uiState: UiState,
     infoSectionMessage: InfoSectionState,
@@ -43,6 +44,8 @@ fun AppNavHost(
             GameScreen(
                 gameState = gameState,
                 isHumanTurn = uiState.isHumanTurn,
+                selectedMoveType = uiState.selectedMoveType,
+                gameScreenActions = gameScreenActions,
                 infoSectionMessage = infoSectionMessage,
                 startNewGame = startNewGame,
                 cancelGame = cancelGame,

@@ -14,5 +14,6 @@
 7. Documentation/comments
 8. Lint
 9. Extract dimens
+10. Should screen's actions parameters be named just "actions"?
 ## QUESTIONS
 1. Board (and maybe someone else) kinda does a lot with incoming params, isn't it? It uses them as return value. Not pure.

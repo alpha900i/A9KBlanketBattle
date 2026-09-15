@@ -1,5 +1,6 @@
 package com.alpha900i.a9kblanketbattle.ui
 
+import com.alpha900i.a9kblanketbattle.domain.MoveType
 import com.alpha900i.a9kblanketbattle.domain.PlayerType
 import kotlinx.coroutines.flow.Flow
 
@@ -7,6 +8,10 @@ interface StartScreenActions {
     fun startGame()
     fun openSettings()
     fun exitGame()
+}
+
+interface GameScreenActions {
+    fun selectMoveType(moveType: MoveType)
 }
 
 interface SettingsAction {

@@ -61,6 +61,7 @@ import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
 import com.alpha900i.a9kblanketbattle.ui.AnimatedPiece
 import com.alpha900i.a9kblanketbattle.ui.Constants
+import com.alpha900i.a9kblanketbattle.ui.GameScreenActions
 import com.alpha900i.a9kblanketbattle.ui.InfoSectionState
 import com.alpha900i.a9kblanketbattle.util.CustomLog
 import kotlinx.coroutines.Job
@@ -73,6 +74,8 @@ import kotlin.math.roundToInt
 fun GameScreen(
     gameState: GameState,
     isHumanTurn: Boolean,
+    selectedMoveType: MoveType?,
+    gameScreenActions: GameScreenActions,
     infoSectionMessage: InfoSectionState,
     startNewGame: () -> Unit,
     cancelGame: () -> Unit,
@@ -116,7 +119,6 @@ fun GameScreen(
     LaunchedEffect(Unit) {
         startNewGame()
     }
-    var moveType by remember(gameState.activePlayerIndex) { mutableStateOf<MoveType?>(null) }
     var highlightedTriplet by remember { mutableStateOf<TripletOnBoard?>(null) }
     Column(
         modifier = Modifier
@@ -131,29 +133,17 @@ fun GameScreen(
             isHumanTurn = isHumanTurn,
             submitMove = submitMove,
             onAnimationComplete = onAnimationComplete,
-            moveType = moveType,
+            moveType = selectedMoveType,
             modifier = Modifier.weight(4f)
         )
         if (gameState.deletableTriplets.isEmpty()) {
             HandsSection(
                 gameState = gameState,
                 isHumanTurn = isHumanTurn,
-                setKittenMove = {
-                    CustomLog.d("HandBlock", "Set kitten move")
-                    moveType = MoveType.SET_KITTEN
-                },
-                setCatMove = {
-                    CustomLog.d("HandBlock", "Set cat move")
-                    moveType = MoveType.SET_CAT
-                },
-                setPromoteKittenMove = {
-                    CustomLog.d("HandBlock", "Set cat move")
-                    moveType = MoveType.PROMOTE_KITTEN
-                },
-                setReturnCatMove = {
-                    CustomLog.d("HandBlock", "Set cat move")
-                    moveType = MoveType.RETURN_CAT
-                },
+                setKittenMove = { gameScreenActions.selectMoveType(MoveType.SET_KITTEN) },
+                setCatMove = { gameScreenActions.selectMoveType(MoveType.SET_CAT) },
+                setPromoteKittenMove = { gameScreenActions.selectMoveType(MoveType.PROMOTE_KITTEN) },
+                setReturnCatMove = { gameScreenActions.selectMoveType(MoveType.RETURN_CAT) },
                 modifier = Modifier.weight(1f)
             )
         } else {

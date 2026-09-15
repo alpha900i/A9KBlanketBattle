@@ -14,6 +14,7 @@ import com.alpha900i.a9kblanketbattle.data.repository.DataStoreRepository
 import com.alpha900i.a9kblanketbattle.domain.Game
 import com.alpha900i.a9kblanketbattle.domain.HumanPlayer
 import com.alpha900i.a9kblanketbattle.domain.Move
+import com.alpha900i.a9kblanketbattle.domain.MoveType
 import com.alpha900i.a9kblanketbattle.domain.Player
 import com.alpha900i.a9kblanketbattle.domain.PlayerType
 import com.alpha900i.a9kblanketbattle.util.CustomLog
@@ -23,14 +24,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class UiState(
-    val isHumanTurn: Boolean
+    val isHumanTurn: Boolean,
+    val selectedMoveType: MoveType?
 )
 
 sealed class InfoSectionState {
@@ -50,7 +52,7 @@ sealed class InfoSectionState {
         override val resourceId: Int = R.string.player_promote_kitten_turn
         override val formatArgs = arrayOf(playerIndex + 1)
     }
-    data class PlayerRemovesCat(val playerIndex: Int) : InfoSectionState() {
+    data class PlayerRemoveCat(val playerIndex: Int) : InfoSectionState() {
         override val resourceId: Int = R.string.player_remove_cat_turn
         override val formatArgs = arrayOf(playerIndex + 1)
     }
@@ -121,7 +123,8 @@ class AppViewModel(
 
     private val _uiState = MutableStateFlow(
         UiState(
-            isHumanTurn = false
+            isHumanTurn = false,
+            selectedMoveType = null
         )
     )
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
@@ -130,13 +133,23 @@ class AppViewModel(
             currentState.copy(isHumanTurn = isHumanTurn)
         }
     }
+    fun selectMoveType(moveType: MoveType?) {
+        _uiState.update { currentState ->
+            currentState.copy(selectedMoveType = moveType)
+        }
+    }
 
 
-    val infoMessage: StateFlow<InfoSectionState> = gameState.map { state ->
+
+    val infoMessage: StateFlow<InfoSectionState> = combine(gameState, uiState) { gameState, uiState ->
         when {
-            !state.gameIsActive -> InfoSectionState.GameOver(state.winnerIndex)
-            state.deletableTriplets.size > 1 -> InfoSectionState.PlayerRemoval(state.activePlayerIndex)
-            else -> InfoSectionState.PlayerGeneralTurn(state.activePlayerIndex)
+            uiState.selectedMoveType == MoveType.SET_KITTEN -> InfoSectionState.PlayerSetKittenTurn(gameState.activePlayerIndex)
+            uiState.selectedMoveType == MoveType.SET_CAT -> InfoSectionState.PlayerSetCatTurn(gameState.activePlayerIndex)
+            uiState.selectedMoveType == MoveType.PROMOTE_KITTEN -> InfoSectionState.PlayerPromoteKittenTurn(gameState.activePlayerIndex)
+            uiState.selectedMoveType == MoveType.RETURN_CAT -> InfoSectionState.PlayerRemoveCat(gameState.activePlayerIndex)
+            !gameState.gameIsActive -> InfoSectionState.GameOver(gameState.winnerIndex)
+            gameState.deletableTriplets.size > 1 -> InfoSectionState.PlayerRemoval(gameState.activePlayerIndex)
+            else -> InfoSectionState.PlayerGeneralTurn(gameState.activePlayerIndex)
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, InfoSectionState.WaitingForGame)
 
