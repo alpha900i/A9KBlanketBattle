@@ -726,6 +726,9 @@ fun HandBlock(
                     }
                 },
                 shape = RectangleShape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White
+                ),
                 contentPadding = PaddingValues(0.dp),   // <-- remove internal padding
                 modifier = Modifier.weight(1f)
             ) {
@@ -748,6 +751,9 @@ fun HandBlock(
                     }
                 },
                 shape = RectangleShape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White
+                ),
                 contentPadding = PaddingValues(0.dp),   // <-- remove internal padding
                 modifier = Modifier.weight(1f)
             ) {
