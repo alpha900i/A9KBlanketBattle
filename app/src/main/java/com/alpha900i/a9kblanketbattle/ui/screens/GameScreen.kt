@@ -724,7 +724,7 @@ fun HandBlock(
             modifier = Modifier.weight(1f)
         ) {
             val canPromoteKitten = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.kittenMax != 0)
-            val canRemoveCat = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.catMax != 0)
+            val canReturnCat = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.catMax != 0)
             GeneralButton(
                 onClick = {
                     if (isActiveHand) {
@@ -749,18 +749,18 @@ fun HandBlock(
             GeneralButton(
                 onClick = {
                     if (isActiveHand) {
-                        if (canRemoveCat) {
+                        if (canReturnCat) {
                             setReturnCatMove()
                         } else {
-                            setTempMessage(handIndex, TempMessageType.CANT_REMOVE_CAT)
+                            setTempMessage(handIndex, TempMessageType.CANT_RETURN_CAT)
                         }
                     }
                 },
-                enabled = canRemoveCat,
+                enabled = canReturnCat,
                 modifier = Modifier.weight(1f)
             ) {
                 Image(
-                    painter = painterResource(R.drawable.ic_remove_cat),
+                    painter = painterResource(R.drawable.ic_return_cat),
                     contentDescription = "Icon",
                     colorFilter = ColorFilter.tint(Color.Black),
                     contentScale = ContentScale.Fit,

@@ -40,7 +40,7 @@ enum class TempMessageType {
     CANT_SET_KITTEN,
     CANT_SET_CAT,
     CANT_PROMOTE_KITTEN,
-    CANT_REMOVE_CAT
+    CANT_RETURN_CAT
 }
 sealed class InfoSectionTempState {
     object NoHint: InfoSectionTempState() {
@@ -59,8 +59,8 @@ sealed class InfoSectionTempState {
         override val resourceId: Int = R.string.cant_promote_kitten_hint
         override val formatArgs = arrayOf(playerIndex + 1)
     }
-    data class CantRemoveCat(val playerIndex: Int): InfoSectionTempState() {
-        override val resourceId: Int = R.string.cant_remove_cat_hint
+    data class CantReturnCat(val playerIndex: Int): InfoSectionTempState() {
+        override val resourceId: Int = R.string.cant_return_cat_hint
         override val formatArgs = arrayOf(playerIndex + 1)
     }
 
@@ -68,28 +68,28 @@ sealed class InfoSectionTempState {
     abstract val formatArgs: Array<out Any>
 }
 sealed class InfoSectionState {
-    data class PlayerGeneralTurn(val playerIndex: Int) : InfoSectionState() {
+    data class GeneralTurn(val playerIndex: Int) : InfoSectionState() {
         override val resourceId: Int = R.string.player_turn
         override val formatArgs = arrayOf(playerIndex + 1)
     }
-    data class PlayerSetKittenTurn(val playerIndex: Int) : InfoSectionState() {
+    data class SetKitten(val playerIndex: Int) : InfoSectionState() {
         override val resourceId: Int = R.string.player_set_kitten_turn
         override val formatArgs = arrayOf(playerIndex + 1)
     }
-    data class PlayerSetCatTurn(val playerIndex: Int) : InfoSectionState() {
+    data class SetCat(val playerIndex: Int) : InfoSectionState() {
         override val resourceId: Int = R.string.player_set_cat_turn
         override val formatArgs = arrayOf(playerIndex + 1)
     }
-    data class PlayerPromoteKittenTurn(val playerIndex: Int) : InfoSectionState() {
+    data class PromoteKitten(val playerIndex: Int) : InfoSectionState() {
         override val resourceId: Int = R.string.player_promote_kitten_turn
         override val formatArgs = arrayOf(playerIndex + 1)
     }
-    data class PlayerRemoveCat(val playerIndex: Int) : InfoSectionState() {
-        override val resourceId: Int = R.string.player_remove_cat_turn
+    data class ReturnCat(val playerIndex: Int) : InfoSectionState() {
+        override val resourceId: Int = R.string.player_return_cat_turn
         override val formatArgs = arrayOf(playerIndex + 1)
     }
 
-    data class PlayerRemoval(val playerIndex: Int) : InfoSectionState() {
+    data class TripletRemoval(val playerIndex: Int) : InfoSectionState() {
         override val resourceId = R.string.players_removal
         override val formatArgs = arrayOf(playerIndex + 1)
     }
@@ -182,7 +182,7 @@ class AppViewModel(
             TempMessageType.CANT_SET_KITTEN -> InfoSectionTempState.CantSetKitten(playerIndex = playerIndex)
             TempMessageType.CANT_SET_CAT -> InfoSectionTempState.CantSetCat(playerIndex = playerIndex)
             TempMessageType.CANT_PROMOTE_KITTEN -> InfoSectionTempState.CantPromoteKitten(playerIndex = playerIndex)
-            TempMessageType.CANT_REMOVE_CAT -> InfoSectionTempState.CantRemoveCat(playerIndex = playerIndex)
+            TempMessageType.CANT_RETURN_CAT -> InfoSectionTempState.CantReturnCat(playerIndex = playerIndex)
         }
         setTempMessage(tempMessage)
     }
@@ -203,12 +203,12 @@ class AppViewModel(
         when {
             (tempMessage != InfoSectionTempState.NoHint) -> InfoSectionState.TempMessage(tempMessage.resourceId, tempMessage.formatArgs)
             !gameState.gameIsActive -> InfoSectionState.GameOver(gameState.winnerIndex)
-            gameState.deletableTriplets.size > 1 -> InfoSectionState.PlayerRemoval(gameState.activePlayerIndex)
-            uiState.selectedMoveType == MoveType.SET_KITTEN -> InfoSectionState.PlayerSetKittenTurn(gameState.activePlayerIndex)
-            uiState.selectedMoveType == MoveType.SET_CAT -> InfoSectionState.PlayerSetCatTurn(gameState.activePlayerIndex)
-            uiState.selectedMoveType == MoveType.PROMOTE_KITTEN -> InfoSectionState.PlayerPromoteKittenTurn(gameState.activePlayerIndex)
-            uiState.selectedMoveType == MoveType.RETURN_CAT -> InfoSectionState.PlayerRemoveCat(gameState.activePlayerIndex)
-            else -> InfoSectionState.PlayerGeneralTurn(gameState.activePlayerIndex)
+            gameState.deletableTriplets.size > 1 -> InfoSectionState.TripletRemoval(gameState.activePlayerIndex)
+            uiState.selectedMoveType == MoveType.SET_KITTEN -> InfoSectionState.SetKitten(gameState.activePlayerIndex)
+            uiState.selectedMoveType == MoveType.SET_CAT -> InfoSectionState.SetCat(gameState.activePlayerIndex)
+            uiState.selectedMoveType == MoveType.PROMOTE_KITTEN -> InfoSectionState.PromoteKitten(gameState.activePlayerIndex)
+            uiState.selectedMoveType == MoveType.RETURN_CAT -> InfoSectionState.ReturnCat(gameState.activePlayerIndex)
+            else -> InfoSectionState.GeneralTurn(gameState.activePlayerIndex)
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, InfoSectionState.WaitingForGame)
 

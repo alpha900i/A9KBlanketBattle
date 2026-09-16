@@ -8,11 +8,11 @@
     <string name="player_set_kitten_turn">Player %1$d must select empty cell for kitten</string>
     <string name="player_set_cat_turn">Player %1$d must select empty cell for cat</string>
     <string name="player_promote_kitten_turn">Player %1$d must select kitten for promotion</string>
-    <string name="player_remove_cat_turn">Player %1$d must select cat for removal</string>
+    <string name="player_return_cat_turn">Player %1$d must select cat for return</string>
     <string name="cant_set_kitten_hint">No kitten to set</string>
     <string name="cant_set_cat_hint">No cat to set</string>
-    <string name="cant_promote_kitten_hint">Put all pieces to promote</string>
-    <string name="cant_remove_cat_hint">Put all pieces to remove</string>
+    <string name="cant_promote_kitten_hint">Put all pieces to promote kitten</string>
+    <string name="cant_return_cat_hint">Put all pieces to return cat</string>
     <string name="players_removal">Player %1$d must select a triplet</string>
     <string name="game_over">Game Over! Player %1$d wins</string>
     <string name="waiting_for_game">Waiting for game</string>
