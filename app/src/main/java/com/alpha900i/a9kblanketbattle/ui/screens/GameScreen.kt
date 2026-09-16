@@ -671,15 +671,12 @@ fun HandBlock(
         Row(
             modifier = Modifier.weight(1f)
         ) {
-            PieceBlock(
-                painterByCellType(cellType = CellType.KITTEN),
-                hand.kittenCurrent,
-                hand.kittenMax,
-                isActiveHand = isActiveHand,
-                isActivePiece = kittenActive && isActiveHand,
-                onClick = { isEnabled ->
+            val kittenIsEnabled = isActiveHand && hand.kittenCurrent > 0
+            val catIsEnabled = isActiveHand && hand.catCurrent > 0
+            GeneralButton(
+                onClick = {
                     if (isActiveHand) {
-                        if (isEnabled) {
+                        if (kittenIsEnabled) {
                             kittenActive = true
                             catActive = false
                             setKittenMove()
@@ -688,17 +685,21 @@ fun HandBlock(
                         }
                     }
                 },
+                enabled = kittenIsEnabled,
                 modifier = Modifier.weight(1f)
-            )
-            PieceBlock(
-                painterByCellType(cellType = CellType.CAT),
-                hand.catCurrent,
-                hand.catMax,
-                isActiveHand = isActiveHand,
-                isActivePiece = catActive && isActiveHand,
-                onClick = { isEnabled ->
+            ) {
+                PieceBlock(
+                    painterByCellType(cellType = CellType.KITTEN),
+                    hand.kittenCurrent,
+                    hand.kittenMax,
+                    isActivePiece = kittenActive && isActiveHand,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            GeneralButton(
+                onClick = {
                     if (isActiveHand) {
-                        if (isEnabled) {
+                        if (catIsEnabled) {
                             kittenActive = false
                             catActive = true
                             setCatMove()
@@ -707,15 +708,24 @@ fun HandBlock(
                         }
                     }
                 },
-                modifier = Modifier.weight(1f),
-            )
+                enabled = catIsEnabled,
+                modifier = Modifier.weight(1f)
+            ) {
+                PieceBlock(
+                    painterByCellType(cellType = CellType.CAT),
+                    hand.catCurrent,
+                    hand.catMax,
+                    isActivePiece = catActive && isActiveHand,
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
         Row(
             modifier = Modifier.weight(1f)
         ) {
             val canPromoteKitten = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.kittenMax != 0)
             val canRemoveCat = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.catMax != 0)
-            Button(
+            GeneralButton(
                 onClick = {
                     if (isActiveHand) {
                         if (canPromoteKitten) {
@@ -725,22 +735,18 @@ fun HandBlock(
                         }
                     }
                 },
-                shape = RectangleShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White
-                ),
-                contentPadding = PaddingValues(0.dp),   // <-- remove internal padding
+                enabled = canPromoteKitten,
                 modifier = Modifier.weight(1f)
             ) {
                 Image(
-                    painter = painterResource(R.drawable.ic_promote) ,
+                    painter = painterResource(R.drawable.ic_promote),
                     contentDescription = "Icon",
                     colorFilter = ColorFilter.tint(Color.Black),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize(1f)
                 )
             }
-            Button(
+            GeneralButton(
                 onClick = {
                     if (isActiveHand) {
                         if (canRemoveCat) {
@@ -750,15 +756,11 @@ fun HandBlock(
                         }
                     }
                 },
-                shape = RectangleShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White
-                ),
-                contentPadding = PaddingValues(0.dp),   // <-- remove internal padding
+                enabled = canRemoveCat,
                 modifier = Modifier.weight(1f)
             ) {
                 Image(
-                    painter = painterResource(R.drawable.ic_remove_cat) ,
+                    painter = painterResource(R.drawable.ic_remove_cat),
                     contentDescription = "Icon",
                     colorFilter = ColorFilter.tint(Color.Black),
                     contentScale = ContentScale.Fit,
@@ -774,23 +776,15 @@ fun PieceBlock(
     painter: Painter?,
     current: Int,
     max: Int,
-    isActiveHand: Boolean,
     isActivePiece: Boolean,
-    onClick: (Boolean) -> Unit,
     modifier: Modifier,
 ) {
     val pieceColor = if (isActivePiece) Color.Blue else Color.White
-    val isEnabled = isActiveHand && current > 0
     Row(
         modifier = modifier
             .fillMaxSize(1f)
             .border(1.dp, Color.Gray)
             .background(pieceColor)
-            .clickable(
-                onClick = {
-                    onClick(isEnabled)
-                }
-            )
     ) {
         if (painter != null) {
             Image(
@@ -817,5 +811,27 @@ fun PieceBlock(
                 .border(1.dp, Color.Gray)
                 .weight(1f)
         )
+    }
+}
+
+@Composable
+fun GeneralButton(
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier,
+    content: @Composable () -> Unit
+) {
+    val borderColor = if (enabled) Color.Green else Color.Red
+    Button(
+        onClick = onClick,
+        shape = RectangleShape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.White
+        ),
+        contentPadding = PaddingValues(0.dp),   // <-- remove internal padding
+        modifier = modifier
+            .border(2.dp, borderColor)
+    ) {
+        content()
     }
 }
