@@ -16,6 +16,5 @@
 10. Should screen's actions parameters be named just "actions"?
 11. Return cat/remove cat - uniform name
 12. Implement better "disabled button" visuals
-13. Decide on multiline info section
 ## QUESTIONS
 1. Board (and maybe someone else) kinda does a lot with incoming params, isn't it? It uses them as return value. Not pure.
