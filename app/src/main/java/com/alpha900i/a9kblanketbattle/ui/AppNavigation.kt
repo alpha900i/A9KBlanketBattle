@@ -27,7 +27,7 @@ fun AppNavHost(
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
     onAnimationComplete: () -> Unit,
-    settingsAction: SettingsAction,
+    settingsActions: SettingsActions,
     navController: NavHostController = rememberNavController(),
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -45,7 +45,7 @@ fun AppNavHost(
                 gameState = gameState,
                 isHumanTurn = uiState.isHumanTurn,
                 selectedMoveType = uiState.selectedMoveType,
-                gameScreenActions = gameScreenActions,
+                actions = gameScreenActions,
                 infoSectionMessage = infoSectionMessage,
                 startNewGame = startNewGame,
                 cancelGame = cancelGame,
@@ -56,7 +56,7 @@ fun AppNavHost(
         }
         composable(route = Screen.SETTINGS.name) {
             SettingsScreen(
-                settingsAction = settingsAction
+                actions = settingsActions
             )
         }
     }

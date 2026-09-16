@@ -76,7 +76,7 @@ fun GameScreen(
     gameState: GameState,
     isHumanTurn: Boolean,
     selectedMoveType: MoveType?,
-    gameScreenActions: GameScreenActions,
+    actions: GameScreenActions,
     infoSectionMessage: InfoSectionState,
     startNewGame: () -> Unit,
     cancelGame: () -> Unit,
@@ -141,11 +141,11 @@ fun GameScreen(
             HandsSection(
                 gameState = gameState,
                 isHumanTurn = isHumanTurn,
-                setKittenMove = { gameScreenActions.selectMoveType(MoveType.SET_KITTEN) },
-                setCatMove = { gameScreenActions.selectMoveType(MoveType.SET_CAT) },
-                setPromoteKittenMove = { gameScreenActions.selectMoveType(MoveType.PROMOTE_KITTEN) },
-                setReturnCatMove = { gameScreenActions.selectMoveType(MoveType.RETURN_CAT) },
-                setTempMessage = gameScreenActions::setTempMessage,
+                setKittenMove = { actions.selectMoveType(MoveType.SET_KITTEN) },
+                setCatMove = { actions.selectMoveType(MoveType.SET_CAT) },
+                setPromoteKittenMove = { actions.selectMoveType(MoveType.PROMOTE_KITTEN) },
+                setReturnCatMove = { actions.selectMoveType(MoveType.RETURN_CAT) },
+                setTempMessage = actions::setTempMessage,
                 modifier = Modifier.weight(1f)
             )
         } else {

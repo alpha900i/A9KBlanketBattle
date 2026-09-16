@@ -31,56 +31,56 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.domain.PlayerType
 import com.alpha900i.a9kblanketbattle.ui.Constants
-import com.alpha900i.a9kblanketbattle.ui.SettingsAction
+import com.alpha900i.a9kblanketbattle.ui.SettingsActions
 import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun SettingsScreen(
-    settingsAction: SettingsAction
+    actions: SettingsActions
 ) {
     Column() {
         IntSetting(
             title = stringResource(R.string.width_setting_title),
-            getter = settingsAction.getWidth(),
+            getter = actions.getWidth(),
             defaultValue = Constants.DEFAULT_WIDTH,
             minValue = Constants.MIN_WIDTH,
-            setter = settingsAction::setWidth
+            setter = actions::setWidth
         )
         IntSetting(
             title = stringResource(R.string.height_setting_title),
-            getter = settingsAction.getHeight(),
+            getter = actions.getHeight(),
             defaultValue = Constants.DEFAULT_HEIGHT,
             minValue = Constants.MIN_HEIGHT,
-            setter = settingsAction::setHeight
+            setter = actions::setHeight
         )
         IntSetting(
             title = stringResource(R.string.start_kitten_setting_title),
-            getter = settingsAction.getKittenStart(),
+            getter = actions.getKittenStart(),
             defaultValue = Constants.DEFAULT_KITTEN_START,
             minValue = Constants.MIN_KITTEN_START,
-            setter = settingsAction::setKittenStart
+            setter = actions::setKittenStart
         )
         IntSetting(
             title = stringResource(R.string.start_cat_setting_title),
-            getter = settingsAction.getCatStart(),
+            getter = actions.getCatStart(),
             defaultValue = Constants.DEFAULT_CAT_START,
             minValue = Constants.MIN_CAT_START,
-            setter = settingsAction::setCatStart
+            setter = actions::setCatStart
         )
         PlayerTypeSetting(
             title = stringResource(R.string.player_1_setting_title),
-            getter = settingsAction.getFirstPlayerType(),
+            getter = actions.getFirstPlayerType(),
             defaultValue = Constants.DEFAULT_FIRST_PLAYER_TYPE,
-            setter = settingsAction::setFirstPlayerType,
+            setter = actions::setFirstPlayerType,
         )
         PlayerTypeSetting(
             title = stringResource(R.string.player_2_setting_title),
-            getter = settingsAction.getSecondPlayerType(),
+            getter = actions.getSecondPlayerType(),
             defaultValue = Constants.DEFAULT_SECOND_PLAYER_TYPE,
-            setter = settingsAction::setSecondPlayerType,
+            setter = actions::setSecondPlayerType,
         )
         Button(
-            onClick = settingsAction::restoreDefaults,
+            onClick = actions::restoreDefaults,
             modifier = Modifier.fillMaxWidth(1f)
         ) {
             Text(

@@ -44,7 +44,7 @@ import com.alpha900i.a9kblanketbattle.ui.AppViewModel
 import com.alpha900i.a9kblanketbattle.ui.GameScreenActions
 import com.alpha900i.a9kblanketbattle.ui.InfoSectionState
 import com.alpha900i.a9kblanketbattle.ui.Screen
-import com.alpha900i.a9kblanketbattle.ui.SettingsAction
+import com.alpha900i.a9kblanketbattle.ui.SettingsActions
 import com.alpha900i.a9kblanketbattle.ui.StartScreenActions
 import com.alpha900i.a9kblanketbattle.ui.TempMessageType
 import com.alpha900i.a9kblanketbattle.ui.UiState
@@ -102,7 +102,7 @@ fun MainContent(
             viewModel.setTempMessage(playerIndex = playerIndex, tempMessageType = tempMessageType)
         }
     }
-    val settingsAction = object : SettingsAction{
+    val settingsActions = object : SettingsActions{
         override fun getWidth(): Flow<Int> = viewModel.width
         override fun getHeight(): Flow<Int> = viewModel.height
         override fun getKittenStart(): Flow<Int> = viewModel.kittenStart
@@ -158,7 +158,7 @@ fun MainContent(
             onAnimationComplete = {
                 viewModel.onAnimationComplete()
             },
-            settingsAction = settingsAction,
+            settingsActions = settingsActions,
             navController = navController,
             contentPadding = innerPadding
         )
@@ -177,7 +177,7 @@ fun MainScreen(
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
     onAnimationComplete: () -> Unit,
-    settingsAction: SettingsAction,
+    settingsActions: SettingsActions,
     navController: NavHostController,
     contentPadding: PaddingValues
 ) {
@@ -193,7 +193,7 @@ fun MainScreen(
             submitMove = submitMove,
             submitRemoval = submitRemoval,
             onAnimationComplete = onAnimationComplete,
-            settingsAction = settingsAction,
+            settingsActions = settingsActions,
             navController = navController
         )
     }

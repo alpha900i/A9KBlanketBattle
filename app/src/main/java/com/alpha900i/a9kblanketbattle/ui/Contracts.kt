@@ -15,7 +15,7 @@ interface GameScreenActions {
     fun setTempMessage(playerIndex: Int, tempMessageType: TempMessageType)
 }
 
-interface SettingsAction {
+interface SettingsActions {
     fun getWidth(): Flow<Int>
     fun getHeight(): Flow<Int>
     fun getKittenStart(): Flow<Int>
