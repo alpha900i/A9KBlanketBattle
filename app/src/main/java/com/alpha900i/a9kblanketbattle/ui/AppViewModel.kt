@@ -99,7 +99,10 @@ sealed class InfoSectionState {
         override val formatArgs = arrayOf(playerIndex + 1)
     }
 
-    data class TempMessage(override val resourceId: Int, override val formatArgs: Array<out Any>) : InfoSectionState() {}
+    data class TempMessage(val temp: InfoSectionTempState) : InfoSectionState() {
+        override val resourceId = temp.resourceId
+        override val formatArgs = temp.formatArgs
+    }
 
     object WaitingForGame : InfoSectionState() {
         override val resourceId = R.string.waiting_for_game
@@ -201,7 +204,7 @@ class AppViewModel(
     val infoPermanentMessage: StateFlow<InfoSectionState> = combine(gameState, uiState, infoTempMessage) {
         gameState, uiState, tempMessage ->
         when {
-            (tempMessage != InfoSectionTempState.NoHint) -> InfoSectionState.TempMessage(tempMessage.resourceId, tempMessage.formatArgs)
+            (tempMessage != InfoSectionTempState.NoHint) -> InfoSectionState.TempMessage(tempMessage)
             !gameState.gameIsActive -> InfoSectionState.GameOver(gameState.winnerIndex)
             gameState.deletableTriplets.size > 1 -> InfoSectionState.TripletRemoval(gameState.activePlayerIndex)
             uiState.selectedMoveType == MoveType.SET_KITTEN -> InfoSectionState.SetKitten(gameState.activePlayerIndex)
