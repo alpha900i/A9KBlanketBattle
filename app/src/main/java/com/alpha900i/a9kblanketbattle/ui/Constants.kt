@@ -14,7 +14,7 @@ object Constants {
     const val MIN_KITTEN_START = 0
 
     val DEFAULT_FIRST_PLAYER_TYPE = PlayerType.HUMAN
-    val DEFAULT_SECOND_PLAYER_TYPE = PlayerType.BOT_A
+    val DEFAULT_SECOND_PLAYER_TYPE = PlayerType.BOT_FIRST_FIT
 
     const val ANIMATION_TIME = 300
     const val BOT_DELAY_TIME = 500L

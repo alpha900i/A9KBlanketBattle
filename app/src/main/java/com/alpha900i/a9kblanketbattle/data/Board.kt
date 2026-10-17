@@ -67,6 +67,27 @@ data class Board(
 ) {
     fun getHeight(): Int = cells.size
     fun getWidth(): Int = cells[0].size
+    fun getEmptyCellCoordinates(): List<Pair<Int, Int>> =
+        cells.flatMapIndexed { rowIndex, row ->
+            row.mapIndexedNotNull { colIndex, cell ->
+                if (cell.type == CellType.EMPTY) {
+                    rowIndex to colIndex
+                } else {
+                    null
+                }
+            }
+        }
+    fun getPlayerCellCoordinates(index: Int): List<Pair<Int, Int>> =
+        cells.flatMapIndexed { rowIndex, row ->
+            row.mapIndexedNotNull { colIndex, cell ->
+                if (cell.type != CellType.EMPTY && cell.owner == index) {
+                    rowIndex to colIndex
+                } else {
+                    null
+                }
+            }
+        }
+    fun getCellType(rowIndex: Int, colIndex: Int): CellType = cells[rowIndex][colIndex].type
 
     //general move application
     //first it sets pieces and processes possible boops
@@ -88,6 +109,7 @@ data class Board(
                     playerIndex = playerIndex
                 )
             }
+
             MoveType.PROMOTE_KITTEN -> {
                 pendingEffects = ascendKitten(
                     move = move,
@@ -96,6 +118,7 @@ data class Board(
                     playerIndex = playerIndex
                 )
             }
+
             MoveType.RETURN_CAT -> {
                 pendingEffects = returnCat(
                     move = move,
@@ -258,7 +281,7 @@ data class Board(
                 type = cellType
             )
         )
-        
+
         return pendingEffects
     }
 
@@ -409,7 +432,7 @@ data class Board(
                 deltaCurrentCat = handChanges[cellOwner].deltaCurrentCat + 1,
                 deltaMaxCat = handChanges[cellOwner].deltaMaxCat + kittenTransformed
             )
-            
+
             mutableCells[targetRow][targetColumn] = Cell.emptyCell()
             pendingEffects.add(
                 VisualEffect.RemovePiece(
@@ -484,8 +507,8 @@ data class Board(
         return true
     }
 
-    fun hasPieces() : Boolean {
-        return cells.any { line -> line.any { cell -> cell.type != CellType.EMPTY }}
+    fun hasPieces(): Boolean {
+        return cells.any { line -> line.any { cell -> cell.type != CellType.EMPTY } }
     }
 
     companion object {
@@ -497,6 +520,7 @@ data class Board(
             }
             return Board(cells)
         }
+
         //cell shifts when we need 4 directions - left, down, left-down, left-up
         val cellDeltas4directions = listOf(
             Pair(1, 0),
@@ -504,6 +528,7 @@ data class Board(
             Pair(1, 1),
             Pair(1, -1)
         )
+
         //cell shifts when we need check all 8 directions
         val cellDeltas8directions = listOf(
             Pair(1, 0),

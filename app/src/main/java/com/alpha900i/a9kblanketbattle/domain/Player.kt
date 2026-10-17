@@ -7,6 +7,7 @@ import com.alpha900i.a9kblanketbattle.ui.Constants
 import com.alpha900i.a9kblanketbattle.util.CustomLog
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
+import kotlin.random.Random
 
 enum class PlayerType(
     val title: String
@@ -14,14 +15,18 @@ enum class PlayerType(
     HUMAN(
         title = "Human"
     ),
-    BOT_A(
-        title = "Bot A"
+    BOT_FIRST_FIT(
+        title = "First fit Bot"
+    ),
+    BOT_RANDOM(
+        title = "Random-choosing Bot"
     );
 
     fun makePlayer(index: Int): Player {
         return when (this) {
             HUMAN -> HumanPlayer(index)
-            BOT_A -> BotPlayerA(index)
+            BOT_FIRST_FIT -> BotFirstFit(index)
+            BOT_RANDOM -> BotRandom(index)
         }
     }
 
@@ -29,8 +34,9 @@ enum class PlayerType(
         fun getAllValues(): Array<PlayerType> {
             return enumValues<PlayerType>()
         }
+
         fun getByName(name: String): PlayerType {
-            return enumValues<PlayerType>().firstOrNull { it.name == name } ?: BOT_A
+            return enumValues<PlayerType>().firstOrNull { it.name == name } ?: BOT_FIRST_FIT
         }
     }
 }
@@ -52,7 +58,70 @@ interface Player {
     fun reset() {}
 }
 
-class BotPlayerA(override val index: Int) : Player {
+class BotFirstFit(override val index: Int) : Player {
+    override suspend fun makeMove(
+        gameState: GameState,
+        applier: (Move) -> Unit
+    ) {
+        delay(Constants.BOT_DELAY_TIME)
+        applier(formMove(gameState))
+    }
+
+    override suspend fun removeTriplet(
+        gameState: GameState,
+        applier: (TripletOnBoard) -> Unit
+    ) {
+        applier(gameState.deletableTriplets.first())
+    }
+
+
+    private fun formMove(gameState: GameState): Move {
+        val catCurrent = gameState.hands[index].catCurrent
+        val kittenCurrent = gameState.hands[index].kittenCurrent
+        //what do we even puting?
+        //if we have pieces - put piece of random type on random place
+        //if we have no free pieces - play removal action on random board piece
+        return if (catCurrent == 0 && kittenCurrent == 0) {
+            formReturnMove(gameState = gameState)
+        } else {
+            formSetMove(gameState = gameState)
+        }
+    }
+
+    private fun formSetMove(gameState: GameState): Move {
+        //give we even got here, one of piece counts must be non-zero
+        //if we have both cats and kitten - select randomly
+        //if we have only one type of piece - select it
+        val catCurrent = gameState.hands[index].catCurrent
+        val moveType = if (catCurrent != 0) {
+            MoveType.SET_CAT
+        } else {
+            MoveType.SET_KITTEN
+        }
+        val emptyCells = gameState.board.getEmptyCellCoordinates()
+        check(emptyCells.isNotEmpty()) {
+            "FirstFitBot-player tries to set while having no empty cells"
+        }
+        val (rowIndex, colIndex) = emptyCells[0]
+        return Move(rowIndex, colIndex, moveType)
+    }
+
+    private fun formReturnMove(gameState: GameState): Move {
+        val myCells = gameState.board.getPlayerCellCoordinates(index = index)
+        check(myCells.isNotEmpty()) {
+            "FirstFitBot-player tries to remove while having no active pieces"
+        }
+        val (rowIndex, colIndex) = myCells[0]
+        val moveType = if (gameState.board.getCellType(rowIndex, colIndex) == CellType.KITTEN) {
+            MoveType.PROMOTE_KITTEN
+        } else {
+            MoveType.RETURN_CAT
+        }
+        return Move(rowIndex, colIndex, moveType)
+    }
+}
+
+class BotRandom(override val index: Int) : Player {
     override suspend fun makeMove(
         gameState: GameState,
         applier: (Move) -> Unit
@@ -69,20 +138,59 @@ class BotPlayerA(override val index: Int) : Player {
     }
 
     private fun formMove(gameState: GameState): Move {
-        gameState.board.cells.forEachIndexed { rowIndex, row ->
-            row.forEachIndexed { colIndex, cell ->
-                if (cell.type == CellType.EMPTY) {
-                    val moveType = if (gameState.hands[index].catCurrent > 0) {
-                        MoveType.SET_CAT
-                    } else {
-                        MoveType.SET_KITTEN
-                    }
-                    CustomLog.d("Player","Bot-player $index goes to $rowIndex x $colIndex with $moveType; hand ${gameState.hands[index]}")
-                    return Move(rowIndex, colIndex, moveType)
-                }
-            }
+        val catCurrent = gameState.hands[index].catCurrent
+        val kittenCurrent = gameState.hands[index].kittenCurrent
+        //what do we even puting?
+        //if we have pieces - put piece of random type on random place
+        //if we have no free pieces - play removal action on random board piece
+        return if (catCurrent == 0 && kittenCurrent == 0) {
+            formReturnMove(gameState = gameState)
+        } else {
+            formSetMove(gameState = gameState)
         }
-        return Move(3, 2, MoveType.SET_KITTEN)
+    }
+
+    private fun formSetMove(gameState: GameState): Move {
+        //give we even got here, one of piece counts must be non-zero
+        //if we have both cats and kitten - select randomly
+        //if we have only one type of piece - select it
+        val catCurrent = gameState.hands[index].catCurrent
+        val kittenCurrent = gameState.hands[index].kittenCurrent
+        val moveType = if (kittenCurrent != 0) {
+            if (catCurrent != 0) {
+                if (Random.nextBoolean()) {
+                    MoveType.SET_KITTEN
+                } else {
+                    MoveType.SET_CAT
+                }
+            } else {
+                MoveType.SET_KITTEN
+            }
+        } else {
+            MoveType.SET_CAT
+        }
+        val emptyCells = gameState.board.getEmptyCellCoordinates()
+        check(emptyCells.isNotEmpty()) {
+            "RandomBot-player tries to set while having no empty cells"
+        }
+        val targetCellNum = Random.nextInt(emptyCells.size)
+        val (rowIndex, colIndex) = emptyCells[targetCellNum]
+        return Move(rowIndex, colIndex, moveType)
+    }
+
+    private fun formReturnMove(gameState: GameState): Move {
+        val myCells = gameState.board.getPlayerCellCoordinates(index = index)
+        check(myCells.isNotEmpty()) {
+            "RandomBot-player tries to remove while having no active pieces"
+        }
+        val targetCellNum = Random.nextInt(myCells.size)
+        val (rowIndex, colIndex) = myCells[targetCellNum]
+        val moveType = if (gameState.board.getCellType(rowIndex, colIndex) == CellType.KITTEN) {
+            MoveType.PROMOTE_KITTEN
+        } else {
+            MoveType.RETURN_CAT
+        }
+        return Move(rowIndex, colIndex, moveType)
     }
 }
 
@@ -121,8 +229,8 @@ class HumanPlayer(override val index: Int) : Player {
         deferredMove?.complete(move)
     }
 
-    override fun submitRemoval(removal: TripletOnBoard) {
-        deferredRemoval?.complete(removal)
+    override fun submitRemoval(tripletOnBoard: TripletOnBoard) {
+        deferredRemoval?.complete(tripletOnBoard)
     }
 
     override fun reset() {
