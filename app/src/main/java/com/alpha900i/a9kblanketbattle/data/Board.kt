@@ -155,7 +155,7 @@ data class Board(
             Board(immutableCells),
             pendingEffects = pendingEffects,
             handChanges,
-            false,           //we wouldn't get here if there was an active gameover, and triplet removal can't initiate one
+            false,           //we wouldn't get here if there was an active "game over", and triplet removal can't initiate one
             -1,
             setOf()     //no removal after removal
         )

@@ -1,7 +1,5 @@
 package com.alpha900i.a9kblanketbattle.data
 
-import com.alpha900i.a9kblanketbattle.util.CustomLog
-
 data class GameState(
     val oldBoard: Board,
     val board: Board,
@@ -14,7 +12,6 @@ data class GameState(
     val maxPieceAmount: Int
 ) {
     fun gameInProgress(): Boolean {
-        CustomLog.d("gameInProgess check")
         return gameIsActive &&
                 (board.hasPieces() || hands[0].changed() || hands[1].changed())
     }
