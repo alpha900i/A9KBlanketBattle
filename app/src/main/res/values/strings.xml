@@ -1,20 +1,20 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">A9KBlanketBattle</string>
     <string name="main_title">Blanket Battle</string>
     <string name="start_game_button_title">Start game</string>
     <string name="settings_button_title">Settings</string>
     <string name="exit_game_button_title">Exit game</string>
     <string name="player_turn">Player %1$d\'s turn</string>
-    <string name="player_set_kitten_turn">Player %1$d must select empty cell for kitten</string>
-    <string name="player_set_cat_turn">Player %1$d must select empty cell for cat</string>
-    <string name="player_promote_kitten_turn">Player %1$d must select kitten for promotion</string>
-    <string name="player_return_cat_turn">Player %1$d must select cat for return</string>
+    <string name="player_set_kitten_turn" tools:ignore="PluralsCandidate">Player %1$d must select empty cell for kitten</string>
+    <string name="player_set_cat_turn" tools:ignore="PluralsCandidate">Player %1$d must select empty cell for cat</string>
+    <string name="player_promote_kitten_turn" tools:ignore="PluralsCandidate">Player %1$d must select kitten for promotion</string>
+    <string name="player_return_cat_turn" tools:ignore="PluralsCandidate">Player %1$d must select cat for return</string>
     <string name="cant_set_kitten_hint">No kitten to set</string>
     <string name="cant_set_cat_hint">No cat to set</string>
     <string name="cant_promote_kitten_hint">Put all pieces to promote kitten</string>
     <string name="cant_return_cat_hint">Put all pieces to return cat</string>
-    <string name="players_removal">Player %1$d must select a triplet</string>
-    <string name="game_over">Game Over! Player %1$d wins</string>
+    <string name="players_removal" tools:ignore="PluralsCandidate">Player %1$d must select a triplet</string>
+    <string name="game_over" tools:ignore="PluralsCandidate">Game Over! Player %1$d wins</string>
     <string name="waiting_for_game">Waiting for game</string>
     <string name="width_setting_title">Width</string>
     <string name="height_setting_title">Height</string>
