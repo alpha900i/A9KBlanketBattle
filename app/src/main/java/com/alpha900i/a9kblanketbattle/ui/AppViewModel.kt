@@ -125,7 +125,7 @@ class AppViewModel(
             catStart = Constants.DEFAULT_CAT_START
         )
     )
-    val gameState: StateFlow<GameState> = _gameState.asStateFlow();
+    val gameState: StateFlow<GameState> = _gameState.asStateFlow()
     fun startNewGame() {
         viewModelScope.launch {
             gameLoopJob?.cancel()

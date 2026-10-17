@@ -4,7 +4,7 @@ import android.util.Log
 
 class CustomLog {
     companion object {
-        private const val TAG: String = "A9KBlanketBattle_LOG";
+        private const val TAG: String = "A9KBlanketBattle_LOG"
         fun d(message: String) {
             d("", message)
         }

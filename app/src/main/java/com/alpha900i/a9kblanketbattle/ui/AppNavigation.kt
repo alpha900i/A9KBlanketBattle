@@ -2,11 +2,9 @@ package com.alpha900i.a9kblanketbattle.ui
 
 import androidx.activity.OnBackPressedDispatcher
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
@@ -30,7 +28,6 @@ fun AppNavHost(
     settingsActions: SettingsActions,
     navController: NavHostController = rememberNavController(),
 ) {
-    val backStackEntry by navController.currentBackStackEntryAsState()
     NavHost(
         navController = navController,
         startDestination = Screen.START.name

@@ -1,8 +1,5 @@
 package com.alpha900i.a9kblanketbattle.domain
 
-import com.alpha900i.a9kblanketbattle.data.Board
-import com.alpha900i.a9kblanketbattle.data.Cell
-
 data class HandChange(
     val deltaCurrentKitten: Int,
     val deltaMaxKitten: Int,

@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.Flow
 fun SettingsScreen(
     actions: SettingsActions
 ) {
-    Column() {
+    Column {
         IntSetting(
             title = stringResource(R.string.width_setting_title),
             getter = actions.getWidth(),

@@ -184,8 +184,8 @@ data class Board(
         for ((dx, dy) in cellDeltas8directions) {
             val checkX = moveX + dx
             val checkY = moveY + dy
-            val receiverX = moveX + 2 * dx;
-            val receiverY = moveY + 2 * dy;
+            val receiverX = moveX + 2 * dx
+            val receiverY = moveY + 2 * dy
             //is cell in question even in board?
             if (checkX in 0 until mutableCells[0].size && checkY in 0 until mutableCells.size) {
                 //is there a pushable piece (so, kitten) in this cell?
@@ -194,7 +194,7 @@ data class Board(
                     if (receiverX in 0 until mutableCells[0].size && receiverY in 0 until mutableCells.size) {
                         //is cell we are getting pushed empty>
                         if (mutableCells[receiverX][receiverY].type == CellType.EMPTY) {
-                            mutableCells[receiverX][receiverY] = mutableCells[checkX][checkY];
+                            mutableCells[receiverX][receiverY] = mutableCells[checkX][checkY]
                             mutableCells[checkX][checkY] = Cell.emptyCell()
                             pendingEffects.add(
                                 VisualEffect.MovePiece(

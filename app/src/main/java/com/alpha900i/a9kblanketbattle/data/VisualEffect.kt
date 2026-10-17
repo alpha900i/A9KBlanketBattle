@@ -21,9 +21,4 @@ sealed class VisualEffect {
         val owner: Int,
         val type: CellType
     ) : VisualEffect()
-
-    companion object {
-        fun emptyList() : List<VisualEffect>
-                = listOf()
-    }
 }

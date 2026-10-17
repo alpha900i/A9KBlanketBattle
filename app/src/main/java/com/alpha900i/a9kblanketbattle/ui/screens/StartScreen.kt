@@ -15,7 +15,7 @@ import com.alpha900i.a9kblanketbattle.ui.StartScreenActions
 fun StartScreen(
     actions: StartScreenActions
 ) {
-    Column() {
+    Column {
         Button(
             onClick = {
                 actions.startGame()
