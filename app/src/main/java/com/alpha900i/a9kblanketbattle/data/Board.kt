@@ -79,27 +79,31 @@ data class Board(
         val mutableCells = cells.map { it.toMutableList() }.toMutableList()
         var pendingEffects: List<VisualEffect> = listOf()
 
-        if (move.moveType == MoveType.SET_CAT || move.moveType == MoveType.SET_KITTEN) {
-            pendingEffects = setPieceAndBoop(
-                move = move,
-                mutableCells = mutableCells,
-                handChanges = handChanges,
-                playerIndex = playerIndex
-            )
-        } else if (move.moveType == MoveType.PROMOTE_KITTEN) {
-            pendingEffects = ascendKitten(
-                move = move,
-                mutableCells = mutableCells,
-                handChanges = handChanges,
-                playerIndex = playerIndex
-            )
-        } else if (move.moveType == MoveType.RETURN_CAT) {
-            pendingEffects = returnCat(
-                move = move,
-                mutableCells = mutableCells,
-                handChanges = handChanges,
-                playerIndex = playerIndex
-            )
+        when (move.moveType) {
+            MoveType.SET_CAT, MoveType.SET_KITTEN -> {
+                pendingEffects = setPieceAndBoop(
+                    move = move,
+                    mutableCells = mutableCells,
+                    handChanges = handChanges,
+                    playerIndex = playerIndex
+                )
+            }
+            MoveType.PROMOTE_KITTEN -> {
+                pendingEffects = ascendKitten(
+                    move = move,
+                    mutableCells = mutableCells,
+                    handChanges = handChanges,
+                    playerIndex = playerIndex
+                )
+            }
+            MoveType.RETURN_CAT -> {
+                pendingEffects = returnCat(
+                    move = move,
+                    mutableCells = mutableCells,
+                    handChanges = handChanges,
+                    playerIndex = playerIndex
+                )
+            }
         }
 
 
@@ -175,7 +179,7 @@ data class Board(
         playerIndex: Int
     ): List<VisualEffect> {
         val (moveX, moveY, moveType) = move
-        var pendingEffects: MutableList<VisualEffect> = mutableListOf()
+        val pendingEffects: MutableList<VisualEffect> = mutableListOf()
 
         for ((dx, dy) in cellDeltas8directions) {
             val checkX = moveX + dx
