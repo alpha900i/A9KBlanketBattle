@@ -9,6 +9,9 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
+/**
+ * Player type; used for dropdowns in "Settings" screen
+ */
 enum class PlayerType(
     val title: String
 ) {
@@ -41,6 +44,12 @@ enum class PlayerType(
     }
 }
 
+/**
+ * Basic interface for all players, human or bots
+ * [index] is number of player in current session
+ * [makeMove] takes active gameState and applier-callback, that takes move; it should generate new move based on this state and pass it to callback
+ * [removeTriplet] takes active gameState and applier-callback, that takes triplet; it should select one of removable triplets to actually remove and pass it to callback
+ */
 interface Player {
     val index: Int
     suspend fun makeMove(
@@ -54,8 +63,16 @@ interface Player {
     )
 }
 
-class BotFirstFit(override val index: Int) : Player {
-    override suspend fun makeMove(
+
+
+/**
+ * General bot rules
+ * Moves are done with delay - otherwise UI wouldn't be able to work properly on bot-vs-bot matches
+ * [formMove] processes hand and selects, whether to make "put piece move" or "remove piece" move. In theory can be overridden, so open
+ * [formSetMove] makes "put piece" move
+ * [formReturnMove] makes "remove piece" move
+ * [selectTripletForRemoval] selects one of removable triplets for removal
+ */
 abstract class Bot(override val index: Int) : Player {
     final override suspend fun makeMove(
         gameState: GameState,
@@ -88,6 +105,11 @@ abstract class Bot(override val index: Int) : Player {
     protected abstract fun formReturnMove(gameState: GameState): Move
     protected abstract fun selectTripletForRemoval(gameState: GameState): TripletOnBoard
 }
+/**
+ * "First-fit" bot
+ * When asked to make a move, puts cat (if possible) or kitten (if no cats are here) on first empty cell. Cells are checked from top-left corner, row by row
+ * When asked to remove one of triplets, always removes first
+ */
 class BotFirstFit(override val index: Int) : Bot(index = index) {
     override fun formSetMove(gameState: GameState): Move {
         //give we even got here, one of piece counts must be non-zero
@@ -125,36 +147,13 @@ class BotFirstFit(override val index: Int) : Bot(index = index) {
     }
 }
 
-class BotRandom(override val index: Int) : Player {
-    override suspend fun makeMove(
-        gameState: GameState,
-        applier: (Move) -> Unit
-    ) {
-        delay(Constants.BOT_DELAY_TIME)
-        applier(formMove(gameState))
-    }
 
-    override suspend fun removeTriplet(
-        gameState: GameState,
-        applier: (TripletOnBoard) -> Unit
-    ) {
-        applier(selectTripletForRemoval(gameState))
-    }
-
-    private fun formMove(gameState: GameState): Move {
-        val catCurrent = gameState.hands[index].catCurrent
-        val kittenCurrent = gameState.hands[index].kittenCurrent
-        //what do we even puting?
-        //if we have pieces - put piece of random type on random place
-        //if we have no free pieces - play removal action on random board piece
-        return if (catCurrent == 0 && kittenCurrent == 0) {
-            formReturnMove(gameState = gameState)
-        } else {
-            formSetMove(gameState = gameState)
-        }
-    }
-
-    private fun formSetMove(gameState: GameState): Move {
+/**
+ * "Random" bot
+ * When asked to make a move, puts randomly selected (among available) piece on randomly selected (among empty) cell
+ * When asked to remove one of triplets, select randomly among candidates
+ * Moves, as with all bots, are done with delay - otherwise UI wouldn't be able to work properly on bot-vs-bot matches
+ */
 class BotRandom(override val index: Int) : Bot(index = index) {
     override fun formSetMove(gameState: GameState): Move {
         //give we even got here, one of piece counts must be non-zero
@@ -203,6 +202,15 @@ class BotRandom(override val index: Int) : Bot(index = index) {
     }
 }
 
+
+/**
+ * Human player class
+ * Actions here are based on UI interactions and happen asynchronously; that's why Deffereds are used
+ * [deferredMove] keeps track on move itself
+ * [deferredRemoval] keeps track on "remove one of possible triplets" action
+ * [submitMove] - called from UI whenever next move is formed
+ * [submitRemoval] - called from UI whenever one of removable triplets is selected for removal
+ */
 class HumanPlayer(override val index: Int) : Player {
     private var deferredMove: CompletableDeferred<Move>? = null
     private var deferredRemoval: CompletableDeferred<TripletOnBoard>? = null
