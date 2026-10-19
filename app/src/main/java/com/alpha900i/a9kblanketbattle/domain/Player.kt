@@ -84,8 +84,6 @@ abstract class Bot(override val index: Int) : Player {
             formSetMove(gameState = gameState)
         }
     }
-
-    private fun formSetMove(gameState: GameState): Move {
     protected abstract fun formSetMove(gameState: GameState): Move
     protected abstract fun formReturnMove(gameState: GameState): Move
     protected abstract fun selectTripletForRemoval(gameState: GameState): TripletOnBoard
@@ -93,8 +91,7 @@ abstract class Bot(override val index: Int) : Player {
 class BotFirstFit(override val index: Int) : Bot(index = index) {
     override fun formSetMove(gameState: GameState): Move {
         //give we even got here, one of piece counts must be non-zero
-        //if we have both cats and kitten - select randomly
-        //if we have only one type of piece - select it
+        //if we have cats - set cat, otherwise set kitten
         val catCurrent = gameState.hands[index].catCurrent
         val moveType = if (catCurrent != 0) {
             MoveType.SET_CAT
@@ -124,7 +121,7 @@ class BotFirstFit(override val index: Int) : Bot(index = index) {
     }
 
     override fun selectTripletForRemoval(gameState: GameState): TripletOnBoard {
-        return gameState.deletableTriplets.first();
+        return gameState.deletableTriplets.first()
     }
 }
 
@@ -192,8 +189,7 @@ class BotRandom(override val index: Int) : Bot(index = index) {
         check(myCells.isNotEmpty()) {
             "RandomBot-player tries to remove while having no active pieces"
         }
-        val targetCellNum = Random.nextInt(myCells.size)
-        val (rowIndex, colIndex) = myCells[targetCellNum]
+        val (rowIndex, colIndex) = myCells.random()
         val moveType = if (gameState.board.getCellType(rowIndex, colIndex) == CellType.KITTEN) {
             MoveType.PROMOTE_KITTEN
         } else {
@@ -203,7 +199,7 @@ class BotRandom(override val index: Int) : Bot(index = index) {
     }
 
     override fun selectTripletForRemoval(gameState: GameState): TripletOnBoard {
-        return gameState.deletableTriplets.random();
+        return gameState.deletableTriplets.random()
     }
 }
 
@@ -238,11 +234,11 @@ class HumanPlayer(override val index: Int) : Player {
         }
     }
 
-    override fun submitMove(move: Move) {
+    fun submitMove(move: Move) {
         deferredMove?.complete(move)
     }
 
-    override fun submitRemoval(tripletOnBoard: TripletOnBoard) {
+    fun submitRemoval(tripletOnBoard: TripletOnBoard) {
         deferredRemoval?.complete(tripletOnBoard)
     }
 }
