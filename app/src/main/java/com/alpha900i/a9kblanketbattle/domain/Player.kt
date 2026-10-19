@@ -55,7 +55,6 @@ interface Player {
 
     fun submitMove(move: Move) {}
     fun submitRemoval(tripletOnBoard: TripletOnBoard) {}
-    fun reset() {}
 }
 
 class BotFirstFit(override val index: Int) : Player {
@@ -248,13 +247,5 @@ class HumanPlayer(override val index: Int) : Player {
 
     override fun submitRemoval(tripletOnBoard: TripletOnBoard) {
         deferredRemoval?.complete(tripletOnBoard)
-    }
-
-    override fun reset() {
-        CustomLog.d("Player", "Reset")
-        deferredMove?.cancel()
-        deferredMove = null
-        deferredRemoval?.cancel()
-        deferredRemoval = null
     }
 }
