@@ -52,9 +52,6 @@ interface Player {
         gameState: GameState,
         applier: (TripletOnBoard) -> Unit
     )
-
-    fun submitMove(move: Move) {}
-    fun submitRemoval(tripletOnBoard: TripletOnBoard) {}
 }
 
 class BotFirstFit(override val index: Int) : Player {

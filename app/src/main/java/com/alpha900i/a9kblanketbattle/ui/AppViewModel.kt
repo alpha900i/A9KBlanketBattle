@@ -216,11 +216,19 @@ class AppViewModel(
     }.stateIn(viewModelScope, SharingStarted.Eagerly, InfoSectionState.WaitingForGame)
 
     fun submitMove(activePlayerIndex: Int, move: Move) {
-        players[activePlayerIndex].submitMove(move)
+        val player = players[activePlayerIndex]
+        check(player is HumanPlayer) {
+            "submitMove called for non-human player #$activePlayerIndex (${player::class.simpleName})"
+        }
+        player.submitMove(move)
     }
 
     fun submitRemoval(activePlayerIndex: Int, tripletOnBoard: TripletOnBoard) {
-        players[activePlayerIndex].submitRemoval(tripletOnBoard)
+        val player = players[activePlayerIndex]
+        check(player is HumanPlayer) {
+            "submitRemoval called for non-human player #$activePlayerIndex (${player::class.simpleName})"
+        }
+        player.submitRemoval(tripletOnBoard)
     }
 
 
