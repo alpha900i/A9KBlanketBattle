@@ -60,6 +60,8 @@ interface Player {
 
 class BotFirstFit(override val index: Int) : Player {
     override suspend fun makeMove(
+abstract class Bot(override val index: Int) : Player {
+    final override suspend fun makeMove(
         gameState: GameState,
         applier: (Move) -> Unit
     ) {
@@ -67,15 +69,14 @@ class BotFirstFit(override val index: Int) : Player {
         applier(formMove(gameState))
     }
 
-    override suspend fun removeTriplet(
+    final override suspend fun removeTriplet(
         gameState: GameState,
         applier: (TripletOnBoard) -> Unit
     ) {
         applier(selectTripletForRemoval(gameState))
     }
 
-
-    private fun formMove(gameState: GameState): Move {
+    protected open fun formMove(gameState: GameState): Move {
         val catCurrent = gameState.hands[index].catCurrent
         val kittenCurrent = gameState.hands[index].kittenCurrent
         //what do we even puting?
@@ -89,6 +90,12 @@ class BotFirstFit(override val index: Int) : Player {
     }
 
     private fun formSetMove(gameState: GameState): Move {
+    protected abstract fun formSetMove(gameState: GameState): Move
+    protected abstract fun formReturnMove(gameState: GameState): Move
+    protected abstract fun selectTripletForRemoval(gameState: GameState): TripletOnBoard
+}
+class BotFirstFit(override val index: Int) : Bot(index = index) {
+    override fun formSetMove(gameState: GameState): Move {
         //give we even got here, one of piece counts must be non-zero
         //if we have both cats and kitten - select randomly
         //if we have only one type of piece - select it
@@ -106,7 +113,7 @@ class BotFirstFit(override val index: Int) : Player {
         return Move(rowIndex, colIndex, moveType)
     }
 
-    private fun formReturnMove(gameState: GameState): Move {
+    override fun formReturnMove(gameState: GameState): Move {
         val myCells = gameState.board.getPlayerCellCoordinates(index = index)
         check(myCells.isNotEmpty()) {
             "FirstFitBot-player tries to remove while having no active pieces"
@@ -120,7 +127,7 @@ class BotFirstFit(override val index: Int) : Player {
         return Move(rowIndex, colIndex, moveType)
     }
 
-    private fun selectTripletForRemoval(gameState: GameState): TripletOnBoard {
+    override fun selectTripletForRemoval(gameState: GameState): TripletOnBoard {
         return gameState.deletableTriplets.first();
     }
 }
@@ -155,6 +162,8 @@ class BotRandom(override val index: Int) : Player {
     }
 
     private fun formSetMove(gameState: GameState): Move {
+class BotRandom(override val index: Int) : Bot(index = index) {
+    override fun formSetMove(gameState: GameState): Move {
         //give we even got here, one of piece counts must be non-zero
         //if we have both cats and kitten - select randomly
         //if we have only one type of piece - select it
@@ -182,7 +191,7 @@ class BotRandom(override val index: Int) : Player {
         return Move(rowIndex, colIndex, moveType)
     }
 
-    private fun formReturnMove(gameState: GameState): Move {
+    override fun formReturnMove(gameState: GameState): Move {
         val myCells = gameState.board.getPlayerCellCoordinates(index = index)
         check(myCells.isNotEmpty()) {
             "RandomBot-player tries to remove while having no active pieces"
@@ -197,7 +206,7 @@ class BotRandom(override val index: Int) : Player {
         return Move(rowIndex, colIndex, moveType)
     }
 
-    private fun selectTripletForRemoval(gameState: GameState): TripletOnBoard {
+    override fun selectTripletForRemoval(gameState: GameState): TripletOnBoard {
         return gameState.deletableTriplets.random();
     }
 }
