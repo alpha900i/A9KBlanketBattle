@@ -71,7 +71,7 @@ class BotFirstFit(override val index: Int) : Player {
         gameState: GameState,
         applier: (TripletOnBoard) -> Unit
     ) {
-        applier(gameState.deletableTriplets.first())
+        applier(selectTripletForRemoval(gameState))
     }
 
 
@@ -119,6 +119,10 @@ class BotFirstFit(override val index: Int) : Player {
         }
         return Move(rowIndex, colIndex, moveType)
     }
+
+    private fun selectTripletForRemoval(gameState: GameState): TripletOnBoard {
+        return gameState.deletableTriplets.first();
+    }
 }
 
 class BotRandom(override val index: Int) : Player {
@@ -134,7 +138,7 @@ class BotRandom(override val index: Int) : Player {
         gameState: GameState,
         applier: (TripletOnBoard) -> Unit
     ) {
-        applier(gameState.deletableTriplets.first())
+        applier(selectTripletForRemoval(gameState))
     }
 
     private fun formMove(gameState: GameState): Move {
@@ -191,6 +195,10 @@ class BotRandom(override val index: Int) : Player {
             MoveType.RETURN_CAT
         }
         return Move(rowIndex, colIndex, moveType)
+    }
+
+    private fun selectTripletForRemoval(gameState: GameState): TripletOnBoard {
+        return gameState.deletableTriplets.random();
     }
 }
 
