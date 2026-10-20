@@ -4,6 +4,10 @@ import com.alpha900i.a9kblanketbattle.domain.HandChange
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
 
+/**
+ * Type of single cell
+ * [isPushable] answers, whether current piece can be pushed by piece of given MoveType
+ */
 enum class CellType {
     EMPTY,
     KITTEN,
@@ -18,6 +22,10 @@ enum class CellType {
     }
 }
 
+/**
+ * Single cell has a [type] and number of its [owner]
+ * Empty cells have [owner] -1, although it never used for them
+ */
 data class Cell(
     val type: CellType,
     val owner: Int
@@ -29,6 +37,18 @@ data class Cell(
     }
 }
 
+/**
+ * Three "interesting" pieces on a board in a row.
+ * In practice they are always of same owner, always non-empty, but can contain different pieces
+ * [row] and [column] are row and column of starting cell
+ * [rowShift] and [columnShift] show delta to next cell in triplet
+ * So, triplet consists of cells
+ * (row;column)
+ * (row+rowShift;column+columnShift)
+ * (row+2*rowShift;column+2*columnShift)
+ * [contains] checks whether cell [r]x[c] is in the triplet
+ * [getCells] returns Set of all possible cells in triplet
+ */
 data class TripletOnBoard(
     val row: Int,
     val column: Int,
@@ -53,6 +73,15 @@ data class TripletOnBoard(
         }.toSet()
 }
 
+/**
+ * Result of single move
+ * [board] is updated states of board
+ * [pendingEffects] is pieces' changes during that move that needs visualization (movements, appearings, disappearings)
+ * [handChanges] is 2-element array that describes how contents of player's hand changed after turn
+ * [gameOver] is "is game over after this turn"
+ * [winnerIndex] is "number of player that won". Makes sense only paired with [gameOver] = true
+ * [deletableTriplets] is set of triplets that player can remove from board; player may need to decide, which one to remove
+ */
 data class MoveResult(
     val board: Board,
     val pendingEffects: List<VisualEffect>,
@@ -62,6 +91,15 @@ data class MoveResult(
     val deletableTriplets: Set<TripletOnBoard>
 )
 
+/**
+ * Rectangular grid of cells
+ * [getHeight] and [getWidth] return respective dimension
+ * [getEmptyCellCoordinates] returns list of coordinates of indices for empty cells
+ * [getPlayerCellCoordinates] returns list of coordinates of indices for cells belonging to given player
+ * [getCellType] returns type of cell in given row and column
+ * [applyMove] takes move description; returns result of this move application on given board
+ * [applyRemoval] takes triplet, selected for removal; returns result of this removal for given board
+ */
 data class Board(
     val cells: List<List<Cell>>
 ) {
@@ -89,9 +127,12 @@ data class Board(
         }
     fun getCellType(rowIndex: Int, colIndex: Int): CellType = cells[rowIndex][colIndex].type
 
-    //general move application
-    //first it sets pieces and processes possible boops
-    //second it removes possible triplets
+    /**
+     * General move application
+     * First it implements move, depending on its type
+     * Second it removes possible triplets, if no choice required
+     * Returns MoveResult - set of data describing new board and other game changes
+    */
     fun applyMove(move: Move, playerIndex: Int, maxPieceAmount: Int): MoveResult {
         val handChanges: MutableList<HandChange> = mutableListOf(
             HandChange.emptyHand(),
@@ -164,6 +205,13 @@ data class Board(
         )
     }
 
+
+    /**
+     * General removal application
+     * First it implements move, depending on its type
+     * Second it removes possible triplets, if no choice required
+     * Returns MoveResult - set of data describing new board and other game changes
+     */
     fun applyRemoval(tripletOnBoard: TripletOnBoard): MoveResult {
         val handChanges: MutableList<HandChange> = mutableListOf(
             HandChange.emptyHand(),
@@ -188,13 +236,15 @@ data class Board(
         )
     }
 
-    //setting pieces and booping neighbors
-    //for target cell we check all 8 possible directions
-    //possible cases are:
-    //- next piece isn't pushable (empty or higher value)
-    //- two pieces in target direction, no boop happens
-    //- one pushable piece in target direction, far from edge - boop happens
-    //- one pushable piece in target direction, near the edge - boop happens, piece returns to hand
+    /**
+     * Setting pieces and booping neighbors
+     * for target cell we check all 8 possible directions
+     * possible cases are:
+     * - next piece isn't pushable (empty or higher value)
+     * - two pieces in target direction, no boop happens
+     * - one pushable piece in target direction, far from edge - boop happens
+     * - one pushable piece in target direction, near the edge - boop happens, piece returns to hand
+     */
     private fun setPieceAndBoop(
         move: Move,
         mutableCells: MutableList<MutableList<Cell>>,
@@ -286,6 +336,9 @@ data class Board(
     }
 
 
+    /**
+     * Removes kitten from the board, adds cat to the hand
+     */
     private fun ascendKitten(
         move: Move,
         mutableCells: MutableList<MutableList<Cell>>,
@@ -312,6 +365,10 @@ data class Board(
         )
     }
 
+
+    /**
+     * Removes cat from the board to the hand
+     */
     private fun returnCat(
         move: Move,
         mutableCells: MutableList<MutableList<Cell>>,
@@ -337,9 +394,10 @@ data class Board(
         )
     }
 
-    //this method gets us all deletable triplets for current player that exist on board right now
-    //triplets are grouped by players
-    //triplet is defined by its top-left or bottom-left corner and "shift", leading from this corner to next item
+    /**
+     * All deletable triplets for current player that exist on board right now
+     * Triplet is defined by its top-left or bottom-left corner and "shift", leading from this corner to next item
+     */
     private fun getDeletableTriplets(
         mutableCells: MutableList<MutableList<Cell>>,
         playerIndex: Int
@@ -373,6 +431,10 @@ data class Board(
         return result
     }
 
+    /**
+     * Are there three cells from this [rowIndex]x[columnIndex] start in [cellDelta] defined direction
+     * that belong to same non-fake player?
+     */
     private fun isTriplet(
         mutableCells: MutableList<MutableList<Cell>>,
         rowIndex: Int,
@@ -399,9 +461,12 @@ data class Board(
     }
 
 
-    //cells become empty
-    //kittens turn into cats (so, no delta kittens, delta cats)
-    //cats just removed (delta cats)
+    /**
+     * Normal triplet removal
+     * - clean cells
+     * - each removed kitten returns to hand as cat
+     * - each removed cat returns to hand as cat
+     */
     private fun removeTriplet(
         mutableCells: MutableList<MutableList<Cell>>,
         tripletOnBoard: TripletOnBoard,
@@ -446,6 +511,14 @@ data class Board(
         return pendingEffects
     }
 
+
+    /**
+     * Is game already over?
+     * Game over happens if either of two coniditions is true:
+     * - there are three cats of player #[playerIndex] in the line
+     * - there are [maxPieceAmount] cats of player #[playerIndex] on the board
+     * Winning situation for other player at this point wouldn't stop the game
+     */
     private fun checkForGameOver(
         mutableCells: MutableList<MutableList<Cell>>,
         playerIndex: Int,
@@ -481,6 +554,10 @@ data class Board(
         }
     }
 
+    /**
+     * Are there three cats from this [rowIndex]x[columnIndex] start in [cellDelta] defined direction
+     * that belong to same non-fake player?
+     */
     private fun isCatTriplet(
         mutableCells: MutableList<MutableList<Cell>>,
         rowIndex: Int,
@@ -507,6 +584,10 @@ data class Board(
         return true
     }
 
+
+    /**
+     * Are there any pieces on board whatsoever?
+     */
     fun hasPieces(): Boolean {
         return cells.any { line -> line.any { cell -> cell.type != CellType.EMPTY } }
     }
