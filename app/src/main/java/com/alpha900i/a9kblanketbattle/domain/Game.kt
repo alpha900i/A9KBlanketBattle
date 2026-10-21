@@ -4,7 +4,14 @@ import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 
+/**
+ * Collection of game logic methods
+ */
 class Game {
+    /**
+     * Given current [gameState] and list of 2 [players], make single move and process its results with next method
+     * Move can be either "actual move" or "removal of removable triplet"
+     */
     suspend fun makeMove(
         players: List<Player>,
         gameState: GameState,
@@ -21,6 +28,15 @@ class Game {
         }
     }
 
+
+    /**
+     * Applies [move] to current [gameState], forming new state and updating it through lambda in viewModel
+     * - apply move on board
+     * - apply changes on hand
+     * - check, if game is over. If so, new state would know this and cause game over
+     * - check, whether some triplet deletion is required. If so, new state would have them and cause "triplet removal" flow
+     * - if neither of previous two is true, just update game state and pass turn to other player
+     */
     private fun applyMove(
         gameState: GameState,
         move: Move,
@@ -73,6 +89,13 @@ class Game {
         }
     }
 
+    /**
+     * Removes [tripletToRemove] from current [gameState], forming new state and updating it through lambda in viewModel
+     * - removes triplet from board
+     * - apply changes on hand
+     * - update game state and pass turn to other player
+     * Game over or new removal is impossible here
+     */
     private fun applyRemoval(
         gameState: GameState,
         tripletToRemove: TripletOnBoard,

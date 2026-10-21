@@ -13,6 +13,10 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
+/**
+ * DataStore access
+ * Keeps game's settings - width, height, start amount of cats and kittens, player types
+ */
 class DataStoreRepository(
     private val dataStore: DataStore<Preferences>
 ) {
@@ -92,6 +96,9 @@ class DataStoreRepository(
         )
 
 
+    /**
+     * Set of helper methods, getting/setting values of particular type into datastore
+     */
     fun getIntValue(key: Preferences.Key<Int>, defaultValue: Int): Flow<Int> {
         return dataStore.data
             .catch {
