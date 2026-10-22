@@ -217,16 +217,25 @@ class HumanPlayer(override val index: Int) : Player {
     private var deferredMove: CompletableDeferred<Move>? = null
     private var deferredRemoval: CompletableDeferred<TripletOnBoard>? = null
 
+    /**
+     * User doesn't actually need gameState to make a move, but we have interface to fulfill
+     * Notice how deferredMove and deferred are used - while we save deferred into deferredMove, we await
+     * on deferred, otherwise some race condition can really cause issues.
+     * For same reason, we can't null value unless we sure it is still our value
+     */
     override suspend fun makeMove(
         gameState: GameState,
         applier: (Move) -> Unit
     ) {
         deferredMove?.cancel()
-        deferredMove = CompletableDeferred()
+        val deferred = CompletableDeferred<Move>()
+        deferredMove = deferred
         try {
-            applier(deferredMove!!.await())
+            applier(deferred.await())
         } finally {
-            deferredMove = null   // ✅ clear even if applier throws
+            if (deferredMove === deferred) {
+                deferredMove = null
+            }
         }
     }
 
@@ -235,11 +244,14 @@ class HumanPlayer(override val index: Int) : Player {
         applier: (TripletOnBoard) -> Unit
     ) {
         deferredRemoval?.cancel()
-        deferredRemoval = CompletableDeferred()
+        val deferred = CompletableDeferred<TripletOnBoard>()
+        deferredRemoval = deferred
         try {
-            applier(deferredRemoval!!.await())
+            applier(deferred.await())
         } finally {
-            deferredRemoval = null   // ✅ clear even if applier throws
+            if (deferredRemoval === deferred) {
+                deferredRemoval = null
+            }
         }
     }
 
