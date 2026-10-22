@@ -154,7 +154,10 @@ class BotFirstFit(override val index: Int) : Bot(index = index) {
  * When asked to remove one of triplets, select randomly among candidates
  * Moves, as with all bots, are done with delay - otherwise UI wouldn't be able to work properly on bot-vs-bot matches
  */
-class BotRandom(override val index: Int) : Bot(index = index) {
+class BotRandom(
+    override val index: Int,
+    private val random: Random = Random.Default,   // ← added
+) : Bot(index = index) {
     override fun formSetMove(gameState: GameState): Move {
         //give we even got here, one of piece counts must be non-zero
         //if we have both cats and kitten - select randomly
@@ -163,7 +166,7 @@ class BotRandom(override val index: Int) : Bot(index = index) {
         val kittenCurrent = gameState.hands[index].kittenCurrent
         val moveType = if (kittenCurrent != 0) {
             if (catCurrent != 0) {
-                if (Random.nextBoolean()) {
+                if (random.nextBoolean()) {
                     MoveType.SET_KITTEN
                 } else {
                     MoveType.SET_CAT
@@ -178,7 +181,7 @@ class BotRandom(override val index: Int) : Bot(index = index) {
         check(emptyCells.isNotEmpty()) {
             "RandomBot-player tries to set while having no empty cells"
         }
-        val targetCellNum = Random.nextInt(emptyCells.size)
+        val targetCellNum = random.nextInt(emptyCells.size)
         val (rowIndex, colIndex) = emptyCells[targetCellNum]
         return Move(rowIndex, colIndex, moveType)
     }
