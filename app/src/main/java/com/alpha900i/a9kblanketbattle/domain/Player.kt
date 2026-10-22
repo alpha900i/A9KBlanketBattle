@@ -155,7 +155,7 @@ class BotFirstFit(override val index: Int) : Bot(index = index) {
  */
 class BotRandom(
     override val index: Int,
-    private val random: Random = Random.Default,   // ← added
+    private val random: Random = Random.Default,
 ) : Bot(index = index) {
     override fun formSetMove(gameState: GameState): Move {
         //give we even got here, one of piece counts must be non-zero

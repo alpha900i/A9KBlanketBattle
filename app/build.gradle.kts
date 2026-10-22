@@ -35,6 +35,13 @@ android {
     buildFeatures {
         compose = true
     }
+    //some methods in test suite can throw exceptions
+    //logs, for example. This flag will wrap such methods into returns of normal values
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+        }
+    }
 }
 
 dependencies {
@@ -53,7 +60,12 @@ dependencies {
     implementation(libs.androidx.compose.foundation.layout)
 
 
+    // Explicit JUnit 4 engine (needed for @Test to resolve and run)
     testImplementation(libs.junit)
+    // Explicit kotlin.test JUnit 4 variant — this provides kotlin.test.Test
+    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
