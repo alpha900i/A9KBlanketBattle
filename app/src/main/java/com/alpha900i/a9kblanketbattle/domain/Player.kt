@@ -4,7 +4,6 @@ import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.ui.Constants
-import com.alpha900i.a9kblanketbattle.util.CustomLog
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlin.random.Random
@@ -222,7 +221,6 @@ class HumanPlayer(override val index: Int) : Player {
         gameState: GameState,
         applier: (Move) -> Unit
     ) {
-        CustomLog.d("Player", "Make move")
         deferredMove?.cancel()
         deferredMove = CompletableDeferred()
         try {
