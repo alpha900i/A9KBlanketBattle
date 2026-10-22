@@ -260,11 +260,11 @@ data class Board(
             val receiverX = moveX + 2 * dx
             val receiverY = moveY + 2 * dy
             //is cell in question even in board?
-            if (checkX in 0 until mutableCells[0].size && checkY in 0 until mutableCells.size) {
+            if (checkX in 0 until getHeight() && checkY in 0 until getWidth()) {
                 //is there a pushable piece (so, kitten) in this cell?
                 if (mutableCells[checkX][checkY].type.isPushable(moveType)) {
                     //is cell we are getting pushed to on board?
-                    if (receiverX in 0 until mutableCells[0].size && receiverY in 0 until mutableCells.size) {
+                    if (receiverX in 0 until getHeight() && receiverY in 0 until getWidth()) {
                         //is cell we are getting pushed empty>
                         if (mutableCells[receiverX][receiverY].type == CellType.EMPTY) {
                             mutableCells[receiverX][receiverY] = mutableCells[checkX][checkY]
