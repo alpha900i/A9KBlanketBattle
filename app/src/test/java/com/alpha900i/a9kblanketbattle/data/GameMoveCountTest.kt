@@ -15,8 +15,8 @@ class GameMoveCountTest {
         private val move: Move,
         private val triplet: TripletOnBoard? = null,
     ) : Player {
-        override suspend fun makeMove(state: GameState, applier: (Move) -> Unit) = applier(move)
-        override suspend fun removeTriplet(state: GameState, applier: (TripletOnBoard) -> Unit) =
+        override suspend fun makeMove(gameState: GameState, applier: (Move) -> Unit) = applier(move)
+        override suspend fun removeTriplet(gameState: GameState, applier: (TripletOnBoard) -> Unit) =
             applier(checkNotNull(triplet) { "FixedPlayer was not configured with a triplet" })
     }
 
