@@ -6,6 +6,11 @@ import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 
 /**
  * Collection of game logic methods
+ * Yes, currently those methods are all effectively static and class has no state. This, though
+ * isn't final decision and state in some form can later arrive in Game - and not something that
+ * is specific to GameState, but something different. Maybe, say, difficulty level.
+ * I can make it, i.e., into companion object or into object, or just into a bunch of methods. I just
+ * feel better about current way for now.
  */
 class Game {
     /**
