@@ -1,6 +1,5 @@
 package com.alpha900i.a9kblanketbattle.domain
 
-import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 
@@ -61,18 +60,15 @@ class Game {
         }
 
         if (gameOver || deletableTriplets.isEmpty()) {                              // if game is over or there is nothing to delete - passing turn
-            val emptyCount = gameState.board.cells.sumOf { row -> row.count { it.type == CellType.EMPTY } }
-
             //update state
             val newPlayerIndex = (gameState.activePlayerIndex + 1) % PLAYER_COUNT
-            val moveIsExpected = emptyCount > 0 && !gameOver
             val newState = GameState(
                 board = newBoard,
                 oldBoard = gameState.board,
                 pendingEffects = pendingEffects,
                 hands = newHands,
                 activePlayerIndex = if (!gameOver) newPlayerIndex else winnerIndex,
-                gameIsActive = moveIsExpected,
+                gameIsActive = !gameOver,
                 winnerIndex = winnerIndex,
                 deletableTriplets = if (!gameOver) deletableTriplets else setOf(),
                 maxPieceAmount = gameState.maxPieceAmount,
@@ -113,18 +109,15 @@ class Game {
             hand.applyChange(handChanges[index])
         }
 
-        val emptyCount = gameState.board.cells.sumOf { row -> row.count { it.type == CellType.EMPTY } }
-
         //update state
         val newPlayerIndex = (gameState.activePlayerIndex + 1) % PLAYER_COUNT
-        val moveIsExpected = emptyCount > 0 && !gameOver
         val newState = GameState(
             board = newBoard,
             oldBoard = gameState.board,
             pendingEffects = pendingEffects,
             hands = newHands,
             activePlayerIndex = newPlayerIndex,
-            gameIsActive = moveIsExpected,
+            gameIsActive = !gameOver,
             winnerIndex = winnerIndex,
             deletableTriplets = deletableTriplets,
             maxPieceAmount = gameState.maxPieceAmount,
