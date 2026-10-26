@@ -75,7 +75,8 @@ class Game {
                 gameIsActive = moveIsExpected,
                 winnerIndex = winnerIndex,
                 deletableTriplets = if (!gameOver) deletableTriplets else setOf(),
-                maxPieceAmount = gameState.maxPieceAmount
+                maxPieceAmount = gameState.maxPieceAmount,
+                moveCount = gameState.moveCount + 1
             )
             stateUpdater(newState)
         } else {   // if game is not over, but there is something to delete - we do not change player
@@ -88,7 +89,8 @@ class Game {
                 gameIsActive = gameState.gameIsActive,
                 winnerIndex = -1,
                 deletableTriplets = deletableTriplets,
-                maxPieceAmount = gameState.maxPieceAmount
+                maxPieceAmount = gameState.maxPieceAmount,
+                moveCount = gameState.moveCount
             )
             stateUpdater(newState)
         }
@@ -125,7 +127,8 @@ class Game {
             gameIsActive = moveIsExpected,
             winnerIndex = winnerIndex,
             deletableTriplets = deletableTriplets,
-            maxPieceAmount = gameState.maxPieceAmount
+            maxPieceAmount = gameState.maxPieceAmount,
+            moveCount = gameState.moveCount + 1
         )
         stateUpdater(newState)
     }

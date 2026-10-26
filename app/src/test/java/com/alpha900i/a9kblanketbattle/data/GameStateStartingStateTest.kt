@@ -23,7 +23,6 @@ class GameStateStartingStateTest {
             assertEquals(5, hand.kittenMax, "hand[$index].kittenMax")
             assertEquals(2, hand.catCurrent, "hand[$index].catCurrent")
             assertEquals(2, hand.catMax, "hand[$index].catMax")
-            assertFalse(hand.changed(), "hand[$index] must not be changed at start")
         }
     }
 

@@ -12,6 +12,7 @@ package com.alpha900i.a9kblanketbattle.data
  * [winnerIndex] - number of player that already won game (if game is over)
  * [deletableTriplets] - list of triplets that, after last turn, appeared on a board and can be deleted. Player would need to select one of them for deletion
  * [maxPieceAmount] - full amount of pieces one player can have on board; used for one of game over conditions
+ * [moveCount] - amount of moves done so far. One move - one action of one player
  */
 data class GameState(
     val oldBoard: Board,
@@ -22,18 +23,17 @@ data class GameState(
     val gameIsActive: Boolean,
     val winnerIndex: Int,
     val deletableTriplets: Set<TripletOnBoard>,
-    val maxPieceAmount: Int
+    val maxPieceAmount: Int,
+    val moveCount: Int
 ) {
     /**
      * Game is in progress if it
      * - was started
-     * - not finished yet
-     * - either board or one of the hands have any changes whatsoever
+     * - at least one move was done
      * Uses to decide, whether game screen can be left without confirmation
      */
     fun gameInProgress(): Boolean {
-        return gameIsActive &&
-                (board.hasPieces() || hands[0].changed() || hands[1].changed())
+        return gameIsActive && moveCount > 0
     }
 
     companion object {
@@ -101,7 +101,8 @@ data class GameState(
                 gameIsActive = gameIsActive,
                 winnerIndex = -1,
                 deletableTriplets = setOf(),
-                maxPieceAmount = kittenMax + catMax
+                maxPieceAmount = kittenMax + catMax,
+                moveCount = 0
             )
         }
     }

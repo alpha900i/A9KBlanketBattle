@@ -81,6 +81,7 @@ class GameTransitionsTest {
         winnerIndex = -1,
         deletableTriplets = deletableTriplets,
         maxPieceAmount = maxPieceAmount,
+        moveCount = 0
     )
 
 

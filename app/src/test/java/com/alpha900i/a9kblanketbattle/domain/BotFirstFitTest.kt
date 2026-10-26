@@ -45,6 +45,7 @@ class BotFirstFitTest {
         winnerIndex = -1,
         deletableTriplets = deletableTriplets,
         maxPieceAmount = 8,
+        moveCount = 0
     )
 
 

@@ -148,6 +148,7 @@ class AppViewModel(
     }
 
     fun updateGameState(newState: GameState) {
+        CustomLog.d("Move ${newState.moveCount}")
         _gameState.update { newState }
     }
 
