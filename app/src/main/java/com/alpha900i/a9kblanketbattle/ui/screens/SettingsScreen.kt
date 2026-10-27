@@ -13,25 +13,25 @@ import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.datastore.Settings
 import com.alpha900i.a9kblanketbattle.domain.PlayerType
-import com.alpha900i.a9kblanketbattle.ui.Constants
 import com.alpha900i.a9kblanketbattle.ui.SettingsActions
+import com.alpha900i.a9kblanketbattle.ui.SettingsResult
 
 @Composable
 fun SettingsScreen(
@@ -42,25 +42,25 @@ fun SettingsScreen(
         IntSetting(
             title = stringResource(R.string.width_setting_title),
             intValue = settings.width,
-            minValue = Constants.MIN_WIDTH,
+            settings = settings,
             setter = actions::setWidth
         )
         IntSetting(
             title = stringResource(R.string.height_setting_title),
             intValue = settings.height,
-            minValue = Constants.MIN_HEIGHT,
+            settings = settings,
             setter = actions::setHeight
         )
         IntSetting(
             title = stringResource(R.string.start_kitten_setting_title),
             intValue = settings.kittenStart,
-            minValue = Constants.MIN_KITTEN_START,
+            settings = settings,
             setter = actions::setKittenStart
         )
         IntSetting(
             title = stringResource(R.string.start_cat_setting_title),
             intValue = settings.catStart,
-            minValue = Constants.MIN_CAT_START,
+            settings = settings,
             setter = actions::setCatStart
         )
         PlayerTypeSetting(
@@ -88,44 +88,55 @@ fun SettingsScreen(
 fun IntSetting(
     title: String,
     intValue: Int,
-    minValue: Int,
-    setter: (Int) -> Boolean
+    settings: Settings,
+    setter: (Int) -> SettingsResult
 ) {
     var textValue by remember(intValue) {mutableStateOf("$intValue")}
+    var error by remember { mutableStateOf<SettingsResult.Failure?>(null) }
+
+    LaunchedEffect(settings) {
+        val parsed = textValue.toIntOrNull()
+        if (parsed == null || parsed == intValue) {
+            error = null
+            return@LaunchedEffect
+        }
+        error = when (val r = setter(parsed)) {
+            is SettingsResult.Success -> null
+            is SettingsResult.Failure -> r
+        }
+    }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth(1f)
     ) {
-        Text(
-            text = title,
-            modifier = Modifier
-                .weight(4f)
-        )
-        TextField(
+        OutlinedTextField(
             value = textValue,
-            onValueChange = {
-                textValue = it
-                try {
-                    val fieldValue = Integer.parseInt(textValue)
-                    if (fieldValue >= minValue) {
-                        if (!setter(fieldValue)) {
-                            textValue = "$intValue"
-                        }
-                    } else {
-                        textValue = "$minValue"
-                    }
-                } catch (_: Exception) {
-                    //nothing. If value is bad, we just ignore it
+            onValueChange = { newText ->
+                textValue = newText
+                val parsed = newText.toIntOrNull()
+                if (parsed != null) {
+                    val result: SettingsResult = setter(parsed)
+                    error = result as? SettingsResult.Failure
+                } else {
+                    error = null
+                    return@OutlinedTextField
                 }
             },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent,
-                errorContainerColor = Color.Transparent
-            ),
+            label = { Text(title) },
+            isError = error != null,
+            supportingText = error?.let { failure ->
+                {
+                    Text(
+                        text = stringResource(
+                            failure.messageRes,
+                            *failure.formatArgs.toTypedArray(),
+                        ),
+                    )
+                }
+            },
+            singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

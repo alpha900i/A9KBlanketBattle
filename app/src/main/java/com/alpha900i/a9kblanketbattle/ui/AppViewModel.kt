@@ -1,5 +1,6 @@
 package com.alpha900i.a9kblanketbattle.ui
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -10,6 +11,7 @@ import com.alpha900i.a9kblanketbattle.MainApplication
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
+import com.alpha900i.a9kblanketbattle.data.datastore.InvalidSettingsException
 import com.alpha900i.a9kblanketbattle.data.datastore.Settings
 import com.alpha900i.a9kblanketbattle.data.repository.DataStoreRepository
 import com.alpha900i.a9kblanketbattle.domain.Game
@@ -113,6 +115,20 @@ sealed class InfoSectionState {
     abstract val resourceId: Int
     abstract val formatArgs: Array<out Any>
 }
+
+
+/**
+ * Result of attempt to save settings
+ * [Success] is obvious, [Failure] is result of init's consistency check
+ */
+sealed interface SettingsResult {
+    data object Success : SettingsResult
+    data class Failure(
+        @StringRes val messageRes: Int,
+        val formatArgs: List<Any> = emptyList(),
+    ) : SettingsResult
+}
+
 
 class AppViewModel(
     val dataStoreRepository: DataStoreRepository
@@ -244,21 +260,38 @@ class AppViewModel(
             started = SharingStarted.Eagerly,
             initialValue = Settings.DEFAULT,
         )
-    fun setSettings(transform: (Settings) -> Settings): Boolean {
+    fun setSettings(transform: (Settings) -> Settings): SettingsResult {
         val candidate = runCatching { transform(settings.value) }
-            .getOrElse {
-                //emitHint("Setting rejected")
-                return false
+            .getOrElse { e ->
+                return when (e) {
+                    is InvalidSettingsException -> formSettingsFailure(e)
+                    else -> SettingsResult.Failure(R.string.settings_generic_error)
+                }
             }
         viewModelScope.launch { dataStoreRepository.setSettings(candidate) }
-        return true
+        return SettingsResult.Success
     }
-    fun setWidth(width: Int): Boolean = setSettings { it.copy(width = width) }
-    fun setHeight(height: Int): Boolean = setSettings { it.copy(height = height) }
-    fun setKittenStart(kittenStart: Int): Boolean = setSettings { it.copy(kittenStart = kittenStart) }
-    fun setCatStart(catStart: Int): Boolean = setSettings { it.copy(catStart = catStart) }
-    fun setFirstPlayerType(playerType: PlayerType): Boolean = setSettings { it.copy(firstPlayerType = playerType) }
-    fun setSecondPlayerType(playerType: PlayerType): Boolean = setSettings { it.copy(secondPlayerType = playerType) }
+
+    private fun formSettingsFailure(e: InvalidSettingsException): SettingsResult {
+        return SettingsResult.Failure(
+            when (e) {
+                is InvalidSettingsException.WidthOutOfRange -> R.string.settings_width_out_of_range_error
+                is InvalidSettingsException.HeightOutOfRange -> R.string.settings_height_out_of_range_error
+                is InvalidSettingsException.KittenOutOfRange -> R.string.settings_kitten_out_of_range_error
+                is InvalidSettingsException.CatOutOfRange -> R.string.settings_cat_out_of_range_error
+                is InvalidSettingsException.NoStartingPieces -> R.string.settings_no_starting_pieces_error
+                is InvalidSettingsException.NotEnoughCells -> R.string.settings_not_enough_cells_error
+            },
+            e.formatArgs
+        )
+    }
+
+    fun setWidth(width: Int): SettingsResult = setSettings { it.copy(width = width) }
+    fun setHeight(height: Int): SettingsResult = setSettings { it.copy(height = height) }
+    fun setKittenStart(kittenStart: Int): SettingsResult = setSettings { it.copy(kittenStart = kittenStart) }
+    fun setCatStart(catStart: Int): SettingsResult = setSettings { it.copy(catStart = catStart) }
+    fun setFirstPlayerType(playerType: PlayerType): SettingsResult = setSettings { it.copy(firstPlayerType = playerType) }
+    fun setSecondPlayerType(playerType: PlayerType): SettingsResult = setSettings { it.copy(secondPlayerType = playerType) }
     fun restoreDefaults() {
         setSettings { Settings.DEFAULT }
     }

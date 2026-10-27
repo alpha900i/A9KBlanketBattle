@@ -30,4 +30,13 @@
     <string name="game_cancel_confirmation">Are you sure you want to quit and cancel active game?</string>
     <string name="yes_button_title">Yes</string>
     <string name="no_button_title">No</string>
+
+
+    <string name="settings_width_out_of_range_error">Width must be between %1$d and %2$d, got %3$d</string>
+    <string name="settings_height_out_of_range_error">Height must be between %1$d and %2$d, got %3$d</string>
+    <string name="settings_kitten_out_of_range_error">Starting kittens can\'t be less than %1$d, got %2$d</string>
+    <string name="settings_cat_out_of_range_error">Starting cats can\'t be less than %1$d, got %2$d</string>
+    <string name="settings_no_starting_pieces_error">Each player must start with at least one piece</string>
+    <string name="settings_not_enough_cells_error">Not enough cells: 2 players × %1$d pieces = %2$d pieces, but board is %3$d×%4$d = %5$d cells</string>
+    <string name="settings_generic_error">Can\'t save settings: generic error</string>
 </resources>

@@ -3,6 +3,20 @@ package com.alpha900i.a9kblanketbattle.data.datastore
 import com.alpha900i.a9kblanketbattle.domain.PlayerType
 import com.alpha900i.a9kblanketbattle.ui.Constants
 
+sealed class InvalidSettingsException(val formatArgs: List<Any>) : IllegalArgumentException() {
+    data class WidthOutOfRange(val minWidth: Int, val maxWidth: Int, val width: Int):
+        InvalidSettingsException(listOf(minWidth, maxWidth, width))
+    data class HeightOutOfRange(val minHeight: Int, val maxHeight: Int, val height: Int):
+        InvalidSettingsException(listOf(minHeight, maxHeight, height))
+    data class KittenOutOfRange(val minKittens: Int, val kitten: Int):
+        InvalidSettingsException(listOf(minKittens, kitten))
+    data class CatOutOfRange(val minCat: Int, val cat: Int):
+        InvalidSettingsException(listOf(minCat, cat))
+    class NoStartingPieces: InvalidSettingsException(listOf())
+    data class NotEnoughCells(val piecePerPlayer: Int, val width: Int, val height: Int):
+        InvalidSettingsException(listOf(piecePerPlayer, 2*piecePerPlayer, width, height, width*height))
+}
+
 data class Settings(
     val width: Int,
     val height: Int,
@@ -13,27 +27,51 @@ data class Settings(
 ) {
     init {
         //range checks
-        require(width in Constants.MIN_WIDTH..Constants.MAX_WIDTH)   {
-            "Width must be between ${Constants.MIN_WIDTH} and ${Constants.MAX_WIDTH}, got $width"
-        }
-        require(height in Constants.MIN_HEIGHT..Constants.MAX_HEIGHT)  {
-            "Height must be between ${Constants.MIN_HEIGHT} and ${Constants.MAX_HEIGHT}, got $height"
-        }
-        require(kittenStart >= Constants.MIN_KITTEN_START) {
-            "Starting kittens can't be less than ${Constants.MIN_KITTEN_START}, got $kittenStart"
-        }
-        require(catStart >= Constants.MIN_CAT_START)    {
-            "Starting cats can't be less than ${Constants.MIN_CAT_START}, got $catStart"
-        }
+        checkRule(
+            width in Constants.MIN_WIDTH..Constants.MAX_WIDTH,
+            InvalidSettingsException.WidthOutOfRange(
+                Constants.MIN_WIDTH,
+                Constants.MAX_WIDTH,
+                width
+            )
+        )
+        checkRule(
+            height in Constants.MIN_HEIGHT..Constants.MAX_HEIGHT,
+            InvalidSettingsException.HeightOutOfRange(
+                Constants.MIN_HEIGHT,
+                Constants.MAX_HEIGHT,
+                height
+            )
+        )
+        checkRule(
+            kittenStart >= Constants.MIN_KITTEN_START,
+            InvalidSettingsException.KittenOutOfRange(
+                Constants.MIN_KITTEN_START,
+                kittenStart
+            )
+        )
+        checkRule(
+            catStart >= Constants.MIN_CAT_START,
+            InvalidSettingsException.CatOutOfRange(
+                Constants.MIN_CAT_START,
+                catStart
+            )
+        )
 
         //cross-field invariants
-        require(kittenStart + catStart > 0) {
-            "Each player must start with at least one piece"
-        }
-        require(2 * (kittenStart + catStart) <= width * height) {
-            "Not enough cells: 2 players × ${kittenStart + catStart} pieces " +
-                    "= ${2 * (kittenStart + catStart)} pieces, " +
-                    "but board is ${width}×${height} = ${width * height} cells"
+        checkRule(
+            kittenStart + catStart > 0,
+            InvalidSettingsException.NoStartingPieces()
+        )
+        checkRule(
+            2 * (kittenStart + catStart) <= width * height,
+            InvalidSettingsException.NotEnoughCells(kittenStart + catStart, width, height)
+        )
+    }
+
+    private fun checkRule(rule: Boolean, e: InvalidSettingsException) {
+        if (!rule) {
+            throw e
         }
     }
 

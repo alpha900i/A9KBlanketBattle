@@ -31,12 +31,12 @@ interface GameScreenActions {
  * [restoreDefaults] sets all settings to their default values
  */
 interface SettingsActions {
-    fun setWidth(width: Int): Boolean
-    fun setHeight(height: Int): Boolean
-    fun setKittenStart(kittenStart: Int): Boolean
-    fun setCatStart(catStart: Int): Boolean
-    fun setFirstPlayerType(playerType: PlayerType): Boolean
-    fun setSecondPlayerType(playerType: PlayerType): Boolean
+    fun setWidth(width: Int): SettingsResult
+    fun setHeight(height: Int): SettingsResult
+    fun setKittenStart(kittenStart: Int): SettingsResult
+    fun setCatStart(catStart: Int): SettingsResult
+    fun setFirstPlayerType(playerType: PlayerType): SettingsResult
+    fun setSecondPlayerType(playerType: PlayerType): SettingsResult
 
     fun restoreDefaults()
 }
