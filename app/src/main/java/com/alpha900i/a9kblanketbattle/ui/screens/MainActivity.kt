@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -34,6 +35,7 @@ import androidx.navigation.compose.rememberNavController
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
+import com.alpha900i.a9kblanketbattle.data.datastore.Settings
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
 import com.alpha900i.a9kblanketbattle.domain.PlayerType
@@ -48,7 +50,6 @@ import com.alpha900i.a9kblanketbattle.ui.StartScreenActions
 import com.alpha900i.a9kblanketbattle.ui.TempMessageType
 import com.alpha900i.a9kblanketbattle.ui.UiState
 import com.alpha900i.a9kblanketbattle.ui.theme.A9KBlanketBattleTheme
-import kotlinx.coroutines.flow.Flow
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,14 +102,9 @@ fun MainContent(
             viewModel.setTempMessage(playerIndex = playerIndex, tempMessageType = tempMessageType)
         }
     }
-    val settingsActions = object : SettingsActions{
-        override fun getWidth(): Flow<Int> = viewModel.width
-        override fun getHeight(): Flow<Int> = viewModel.height
-        override fun getKittenStart(): Flow<Int> = viewModel.kittenStart
-        override fun getCatStart(): Flow<Int> = viewModel.catStart
-        override fun getFirstPlayerType(): Flow<PlayerType> = viewModel.firstPlayerType
-        override fun getSecondPlayerType(): Flow<PlayerType> = viewModel.secondPlayerType
 
+    val settings: Settings by viewModel.settings.collectAsStateWithLifecycle()
+    val settingsActions = object : SettingsActions{
         override fun setWidth(width: Int) = viewModel.setWidth(width = width)
         override fun setHeight(height: Int) = viewModel.setHeight(height = height)
         override fun setKittenStart(kittenStart: Int) = viewModel.setKittenStart(kittenStart = kittenStart)
@@ -157,6 +153,7 @@ fun MainContent(
             onAnimationComplete = {
                 viewModel.onAnimationComplete()
             },
+            settings = settings,
             settingsActions = settingsActions,
             navController = navController,
             contentPadding = innerPadding
@@ -176,6 +173,7 @@ fun MainScreen(
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
     onAnimationComplete: () -> Unit,
+    settings: Settings,
     settingsActions: SettingsActions,
     navController: NavHostController,
     contentPadding: PaddingValues
@@ -192,6 +190,7 @@ fun MainScreen(
             submitMove = submitMove,
             submitRemoval = submitRemoval,
             onAnimationComplete = onAnimationComplete,
+            settings = settings,
             settingsActions = settingsActions,
             navController = navController
         )

@@ -27,56 +27,50 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alpha900i.a9kblanketbattle.R
+import com.alpha900i.a9kblanketbattle.data.datastore.Settings
 import com.alpha900i.a9kblanketbattle.domain.PlayerType
 import com.alpha900i.a9kblanketbattle.ui.Constants
 import com.alpha900i.a9kblanketbattle.ui.SettingsActions
-import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun SettingsScreen(
+    settings: Settings,
     actions: SettingsActions
 ) {
     Column {
         IntSetting(
             title = stringResource(R.string.width_setting_title),
-            getter = actions.getWidth(),
-            defaultValue = Constants.DEFAULT_WIDTH,
+            intValue = settings.width,
             minValue = Constants.MIN_WIDTH,
             setter = actions::setWidth
         )
         IntSetting(
             title = stringResource(R.string.height_setting_title),
-            getter = actions.getHeight(),
-            defaultValue = Constants.DEFAULT_HEIGHT,
+            intValue = settings.height,
             minValue = Constants.MIN_HEIGHT,
             setter = actions::setHeight
         )
         IntSetting(
             title = stringResource(R.string.start_kitten_setting_title),
-            getter = actions.getKittenStart(),
-            defaultValue = Constants.DEFAULT_KITTEN_START,
+            intValue = settings.kittenStart,
             minValue = Constants.MIN_KITTEN_START,
             setter = actions::setKittenStart
         )
         IntSetting(
             title = stringResource(R.string.start_cat_setting_title),
-            getter = actions.getCatStart(),
-            defaultValue = Constants.DEFAULT_CAT_START,
+            intValue = settings.catStart,
             minValue = Constants.MIN_CAT_START,
             setter = actions::setCatStart
         )
         PlayerTypeSetting(
             title = stringResource(R.string.player_1_setting_title),
-            getter = actions.getFirstPlayerType(),
-            defaultValue = Constants.DEFAULT_FIRST_PLAYER_TYPE,
+            value = settings.firstPlayerType,
             setter = actions::setFirstPlayerType,
         )
         PlayerTypeSetting(
             title = stringResource(R.string.player_2_setting_title),
-            getter = actions.getSecondPlayerType(),
-            defaultValue = Constants.DEFAULT_SECOND_PLAYER_TYPE,
+            value = settings.secondPlayerType,
             setter = actions::setSecondPlayerType,
         )
         Button(
@@ -93,12 +87,10 @@ fun SettingsScreen(
 @Composable
 fun IntSetting(
     title: String,
-    getter: Flow<Int>,
-    defaultValue: Int,
+    intValue: Int,
     minValue: Int,
-    setter: (Int) -> Unit
+    setter: (Int) -> Boolean
 ) {
-    val intValue by getter.collectAsStateWithLifecycle(defaultValue)
     var textValue by remember(intValue) {mutableStateOf("$intValue")}
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -116,7 +108,9 @@ fun IntSetting(
                 try {
                     val fieldValue = Integer.parseInt(textValue)
                     if (fieldValue >= minValue) {
-                        setter(fieldValue)
+                        if (!setter(fieldValue)) {
+                            textValue = "$intValue"
+                        }
                     } else {
                         textValue = "$minValue"
                     }
@@ -139,12 +133,10 @@ fun IntSetting(
 @Composable
 fun PlayerTypeSetting(
     title: String,
-    getter: Flow<PlayerType>,
-    defaultValue: PlayerType,
+    value: PlayerType,
     setter: (PlayerType) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val value by getter.collectAsStateWithLifecycle(defaultValue)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth(1f)

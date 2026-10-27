@@ -10,6 +10,7 @@ import com.alpha900i.a9kblanketbattle.MainApplication
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
+import com.alpha900i.a9kblanketbattle.data.datastore.Settings
 import com.alpha900i.a9kblanketbattle.data.repository.DataStoreRepository
 import com.alpha900i.a9kblanketbattle.domain.Game
 import com.alpha900i.a9kblanketbattle.domain.HumanPlayer
@@ -126,19 +127,20 @@ class AppViewModel(
         )
     )
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
+
     fun startNewGame() {
         viewModelScope.launch {
             gameLoopJob?.cancel()
             players = listOf(
-                firstPlayerType.first().makePlayer(0),
-                secondPlayerType.first().makePlayer(1)
+                initialSettings.first().firstPlayerType.makePlayer(0),
+                initialSettings.first().secondPlayerType.makePlayer(1)
             )
             _gameState.update {
                 GameState.startingState(
-                    width = width.first(),
-                    height = height.first(),
-                    kittenStart = kittenStart.first(),
-                    catStart = catStart.first(),
+                    width = initialSettings.first().width,
+                    height = initialSettings.first().height,
+                    kittenStart = initialSettings.first().kittenStart,
+                    catStart = initialSettings.first().catStart,
                     gameIsActive = true
                 )
             }
@@ -234,64 +236,32 @@ class AppViewModel(
 
 
     //data store section
-    val width: Flow<Int> = dataStoreRepository.width
-    fun setWidth(width: Int) {
-        CustomLog.d("Setter", "Set width $width")
-        viewModelScope.launch {
-            dataStoreRepository.setWidth(width = width)
-        }
+    //initialSettings are needed for first-time access on creation, which StateFlow may not have yet
+    val initialSettings: Flow<Settings> = dataStoreRepository.settings
+    val settings: StateFlow<Settings> = dataStoreRepository.settings
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = Settings.DEFAULT,
+        )
+    fun setSettings(transform: (Settings) -> Settings): Boolean {
+        val candidate = runCatching { transform(settings.value) }
+            .getOrElse {
+                //emitHint("Setting rejected")
+                return false
+            }
+        viewModelScope.launch { dataStoreRepository.setSettings(candidate) }
+        return true
     }
-
-    val height: Flow<Int> = dataStoreRepository.height
-    fun setHeight(height: Int) {
-        CustomLog.d("Setter", "Set height $height")
-        viewModelScope.launch {
-            dataStoreRepository.setHeight(height = height)
-        }
-    }
-
-    val kittenStart: Flow<Int> = dataStoreRepository.kittenStart
-    fun setKittenStart(kittenStart: Int) {
-        CustomLog.d("Setter", "Set kittenStart $kittenStart")
-        viewModelScope.launch {
-            dataStoreRepository.setKittenStart(kittenStart = kittenStart)
-        }
-    }
-
-    val catStart: Flow<Int> = dataStoreRepository.catStart
-    fun setCatStart(catStart: Int) {
-        CustomLog.d("Setter", "Set catStart $catStart")
-        viewModelScope.launch {
-            dataStoreRepository.setCatStart(catStart = catStart)
-        }
-    }
-
-    val firstPlayerType: Flow<PlayerType> = dataStoreRepository.firstPlayerType
-    fun setFirstPlayerType(playerType: PlayerType) {
-        viewModelScope.launch {
-            dataStoreRepository.setFirstPlayerType(playerType = playerType)
-        }
-    }
-
-    val secondPlayerType: Flow<PlayerType> = dataStoreRepository.secondPlayerType
-    fun setSecondPlayerType(playerType: PlayerType) {
-        viewModelScope.launch {
-            dataStoreRepository.setSecondPlayerType(playerType = playerType)
-        }
-    }
-
+    fun setWidth(width: Int): Boolean = setSettings { it.copy(width = width) }
+    fun setHeight(height: Int): Boolean = setSettings { it.copy(height = height) }
+    fun setKittenStart(kittenStart: Int): Boolean = setSettings { it.copy(kittenStart = kittenStart) }
+    fun setCatStart(catStart: Int): Boolean = setSettings { it.copy(catStart = catStart) }
+    fun setFirstPlayerType(playerType: PlayerType): Boolean = setSettings { it.copy(firstPlayerType = playerType) }
+    fun setSecondPlayerType(playerType: PlayerType): Boolean = setSettings { it.copy(secondPlayerType = playerType) }
     fun restoreDefaults() {
-        viewModelScope.launch {
-            dataStoreRepository.setWidth(width = Constants.DEFAULT_WIDTH)
-            dataStoreRepository.setHeight(height = Constants.DEFAULT_HEIGHT)
-            dataStoreRepository.setKittenStart(kittenStart = Constants.DEFAULT_KITTEN_START)
-            dataStoreRepository.setCatStart(catStart = Constants.DEFAULT_CAT_START)
-            dataStoreRepository.setFirstPlayerType(playerType = Constants.DEFAULT_FIRST_PLAYER_TYPE)
-            dataStoreRepository.setSecondPlayerType(playerType = Constants.DEFAULT_SECOND_PLAYER_TYPE)
-        }
+        setSettings { Settings.DEFAULT }
     }
-
-
 
     init {
         startGameLoop()

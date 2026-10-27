@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
+import com.alpha900i.a9kblanketbattle.data.datastore.Settings
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.ui.screens.GameScreen
 import com.alpha900i.a9kblanketbattle.ui.screens.SettingsScreen
@@ -25,6 +26,7 @@ fun AppNavHost(
     submitMove: (Move) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
     onAnimationComplete: () -> Unit,
+    settings: Settings,
     settingsActions: SettingsActions,
     navController: NavHostController = rememberNavController(),
 ) {
@@ -53,6 +55,7 @@ fun AppNavHost(
         }
         composable(route = Screen.SETTINGS.name) {
             SettingsScreen(
+                settings = settings,
                 actions = settingsActions
             )
         }

@@ -15,6 +15,11 @@ object Constants {
     const val MIN_CAT_START = 0
     const val MIN_KITTEN_START = 0
 
+    //maximum possible values for width, height
+    //starting amount of cats and kittens is controlled by width and height indirectly - see Settings.init
+    const val MAX_WIDTH = 20
+    const val MAX_HEIGHT = 20
+
     //default type of players
     val DEFAULT_FIRST_PLAYER_TYPE = PlayerType.HUMAN
     val DEFAULT_SECOND_PLAYER_TYPE = PlayerType.BOT_FIRST_FIT

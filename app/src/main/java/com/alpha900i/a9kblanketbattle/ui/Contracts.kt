@@ -2,7 +2,6 @@ package com.alpha900i.a9kblanketbattle.ui
 
 import com.alpha900i.a9kblanketbattle.domain.MoveType
 import com.alpha900i.a9kblanketbattle.domain.PlayerType
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Callbacks for startScreen
@@ -28,23 +27,16 @@ interface GameScreenActions {
 
 /**
  * Callbacks for "settings" screen
- * each existing setting should have getter and setter
+ * each existing setting should have setter
  * [restoreDefaults] sets all settings to their default values
  */
 interface SettingsActions {
-    fun getWidth(): Flow<Int>
-    fun getHeight(): Flow<Int>
-    fun getKittenStart(): Flow<Int>
-    fun getCatStart(): Flow<Int>
-    fun getFirstPlayerType(): Flow<PlayerType>
-    fun getSecondPlayerType(): Flow<PlayerType>
-
-    fun setWidth(width: Int)
-    fun setHeight(height: Int)
-    fun setKittenStart(kittenStart: Int)
-    fun setCatStart(catStart: Int)
-    fun setFirstPlayerType(playerType: PlayerType)
-    fun setSecondPlayerType(playerType: PlayerType)
+    fun setWidth(width: Int): Boolean
+    fun setHeight(height: Int): Boolean
+    fun setKittenStart(kittenStart: Int): Boolean
+    fun setCatStart(catStart: Int): Boolean
+    fun setFirstPlayerType(playerType: PlayerType): Boolean
+    fun setSecondPlayerType(playerType: PlayerType): Boolean
 
     fun restoreDefaults()
 }

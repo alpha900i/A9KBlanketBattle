@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.alpha900i.a9kblanketbattle.data.datastore.Settings
 import com.alpha900i.a9kblanketbattle.domain.PlayerType
 import com.alpha900i.a9kblanketbattle.ui.Constants
 import kotlinx.coroutines.flow.Flow
@@ -29,75 +30,44 @@ class DataStoreRepository(
         private val SECOND_PLAYER_TYPE_KEY = stringPreferencesKey("second_player_type")
     }
 
-    val width: Flow<Int> =
-        getIntValue(
-            key = WIDTH_KEY,
-            defaultValue = Constants.DEFAULT_WIDTH
-        )
-    suspend fun setWidth(width: Int) =
-        setIntValue(
-            value = width,
-            key = WIDTH_KEY
-        )
 
-    val height: Flow<Int> =
-        getIntValue(
-            key = HEIGHT_KEY,
-            defaultValue = Constants.DEFAULT_HEIGHT
-        )
-    suspend fun setHeight(height: Int) =
-        setIntValue(
-            value = height,
-            key = HEIGHT_KEY
-        )
+    /**
+     * Getter and setter for whole Settings object
+     */
+    val settings: Flow<Settings> = dataStore.data
+        .catch { e ->
+            if (e is IOException) emit(emptyPreferences())
+            else throw e
+        }
+        .map { prefs ->
+            Settings(
+                width = prefs[WIDTH_KEY] ?: Constants.DEFAULT_WIDTH,
+                height = prefs[HEIGHT_KEY] ?: Constants.DEFAULT_HEIGHT,
+                kittenStart = prefs[KITTEN_START_KEY] ?: Constants.DEFAULT_KITTEN_START,
+                catStart = prefs[CAT_START_KEY] ?: Constants.DEFAULT_CAT_START,
+                firstPlayerType = PlayerType.getByName(
+                    prefs[FIRST_PLAYER_TYPE_KEY] ?: Constants.DEFAULT_FIRST_PLAYER_TYPE.name
+                ),
+                secondPlayerType = PlayerType.getByName(
+                    prefs[SECOND_PLAYER_TYPE_KEY] ?: Constants.DEFAULT_SECOND_PLAYER_TYPE.name
+                ),
+            )
+        }
 
-    val kittenStart: Flow<Int> =
-        getIntValue(
-            key = KITTEN_START_KEY,
-            defaultValue = Constants.DEFAULT_KITTEN_START
-        )
-    suspend fun setKittenStart(kittenStart: Int) =
-        setIntValue(
-            value = kittenStart,
-            key = KITTEN_START_KEY
-        )
-
-    val catStart: Flow<Int> =
-        getIntValue(
-            key = CAT_START_KEY,
-            defaultValue = Constants.DEFAULT_CAT_START
-        )
-    suspend fun setCatStart(catStart: Int) =
-        setIntValue(
-            value = catStart,
-            key = CAT_START_KEY
-        )
-
-    val firstPlayerType: Flow<PlayerType> =
-        getStringValue(
-            key = FIRST_PLAYER_TYPE_KEY,
-            defaultValue = Constants.DEFAULT_FIRST_PLAYER_TYPE.name
-        ).map { PlayerType.getByName(it) }
-    suspend fun setFirstPlayerType(playerType: PlayerType) =
-        setStringValue(
-            value = playerType.name,
-            key = FIRST_PLAYER_TYPE_KEY
-        )
-
-    val secondPlayerType: Flow<PlayerType> =
-        getStringValue(
-            key = SECOND_PLAYER_TYPE_KEY,
-            defaultValue = Constants.DEFAULT_SECOND_PLAYER_TYPE.name
-        ).map { PlayerType.getByName(it) }
-    suspend fun setSecondPlayerType(playerType: PlayerType) =
-        setStringValue(
-            value = playerType.name,
-            key = SECOND_PLAYER_TYPE_KEY
-        )
-
+    suspend fun setSettings(settings: Settings) {
+        dataStore.edit { prefs ->
+            prefs[WIDTH_KEY] = settings.width
+            prefs[HEIGHT_KEY] = settings.height
+            prefs[KITTEN_START_KEY] = settings.kittenStart
+            prefs[CAT_START_KEY] = settings.catStart
+            prefs[FIRST_PLAYER_TYPE_KEY] = settings.firstPlayerType.name
+            prefs[SECOND_PLAYER_TYPE_KEY] = settings.secondPlayerType.name
+        }
+    }
 
     /**
      * Set of helper methods, getting/setting values of particular type into datastore
+     * Unused as of now, because we get data in whole pack
      */
     fun getIntValue(key: Preferences.Key<Int>, defaultValue: Int): Flow<Int> {
         return dataStore.data
