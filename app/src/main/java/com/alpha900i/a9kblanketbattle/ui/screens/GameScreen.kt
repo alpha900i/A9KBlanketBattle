@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
@@ -796,21 +797,24 @@ fun PieceBlock(
                     .weight(1f)
             )
         }
-        BasicText(
-            text = "$current/$max",
-            autoSize = TextAutoSize.StepBased(
-                minFontSize = 12.sp,
-                maxFontSize = 32.sp,   // default is 112.sp if not set
-                stepSize = 1.sp        // granularity for scaling steps
-            ),
-            style = TextStyle(
-                textAlign = TextAlign.Center
-            ),
+        Box(
             modifier = Modifier
                 .fillMaxHeight(1f)
                 .border(1.dp, Color.Gray)
-                .weight(1f)
-        )
+                .weight(1f),
+            contentAlignment = Alignment.Center,
+        ) {
+            BasicText(
+                text = "$current/$max",
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = 12.sp,
+                    maxFontSize = 32.sp,
+                    stepSize = 1.sp,
+                ),
+                style = TextStyle(textAlign = TextAlign.Center),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }
 
