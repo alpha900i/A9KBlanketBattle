@@ -7,28 +7,35 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +57,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.Board
 import com.alpha900i.a9kblanketbattle.data.Cell
@@ -85,7 +93,9 @@ fun GameScreen(
     submitRemoval: (TripletOnBoard) -> Unit,
     onAnimationComplete: () -> Unit
 ) {
-    var cancelConfirmationNeeded by remember { mutableStateOf(false)}
+    var cancelConfirmationNeeded by rememberSaveable { mutableStateOf(false)}
+    var gameOverDialogClosed by rememberSaveable(gameState.winnerIndex) { mutableStateOf(false) }
+
     BackHandler(enabled = true) {
         cancelConfirmationNeeded = gameState.gameInProgress()
         if (!cancelConfirmationNeeded) {
@@ -115,6 +125,58 @@ fun GameScreen(
                 }
             }
         )
+    }
+    if (gameState.winnerIndex != -1 && !gameOverDialogClosed) {
+        Dialog(
+            onDismissRequest = { gameOverDialogClosed = true }
+        ) {
+            Surface(
+                shape = MaterialTheme.shapes.large,
+                tonalElevation = dimensionResource(R.dimen.dialog_elevation)
+            ) {
+                Column(
+                    modifier = Modifier.padding(dimensionResource(R.dimen.dialog_padding))
+                ) {
+                    Text(
+                        text = stringResource(R.string.game_over_title),
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.padding(bottom = dimensionResource(R.dimen.dialog_title_padding))
+                            .align(Alignment.CenterHorizontally)
+                    )
+                    Image(
+                        painter = painterResource(R.drawable.ic_cat),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(colorByCellOwner(gameState.winnerIndex)),
+                        modifier = Modifier.size(dimensionResource(R.dimen.dialog_image_size)).align(Alignment.CenterHorizontally)
+                    )
+                    Text(
+                        text = stringResource(R.string.game_over_description, gameState.winnerIndex + 1),
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                    Spacer(modifier = Modifier.fillMaxWidth(1f).height(dimensionResource(R.dimen.dialog_spacing)))
+                    Row(
+                        modifier = Modifier.height(IntrinsicSize.Min),
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dialog_spacing)),
+                    ) {
+                        Button(
+                            onClick = {
+                                gameOverDialogClosed = true
+                                startNewGame()
+                            },
+                            modifier = Modifier.weight(1f).fillMaxHeight(1f)
+                        ) {
+                            Text(stringResource(R.string.new_game_button_title))
+                        }
+                        Button(
+                            onClick = { gameOverDialogClosed = true },
+                            modifier = Modifier.weight(1f).fillMaxHeight(1f)
+                        ) {
+                            Text(stringResource(R.string.stay_on_board_button_title))
+                        }
+                    }
+                }
+            }
+        }
     }
 
 

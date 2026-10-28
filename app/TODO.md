@@ -1,7 +1,6 @@
 # TODO
 ## PRIMARY
 ## SECONDARY
-1. "Game over" visuals
 ## TERTIARY
 1. ColorScheme & typography
 2. Better UI for Start Screen

@@ -6,4 +6,9 @@
     <dimen name="controls_section_border_width">1dp</dimen>
     <dimen name="no_padding_width">0dp</dimen>
     <dimen name="button_border_width">2dp</dimen>
+    <dimen name="dialog_elevation">6dp</dimen>
+    <dimen name="dialog_image_size">56dp</dimen>
+    <dimen name="dialog_spacing">8dp</dimen>
+    <dimen name="dialog_padding">16dp</dimen>
+    <dimen name="dialog_title_padding">16dp</dimen>
 </resources>

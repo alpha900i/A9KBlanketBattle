@@ -44,4 +44,8 @@
     <string name="empty_cell_content_description">Empty cell</string>
     <string name="promote_kitten_button_content_description">Promote kitten button</string>
     <string name="return_cat_button_content_description">Return cat button</string>
+    <string name="game_over_title">Game over!</string>
+    <string name="game_over_description">Game is over! Player %1$d won!</string>
+    <string name="new_game_button_title">New game</string>
+    <string name="stay_on_board_button_title">Stay on board</string>
 </resources>
