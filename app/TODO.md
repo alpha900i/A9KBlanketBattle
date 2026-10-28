@@ -1,12 +1,11 @@
 # TODO
 ## PRIMARY
 ## SECONDARY
-1. "Selected piece type" better visuals
-2. "Game over" visuals
+1. "Game over" visuals
 ## TERTIARY
 1. ColorScheme & typography
 2. Better UI for Start Screen
-3. Documentation/comments
+3. Comments
 4. Lint
 5. More defensives 
 6. winnerIndex is code-smelly - field, that doesn't make sense a lot of times... 
