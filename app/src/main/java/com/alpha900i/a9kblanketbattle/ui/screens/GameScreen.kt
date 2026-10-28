@@ -103,80 +103,27 @@ fun GameScreen(
         }
     }
     if (cancelConfirmationNeeded) {
-        AlertDialog(
-            onDismissRequest = { cancelConfirmationNeeded = false }, // called when tapping outside or back button
-            title = { Text(stringResource(R.string.confirm_button_title)) },
-            text = { Text(stringResource(R.string.game_cancel_confirmation)) },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        cancelConfirmationNeeded = false
-                        cancelGame()
-                    }
-                ) {
-                    Text(stringResource(R.string.yes_button_title))
-                }
+        CancelConfirmationAlertDialog(
+            confirmAction = {
+                cancelConfirmationNeeded = false
+                cancelGame()
             },
-            dismissButton = {
-                Button(
-                    onClick = { cancelConfirmationNeeded = false }
-                ) {
-                    Text(stringResource(R.string.no_button_title))
-                }
+            cancelAction = {
+                cancelConfirmationNeeded = false
             }
         )
     }
     if (gameState.winnerIndex != -1 && !gameOverDialogClosed) {
-        Dialog(
-            onDismissRequest = { gameOverDialogClosed = true }
-        ) {
-            Surface(
-                shape = MaterialTheme.shapes.large,
-                tonalElevation = dimensionResource(R.dimen.dialog_elevation)
-            ) {
-                Column(
-                    modifier = Modifier.padding(dimensionResource(R.dimen.dialog_padding))
-                ) {
-                    Text(
-                        text = stringResource(R.string.game_over_title),
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(bottom = dimensionResource(R.dimen.dialog_title_padding))
-                            .align(Alignment.CenterHorizontally)
-                    )
-                    Image(
-                        painter = painterResource(R.drawable.ic_cat),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(colorByCellOwner(gameState.winnerIndex)),
-                        modifier = Modifier.size(dimensionResource(R.dimen.dialog_image_size)).align(Alignment.CenterHorizontally)
-                    )
-                    Text(
-                        text = stringResource(R.string.game_over_description, gameState.winnerIndex + 1),
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                    Spacer(modifier = Modifier.fillMaxWidth(1f).height(dimensionResource(R.dimen.dialog_spacing)))
-                    Row(
-                        modifier = Modifier.height(IntrinsicSize.Min),
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dialog_spacing)),
-                    ) {
-                        Button(
-                            onClick = {
-                                gameOverDialogClosed = true
-                                startNewGame()
-                            },
-                            modifier = Modifier.weight(1f).fillMaxHeight(1f)
-                        ) {
-                            Text(stringResource(R.string.new_game_button_title))
-                        }
-                        Button(
-                            onClick = { gameOverDialogClosed = true },
-                            modifier = Modifier.weight(1f).fillMaxHeight(1f)
-                        ) {
-                            Text(stringResource(R.string.stay_on_board_button_title))
-                        }
-                    }
-                }
+        GameOverDialog(
+            winnerIndex = gameState.winnerIndex,
+            confirmAction = {
+                gameOverDialogClosed = true
+                startNewGame()
+            },
+            cancelAction = {
+                gameOverDialogClosed = true
             }
-        }
+        )
     }
 
 
@@ -224,6 +171,93 @@ fun GameScreen(
         }
     }
 }
+
+@Composable
+fun CancelConfirmationAlertDialog(
+    confirmAction: () -> Unit,
+    cancelAction: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = cancelAction,
+        title = { Text(stringResource(R.string.confirm_button_title)) },
+        text = { Text(stringResource(R.string.game_cancel_confirmation)) },
+        confirmButton = {
+            Button(onClick = confirmAction) {
+                Text(stringResource(R.string.yes_button_title))
+            }
+        },
+        dismissButton = {
+            Button(onClick = cancelAction) {
+                Text(stringResource(R.string.no_button_title))
+            }
+        }
+    )
+}
+@Composable
+fun GameOverDialog(
+    winnerIndex: Int,
+    confirmAction: () -> Unit,
+    cancelAction: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = cancelAction
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.large,
+            tonalElevation = dimensionResource(R.dimen.dialog_elevation)
+        ) {
+            Column(
+                modifier = Modifier.padding(dimensionResource(R.dimen.dialog_padding))
+            ) {
+                Text(
+                    text = stringResource(R.string.game_over_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier
+                        .padding(bottom = dimensionResource(R.dimen.dialog_title_padding))
+                        .align(Alignment.CenterHorizontally)
+                )
+                Image(
+                    painter = painterResource(R.drawable.ic_cat),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(colorByCellOwner(winnerIndex)),
+                    modifier = Modifier
+                        .size(dimensionResource(R.dimen.dialog_image_size))
+                        .align(Alignment.CenterHorizontally)
+                )
+                Text(
+                    text = stringResource(R.string.game_over_description, winnerIndex + 1),
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+                Spacer(modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .height(dimensionResource(R.dimen.dialog_spacing)))
+                Row(
+                    modifier = Modifier.height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dialog_spacing)),
+                ) {
+                    Button(
+                        onClick = confirmAction,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(1f)
+                    ) {
+                        Text(stringResource(R.string.new_game_button_title))
+                    }
+                    Button(
+                        onClick = cancelAction,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(1f)
+                    ) {
+                        Text(stringResource(R.string.stay_on_board_button_title))
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun InfoSection(infoSectionMessage: InfoSectionState) {
