@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -48,7 +49,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.Board
@@ -325,7 +325,7 @@ fun AnimatedMovingPiece(
                 .height(cellHeightDp)
                 .width(cellWidthDp)
                 .offset { IntOffset(x = actualX, y = actualY) }
-                .border(4.dp, Color.White)
+                .border(dimensionResource(R.dimen.animated_piece_border_width), Color.White)
                 .background(Color.Gray)
         ) {
             Image(
@@ -363,7 +363,7 @@ fun AnimatedAppearingPiece(
                 .height(cellHeightDp)
                 .width(cellWidthDp)
                 .offset { IntOffset(x = offsetX, y = offsetY) }
-                .border(4.dp, Color.White)
+                .border(dimensionResource(R.dimen.animated_piece_border_width), Color.White)
                 .alpha(alpha)
                 .scale(scale)
                 .background(Color.Gray)
@@ -403,7 +403,7 @@ fun AnimatedDisappearingPiece(
                 .height(cellHeightDp)
                 .width(cellWidthDp)
                 .offset { IntOffset(x = offsetX, y = offsetY) }
-                .border(4.dp, Color.White)
+                .border(dimensionResource(R.dimen.animated_piece_border_width), Color.White)
                 .alpha(alpha)
                 .scale(scale)
                 .background(Color.Gray)
@@ -466,7 +466,7 @@ fun BoardSection(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
-                            .border(4.dp, Color.White)
+                            .border(dimensionResource(R.dimen.cell_border_width), Color.White)
                             .background(backgroundColor)
                             .clickable(
                                 enabled = isCellEnabled(
@@ -489,7 +489,7 @@ fun BoardSection(
                                 contentScale = ContentScale.Inside,
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(6.dp),
+                                    .padding(dimensionResource(R.dimen.piece_padding)),
                                 colorFilter = ColorFilter.tint(playerColor)
                             )
                         }
@@ -670,7 +670,7 @@ fun HandBlock(
 
     Column(
         modifier = modifier
-            .border(1.dp, Color.Gray)
+            .border(dimensionResource(R.dimen.controls_section_border_width), Color.Gray)
             .background(Color.White)
     ) {
         Text(
@@ -797,7 +797,7 @@ fun PieceBlock(
     Row(
         modifier = modifier
             .fillMaxSize(1f)
-            .border(1.dp, Color.Gray)
+            .border(dimensionResource(R.dimen.controls_section_border_width), Color.Gray)
             .background(pieceColor)
     ) {
         if (painter != null) {
@@ -813,7 +813,7 @@ fun PieceBlock(
         Box(
             modifier = Modifier
                 .fillMaxHeight(1f)
-                .border(1.dp, Color.Gray)
+                .border(dimensionResource(R.dimen.controls_section_border_width), Color.Gray)
                 .weight(1f),
             contentAlignment = Alignment.Center,
         ) {
@@ -845,9 +845,8 @@ fun GeneralButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.White
         ),
-        contentPadding = PaddingValues(0.dp),   // <-- remove internal padding
-        modifier = modifier
-            .border(2.dp, borderColor)
+        contentPadding = PaddingValues(dimensionResource(R.dimen.no_padding_width)),
+        modifier = modifier.border(dimensionResource(R.dimen.button_border_width), borderColor)
     ) {
         content()
     }
