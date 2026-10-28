@@ -661,6 +661,7 @@ fun HandsSection(
         gameState.hands.forEachIndexed { index, hand ->
             HandBlock(
                 hand = hand,
+                moveCount = gameState.moveCount,
                 isActiveHand = isHumanTurn && gameState.activePlayerIndex == index,
                 handIndex = index,
                 setKittenMove = setKittenMove,
@@ -732,6 +733,7 @@ fun TripletRemovalSection(
 @Composable
 fun HandBlock(
     hand: Hand,
+    moveCount: Int,
     isActiveHand: Boolean,
     handIndex: Int,
     setKittenMove: () -> Unit,
@@ -742,17 +744,17 @@ fun HandBlock(
     modifier: Modifier
 ) {
     CustomLog.d("HandBlock $handIndex $isActiveHand $hand")
-    var kittenIsDefault by remember( hand) {
+    var kittenIsDefault by remember( moveCount,hand) {
         CustomLog.d("kittenIsDefault $handIndex $isActiveHand $hand - ${hand.kittenCurrent > 0}")
         mutableStateOf(hand.kittenCurrent > 0)
     }
-    var catIsDefault by remember( hand) {
+    var catIsDefault by remember( moveCount,hand) {
         CustomLog.d("catIsDefault $handIndex $isActiveHand $hand - ${hand.kittenCurrent == 0 && hand.catCurrent > 0}")
         mutableStateOf(hand.kittenCurrent == 0 && hand.catCurrent > 0)
     }
-    var kittenActive by remember(isActiveHand, kittenIsDefault) { mutableStateOf(kittenIsDefault) }
-    var catActive by remember(isActiveHand, catIsDefault) { mutableStateOf(catIsDefault) }
-    LaunchedEffect(kittenIsDefault, catIsDefault, isActiveHand) {
+    var kittenActive by remember(moveCount, isActiveHand, kittenIsDefault) { mutableStateOf(kittenIsDefault) }
+    var catActive by remember(moveCount, isActiveHand, catIsDefault) { mutableStateOf(catIsDefault) }
+    LaunchedEffect(moveCount, kittenIsDefault, catIsDefault, isActiveHand) {
         if (isActiveHand) {
             CustomLog.d("Hand", "Launched effect $kittenIsDefault $catIsDefault")
             if (kittenIsDefault) {
