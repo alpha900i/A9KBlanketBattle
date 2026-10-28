@@ -99,7 +99,7 @@ class BoardApplyMoveSetPieceTest {
 
         val result = board.applyMove(move, playerIndex = 1, maxPieceAmount = maxPieceAmount)
 
-        Assert.assertEquals(HandChange.Companion.emptyHand(), result.handChanges[0])
+        Assert.assertEquals(HandChange.emptyHand(), result.handChanges[0])
         Assert.assertEquals(
             HandChange(-1, 0, 0, 0),
             result.handChanges[1],
@@ -119,7 +119,7 @@ class BoardApplyMoveSetPieceTest {
 
         val result = board.applyMove(move, playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
-        Assert.assertEquals(HandChange.Companion.emptyHand(), result.handChanges[1])
+        Assert.assertEquals(HandChange.emptyHand(), result.handChanges[1])
     }
 
 
