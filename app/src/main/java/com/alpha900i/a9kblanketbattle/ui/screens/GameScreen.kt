@@ -318,6 +318,7 @@ fun AnimatedMovingPiece(
     val actualY = (startOffsetY + (endOffsetY - startOffsetY) * progress).roundToInt()
 
     val painter = painterByCellType(piece.type)
+    val contentDescription = contentDescriptionByCellType(piece.type)
     if (painter != null) {
         Box(
             modifier = Modifier
@@ -329,7 +330,7 @@ fun AnimatedMovingPiece(
         ) {
             Image(
                 painter = painter,
-                contentDescription = "Icon",
+                contentDescription = contentDescription,
                 modifier = Modifier.fillMaxSize(1f),
                 colorFilter = ColorFilter.tint(colorByCellOwner(piece.owner)),
             )
@@ -355,6 +356,7 @@ fun AnimatedAppearingPiece(
     val scale = progress
 
     val painter = painterByCellType(piece.type)
+    val contentDescription = contentDescriptionByCellType(piece.type)
     if (painter != null) {
         Box(
             modifier = Modifier
@@ -368,7 +370,7 @@ fun AnimatedAppearingPiece(
         ) {
             Image(
                 painter = painter,
-                contentDescription = "Icon",
+                contentDescription = contentDescription,
                 modifier = Modifier.fillMaxSize(1f),
                 colorFilter = ColorFilter.tint(colorByCellOwner(piece.owner)),
             )
@@ -394,6 +396,7 @@ fun AnimatedDisappearingPiece(
     val scale = 1.0f - progress
 
     val painter = painterByCellType(piece.type)
+    val contentDescription = contentDescriptionByCellType(piece.type)
     if (painter != null) {
         Box(
             modifier = Modifier
@@ -407,7 +410,7 @@ fun AnimatedDisappearingPiece(
         ) {
             Image(
                 painter = painter,
-                contentDescription = "Icon",
+                contentDescription = contentDescription,
                 modifier = Modifier.fillMaxSize(1f),
                 colorFilter = ColorFilter.tint(colorByCellOwner(piece.owner)),
             )
@@ -449,6 +452,7 @@ fun BoardSection(
                         null
                     } else painterByCellType(cell.type)
                     val playerColor = colorByCellOwner(cell.owner)
+                    val contentDescription = contentDescriptionByCellType(cell.type)
                     val backgroundColor =
                         if (superHighlightedCells.contains(Pair(rowIndex, colIndex))) {
                             Color.Green
@@ -481,7 +485,7 @@ fun BoardSection(
                         if (painter != null) {
                             Image(
                                 painter = painter,
-                                contentDescription = "Icon",
+                                contentDescription = contentDescription,
                                 contentScale = ContentScale.Inside,
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -502,6 +506,12 @@ private fun painterByCellType(cellType: CellType): Painter? = when (cellType) {
     CellType.CAT -> painterResource(R.drawable.ic_cat)
     CellType.KITTEN -> painterResource(R.drawable.ic_kitten)
     CellType.EMPTY -> null
+}
+@Composable
+private fun contentDescriptionByCellType(cellType: CellType): String = when (cellType) {
+    CellType.CAT -> stringResource(R.string.cell_with_cat_piece_content_description)
+    CellType.KITTEN -> stringResource(R.string.cell_with_kitten_piece_content_description)
+    CellType.EMPTY -> stringResource(R.string.empty_cell_content_description)
 }
 
 @Composable
@@ -691,6 +701,7 @@ fun HandBlock(
             ) {
                 PieceBlock(
                     painterByCellType(cellType = CellType.KITTEN),
+                    contentDescriptionByCellType(cellType = CellType.KITTEN),
                     hand.kittenCurrent,
                     hand.kittenMax,
                     isActivePiece = kittenActive && isActiveHand,
@@ -714,6 +725,7 @@ fun HandBlock(
             ) {
                 PieceBlock(
                     painterByCellType(cellType = CellType.CAT),
+                    contentDescriptionByCellType(cellType = CellType.CAT),
                     hand.catCurrent,
                     hand.catMax,
                     isActivePiece = catActive && isActiveHand,
@@ -741,7 +753,7 @@ fun HandBlock(
             ) {
                 Image(
                     painter = painterResource(R.drawable.ic_promote),
-                    contentDescription = "Icon",
+                    contentDescription = stringResource(R.string.promote_kitten_button_content_description),
                     colorFilter = ColorFilter.tint(Color.Black),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize(1f)
@@ -762,7 +774,7 @@ fun HandBlock(
             ) {
                 Image(
                     painter = painterResource(R.drawable.ic_return_cat),
-                    contentDescription = "Icon",
+                    contentDescription = stringResource(R.string.return_cat_button_content_description),
                     colorFilter = ColorFilter.tint(Color.Black),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize(1f)
@@ -775,6 +787,7 @@ fun HandBlock(
 @Composable
 fun PieceBlock(
     painter: Painter?,
+    contentDescription: String,
     current: Int,
     max: Int,
     isActivePiece: Boolean,
@@ -790,7 +803,7 @@ fun PieceBlock(
         if (painter != null) {
             Image(
                 painter = painter,
-                contentDescription = "Icon",
+                contentDescription = contentDescription,
                 colorFilter = ColorFilter.tint(Color.Black),
                 modifier = Modifier
                     .fillMaxHeight(1f)

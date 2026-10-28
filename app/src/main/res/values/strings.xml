@@ -39,4 +39,9 @@
     <string name="settings_no_starting_pieces_error">Each player must start with at least one piece</string>
     <string name="settings_not_enough_cells_error">Not enough cells: 2 players × %1$d pieces = %2$d pieces, but board is %3$d×%4$d = %5$d cells</string>
     <string name="settings_generic_error">Can\'t save settings: generic error</string>
+    <string name="cell_with_cat_piece_content_description">Cell with cat piece</string>
+    <string name="cell_with_kitten_piece_content_description">Cell with kitten piece</string>
+    <string name="empty_cell_content_description">Empty cell</string>
+    <string name="promote_kitten_button_content_description">Promote kitten button</string>
+    <string name="return_cat_button_content_description">Return cat button</string>
 </resources>
