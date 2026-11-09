@@ -13,8 +13,8 @@ android {
         applicationId = "com.alpha900i.a9kblanketbattle"
         minSdk = 24
         targetSdk = 37
-        versionCode = 11
-        versionName = "1.3.9"
+        versionCode = 12
+        versionName = "1.3.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

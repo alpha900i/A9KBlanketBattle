@@ -32,3 +32,9 @@ val Typography = Typography(
     )
     */
 )
+
+object PieceBlockFontSizes {
+    val Min = 12.sp
+    val Max = 32.sp
+    val Step = 1.sp
+}

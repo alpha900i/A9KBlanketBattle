@@ -41,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.Painter
@@ -56,7 +55,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.Board
@@ -73,6 +71,13 @@ import com.alpha900i.a9kblanketbattle.ui.Constants
 import com.alpha900i.a9kblanketbattle.ui.GameScreenActions
 import com.alpha900i.a9kblanketbattle.ui.InfoSectionState
 import com.alpha900i.a9kblanketbattle.ui.TempMessageType
+import com.alpha900i.a9kblanketbattle.ui.theme.ButtonColors
+import com.alpha900i.a9kblanketbattle.ui.theme.PieceBlockFontSizes
+import com.alpha900i.a9kblanketbattle.ui.theme.PieceButtonColors
+import com.alpha900i.a9kblanketbattle.ui.theme.PieceColors
+import com.alpha900i.a9kblanketbattle.ui.theme.PlayerColors
+import com.alpha900i.a9kblanketbattle.ui.theme.TripletHighlightColors
+import com.alpha900i.a9kblanketbattle.ui.theme.UIColors
 import com.alpha900i.a9kblanketbattle.util.CustomLog
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -219,7 +224,7 @@ fun GameOverDialog(
                 Image(
                     painter = painterResource(R.drawable.ic_cat),
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(colorByCellOwner(winnerIndex)),
+                    colorFilter = ColorFilter.tint(PlayerColors.of(winnerIndex)),
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.dialog_image_size))
                         .align(Alignment.CenterHorizontally)
@@ -421,14 +426,14 @@ fun AnimatedMovingPiece(
                 .height(cellHeightDp)
                 .width(cellWidthDp)
                 .offset { IntOffset(x = actualX, y = actualY) }
-                .border(dimensionResource(R.dimen.animated_piece_border_width), Color.White)
-                .background(Color.Gray)
+                .border(dimensionResource(R.dimen.animated_piece_border_width), PieceColors.Border)
+                .background(PieceColors.DefaultBackground)
         ) {
             Image(
                 painter = painter,
                 contentDescription = contentDescription,
                 modifier = Modifier.fillMaxSize(1f),
-                colorFilter = ColorFilter.tint(colorByCellOwner(piece.owner)),
+                colorFilter = ColorFilter.tint(PlayerColors.of(piece.owner)),
             )
         }
     }
@@ -459,16 +464,16 @@ fun AnimatedAppearingPiece(
                 .height(cellHeightDp)
                 .width(cellWidthDp)
                 .offset { IntOffset(x = offsetX, y = offsetY) }
-                .border(dimensionResource(R.dimen.animated_piece_border_width), Color.White)
+                .border(dimensionResource(R.dimen.animated_piece_border_width), PieceColors.Border)
                 .alpha(alpha)
                 .scale(scale)
-                .background(Color.Gray)
+                .background(PieceColors.DefaultBackground)
         ) {
             Image(
                 painter = painter,
                 contentDescription = contentDescription,
                 modifier = Modifier.fillMaxSize(1f),
-                colorFilter = ColorFilter.tint(colorByCellOwner(piece.owner)),
+                colorFilter = ColorFilter.tint(PlayerColors.of(piece.owner)),
             )
         }
     }
@@ -499,16 +504,16 @@ fun AnimatedDisappearingPiece(
                 .height(cellHeightDp)
                 .width(cellWidthDp)
                 .offset { IntOffset(x = offsetX, y = offsetY) }
-                .border(dimensionResource(R.dimen.animated_piece_border_width), Color.White)
+                .border(dimensionResource(R.dimen.animated_piece_border_width), PieceColors.Border)
                 .alpha(alpha)
                 .scale(scale)
-                .background(Color.Gray)
+                .background(PieceColors.DefaultBackground)
         ) {
             Image(
                 painter = painter,
                 contentDescription = contentDescription,
                 modifier = Modifier.fillMaxSize(1f),
-                colorFilter = ColorFilter.tint(colorByCellOwner(piece.owner)),
+                colorFilter = ColorFilter.tint(PlayerColors.of(piece.owner)),
             )
         }
     }
@@ -547,22 +552,22 @@ fun BoardSection(
                     val painter = if (hiddenCells.contains(rowIndex to colIndex)) {
                         null
                     } else painterByCellType(cell.type)
-                    val playerColor = colorByCellOwner(cell.owner)
+                    val playerColor = PlayerColors.of(cell.owner)
                     val contentDescription = contentDescriptionByCellType(cell.type)
                     val backgroundColor =
                         if (superHighlightedCells.contains(Pair(rowIndex, colIndex))) {
-                            Color.Green
+                            PieceColors.SuperHighlightBackground
                         } else if (highlightedCells.contains(Pair(rowIndex, colIndex))) {
-                            Color.Magenta
+                            PieceColors.HighlightBackground
                         } else {
-                            Color.Gray
+                            PieceColors.DefaultBackground
                         }
 
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
-                            .border(dimensionResource(R.dimen.cell_border_width), Color.White)
+                            .border(dimensionResource(R.dimen.cell_border_width), PieceColors.Border)
                             .background(backgroundColor)
                             .clickable(
                                 enabled = isCellEnabled(
@@ -608,13 +613,6 @@ private fun contentDescriptionByCellType(cellType: CellType): String = when (cel
     CellType.CAT -> stringResource(R.string.cell_with_cat_piece_content_description)
     CellType.KITTEN -> stringResource(R.string.cell_with_kitten_piece_content_description)
     CellType.EMPTY -> stringResource(R.string.empty_cell_content_description)
-}
-
-@Composable
-private fun colorByCellOwner(cellOwner: Int): Color = when (cellOwner) {
-    0 -> Color.Blue
-    1 -> Color.Red
-    else -> Color.Yellow
 }
 
 @Composable
@@ -691,11 +689,7 @@ fun TripletRemovalSection(
                 .weight(1f)
         ) {
             gameState.deletableTriplets.forEach { tripletOnBoard ->
-                val buttonColor = if (tripletOnBoard == selectedTriplet) {
-                    Color.Green
-                } else {
-                    Color.Gray
-                }
+                val buttonColor = TripletHighlightColors.of(tripletOnBoard == selectedTriplet)
                 Button(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = buttonColor
@@ -768,8 +762,8 @@ fun HandBlock(
 
     Column(
         modifier = modifier
-            .border(dimensionResource(R.dimen.controls_section_border_width), Color.Gray)
-            .background(Color.White)
+            .border(dimensionResource(R.dimen.controls_section_border_width), UIColors.Border)
+            .background(UIColors.Background)
     ) {
         Text(
             text = "Player #${handIndex + 1}",
@@ -852,7 +846,7 @@ fun HandBlock(
                 Image(
                     painter = painterResource(R.drawable.ic_promote),
                     contentDescription = stringResource(R.string.promote_kitten_button_content_description),
-                    colorFilter = ColorFilter.tint(Color.Black),
+                    colorFilter = ColorFilter.tint(ButtonColors.DefaultTint),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize(1f)
                 )
@@ -873,7 +867,7 @@ fun HandBlock(
                 Image(
                     painter = painterResource(R.drawable.ic_return_cat),
                     contentDescription = stringResource(R.string.return_cat_button_content_description),
-                    colorFilter = ColorFilter.tint(Color.Black),
+                    colorFilter = ColorFilter.tint(ButtonColors.DefaultTint),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize(1f)
                 )
@@ -891,18 +885,18 @@ fun PieceBlock(
     isActivePiece: Boolean,
     modifier: Modifier,
 ) {
-    val pieceColor = if (isActivePiece) Color.Blue else Color.White
+    val pieceColor = PieceButtonColors.of(isActivePiece)
     Row(
         modifier = modifier
             .fillMaxSize(1f)
-            .border(dimensionResource(R.dimen.controls_section_border_width), Color.Gray)
+            .border(dimensionResource(R.dimen.controls_section_border_width), UIColors.Border)
             .background(pieceColor)
     ) {
         if (painter != null) {
             Image(
                 painter = painter,
                 contentDescription = contentDescription,
-                colorFilter = ColorFilter.tint(Color.Black),
+                colorFilter = ColorFilter.tint(ButtonColors.DefaultTint),
                 modifier = Modifier
                     .fillMaxHeight(1f)
                     .weight(1f)
@@ -911,16 +905,16 @@ fun PieceBlock(
         Box(
             modifier = Modifier
                 .fillMaxHeight(1f)
-                .border(dimensionResource(R.dimen.controls_section_border_width), Color.Gray)
+                .border(dimensionResource(R.dimen.controls_section_border_width), UIColors.Border)
                 .weight(1f),
             contentAlignment = Alignment.Center,
         ) {
             BasicText(
                 text = "$current/$max",
                 autoSize = TextAutoSize.StepBased(
-                    minFontSize = 12.sp,
-                    maxFontSize = 32.sp,
-                    stepSize = 1.sp,
+                    minFontSize = PieceBlockFontSizes.Min,
+                    maxFontSize = PieceBlockFontSizes.Max,
+                    stepSize = PieceBlockFontSizes.Step,
                 ),
                 style = TextStyle(textAlign = TextAlign.Center),
                 modifier = Modifier.fillMaxWidth(),
@@ -936,12 +930,12 @@ fun GeneralButton(
     modifier: Modifier,
     content: @Composable () -> Unit
 ) {
-    val borderColor = if (enabled) Color.Green else Color.Red
+    val borderColor = ButtonColors.of(enabled)
     Button(
         onClick = onClick,
         shape = RectangleShape,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White
+            containerColor = UIColors.Background
         ),
         contentPadding = PaddingValues(dimensionResource(R.dimen.no_padding_width)),
         modifier = modifier.border(dimensionResource(R.dimen.button_border_width), borderColor)
