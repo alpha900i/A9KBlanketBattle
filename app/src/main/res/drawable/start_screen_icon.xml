@@ -1,0 +1,44 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+
+    <!-- ears -->
+    <path android:fillColor="#FFC93C" android:pathData="
+        M 26,60 v-40 l28,30 Z
+        M 82,60 v-40 l-28,30 Z"
+        />
+
+    <!-- head -->
+    <path android:fillColor="#FFC93C" android:pathData="
+        M 54,30 A 28,28 0 1,0 54,86 A 28,28 0 1,0 54,30 Z" />
+
+    <!-- eyes -->
+    <path android:fillColor="#212121" android:pathData="
+        M 39,56 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0 Z
+        M 59,56 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0 Z" />
+
+    <!-- nose -->
+    <path android:fillColor="#212121" android:pathData="
+        M 50,62 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0" />
+
+    <!-- mouth -->
+    <path android:fillColor="#212121"
+        android:pathData="
+        M 46,69 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0
+        M 54,69 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0"
+        />
+
+    <!-- whiskers -->
+    <path android:strokeColor="#212121"
+        android:strokeWidth="1"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="
+              M 48,69 l -16,-4
+              M 48,69 l -16,0
+              M 48,69 l -16,4
+              M 56,69 l 16,-4
+              M 56,69 l 16,0
+              M 56,69 l 16,4
+" />
+</vector>

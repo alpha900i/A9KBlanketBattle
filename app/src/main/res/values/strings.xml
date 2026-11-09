@@ -48,4 +48,5 @@
     <string name="game_over_description">Game is over! Player %1$d won!</string>
     <string name="new_game_button_title">New game</string>
     <string name="stay_on_board_button_title">Stay on board</string>
+    <string name="start_screen_icon_content_description">Start screen icon</string>
 </resources>
