@@ -34,17 +34,29 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * Main UI state
+ * [isHumanTurn] show whether human or bot doing turn right now
+ * [selectedMoveType] describes, what move type (if any) human player currently chose
+ */
 data class UiState(
     val isHumanTurn: Boolean,
     val selectedMoveType: MoveType?
 )
 
+/**
+ * Type for temp info messages
+ */
 enum class TempMessageType {
     CANT_SET_KITTEN,
     CANT_SET_CAT,
     CANT_PROMOTE_KITTEN,
     CANT_RETURN_CAT
 }
+/**
+ * Sealed class for temp info messages
+ * Those are short "alert-ish" messages that should
+ */
 sealed class InfoSectionTempState {
     object NoHint: InfoSectionTempState() {
         override val resourceId: Int = 0
@@ -70,6 +82,10 @@ sealed class InfoSectionTempState {
     abstract val resourceId: Int
     abstract val formatArgs: Array<out Any>
 }
+/**
+ * Sealed class for info section state
+ * It can be "temp message is active" or one of "permanent" messages
+ */
 sealed class InfoSectionState {
     data class GeneralTurn(val playerIndex: Int) : InfoSectionState() {
         override val resourceId: Int = R.string.player_turn
@@ -129,10 +145,15 @@ sealed interface SettingsResult {
     ) : SettingsResult
 }
 
-
+/**
+ * Standard viewModel
+ */
 class AppViewModel(
     val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
+    /**
+     * GameState with backing property
+     */
     private val _gameState = MutableStateFlow(
         GameState.startingState(
             gameIsActive = false,
@@ -144,6 +165,10 @@ class AppViewModel(
     )
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
 
+    /**
+     * New game start
+     * - restarts gameLoop, creates new players and sets starting gameState
+     */
     fun startNewGame() {
         viewModelScope.launch {
             gameLoopJob?.cancel()
@@ -165,11 +190,17 @@ class AppViewModel(
         }
     }
 
+    /**
+     * General gameState updater
+     */
     fun updateGameState(newState: GameState) {
         CustomLog.d("Move ${newState.moveCount}")
         _gameState.update { newState }
     }
 
+    /**
+     * "animation over" gameState updater. Just drops all pending effects
+     */
     fun onAnimationComplete() {
         _gameState.update { currentState ->
             currentState.copy(pendingEffects = listOf())
@@ -177,6 +208,9 @@ class AppViewModel(
     }
 
 
+    /**
+     * UIState with backing property
+     */
     private val _uiState = MutableStateFlow(
         UiState(
             isHumanTurn = false,
@@ -184,11 +218,19 @@ class AppViewModel(
         )
     )
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    /**
+     * UIState updater for isHumanTurn field
+     */
     fun setHumanTurn(isHumanTurn: Boolean) {
         _uiState.update { currentState ->
             currentState.copy(isHumanTurn = isHumanTurn)
         }
     }
+
+    /**
+     * UIState updater for selectedMoveType field
+     */
     fun selectMoveType(moveType: MoveType?) {
         _uiState.update { currentState ->
             currentState.copy(selectedMoveType = moveType)
@@ -196,9 +238,21 @@ class AppViewModel(
     }
 
 
+    /**
+     * Temp message eraser
+     * Drops temp message after given time (1 second)
+     */
     private var _tempMessageJob: Job? = null
+
+    /**
+     * TempMessage with backing property
+     */
     private val _infoTempMessage: MutableStateFlow<InfoSectionTempState> = MutableStateFlow(InfoSectionTempState.NoHint)
     val infoTempMessage: StateFlow<InfoSectionTempState> = _infoTempMessage.asStateFlow()
+
+    /**
+     * TempMessage creation by player and type
+     */
     fun setTempMessage(playerIndex: Int, tempMessageType: TempMessageType) {
         val tempMessage = when (tempMessageType) {
             TempMessageType.CANT_SET_KITTEN -> InfoSectionTempState.CantSetKitten(playerIndex = playerIndex)
@@ -206,20 +260,29 @@ class AppViewModel(
             TempMessageType.CANT_PROMOTE_KITTEN -> InfoSectionTempState.CantPromoteKitten(playerIndex = playerIndex)
             TempMessageType.CANT_RETURN_CAT -> InfoSectionTempState.CantReturnCat(playerIndex = playerIndex)
         }
-        setTempMessage(tempMessage)
+        activateTempMessage(tempMessage)
     }
-    fun setTempMessage(tempMessage: InfoSectionTempState) {
+    /**
+     * TempMessage activation
+     * - drops eraser jobs
+     * - updates state
+     * - creates eraser job
+     */
+    fun activateTempMessage(tempMessage: InfoSectionTempState) {
         _tempMessageJob?.cancel()
         _infoTempMessage.value = tempMessage
         _infoTempMessage.update { tempMessage }
         _tempMessageJob = viewModelScope.launch {
             delay(1000)
-            // Only clear if this hint is still the current one
+            //only clear if this hint is still the current one
             if (_infoTempMessage.value == tempMessage) _infoTempMessage.value = InfoSectionTempState.NoHint
         }
     }
 
-
+    /**
+     * Permanent message
+     * Not quite backing property - just combination of multiple factors
+     */
     val infoPermanentMessage: StateFlow<InfoSectionState> = combine(gameState, uiState, infoTempMessage) {
         gameState, uiState, tempMessage ->
         when {
@@ -234,6 +297,10 @@ class AppViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, InfoSectionState.WaitingForGame)
 
+
+    /**
+     * Callback for "player submitted particular move"
+     */
     fun submitMove(activePlayerIndex: Int, move: Move) {
         val player = players[activePlayerIndex]
         check(player is HumanPlayer) {
@@ -242,6 +309,9 @@ class AppViewModel(
         player.submitMove(move)
     }
 
+    /**
+     * Callback for "player submitted particular removal"
+     */
     fun submitRemoval(activePlayerIndex: Int, tripletOnBoard: TripletOnBoard) {
         val player = players[activePlayerIndex]
         check(player is HumanPlayer) {
@@ -251,8 +321,10 @@ class AppViewModel(
     }
 
 
-    //data store section
-    //initialSettings are needed for first-time access on creation, which StateFlow may not have yet
+    /**
+     * DataStore section
+     * InitialSettings are needed for first-time access on creation, which StateFlow may not have yet
+     */
     val initialSettings: Flow<Settings> = dataStoreRepository.settings
     val settings: StateFlow<Settings> = dataStoreRepository.settings
         .stateIn(
@@ -260,6 +332,11 @@ class AppViewModel(
             started = SharingStarted.Eagerly,
             initialValue = Settings.DEFAULT,
         )
+
+    /**
+     * Settings setter; not kust sets them, but additionally initiates consistency check and shows error if
+     * one is found
+     */
     fun setSettings(transform: (Settings) -> Settings): SettingsResult {
         val candidate = runCatching { transform(settings.value) }
             .getOrElse { e ->
@@ -272,6 +349,9 @@ class AppViewModel(
         return SettingsResult.Success
     }
 
+    /**
+     * Transformation from settings error to related hint message
+     */
     private fun formSettingsFailure(e: InvalidSettingsException): SettingsResult {
         return SettingsResult.Failure(
             when (e) {
@@ -286,6 +366,9 @@ class AppViewModel(
         )
     }
 
+    /**
+     * Setters for particular setting
+     */
     fun setWidth(width: Int): SettingsResult = setSettings { it.copy(width = width) }
     fun setHeight(height: Int): SettingsResult = setSettings { it.copy(height = height) }
     fun setKittenStart(kittenStart: Int): SettingsResult = setSettings { it.copy(kittenStart = kittenStart) }
@@ -296,11 +379,16 @@ class AppViewModel(
         setSettings { Settings.DEFAULT }
     }
 
+    /**
+     * Only action on start. Would be restarted on startNewGame anyway, but some things are need to be initiated
+     */
     init {
         startGameLoop()
     }
 
-
+    /**
+     * Game loop. Switches turns, makes move one after another
+     */
     private var gameLoopJob: Job? = null
 
     private fun startGameLoop() {
@@ -321,14 +409,21 @@ class AppViewModel(
         }
     }
 
-
+    /**
+     * Main game engine
+     */
     private val game: Game = Game()
+    /**
+     * List of active players
+     */
     private var players: List<Player> = listOf(
         HumanPlayer(index = 0),
         HumanPlayer(index = 1)
     )
 
-
+    /**
+     * Standard factory
+     */
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

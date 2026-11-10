@@ -85,6 +85,14 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+/**
+ * Game screen
+ * Handles back button (if game already started, confirmation to leave required)
+ * Consists of
+ * - info section
+ * - board
+ * - either hands section or "select triplet for removal" section
+ */
 @Composable
 fun GameScreen(
     gameState: GameState,
@@ -101,12 +109,14 @@ fun GameScreen(
     var cancelConfirmationNeeded by rememberSaveable { mutableStateOf(false)}
     var gameOverDialogClosed by rememberSaveable(gameState.winnerIndex) { mutableStateOf(false) }
 
+    //back button. Leave screen if needed or decide to show "cancel confirmation dialog"
     BackHandler(enabled = true) {
         cancelConfirmationNeeded = gameState.gameInProgress()
         if (!cancelConfirmationNeeded) {
             cancelGame()
         }
     }
+    //cancel confirmation dialog
     if (cancelConfirmationNeeded) {
         CancelConfirmationAlertDialog(
             confirmAction = {
@@ -118,6 +128,7 @@ fun GameScreen(
             }
         )
     }
+    //game is over? We have dialog for that to
     if (gameState.winnerIndex != -1 && !gameOverDialogClosed) {
         GameOverDialog(
             winnerIndex = gameState.winnerIndex,
@@ -131,11 +142,13 @@ fun GameScreen(
         )
     }
 
-
+    //we autostart game on visit
     LaunchedEffect(Unit) {
         startNewGame()
     }
     var highlightedTriplet by remember { mutableStateOf<TripletOnBoard?>(null) }
+
+    //and it is time for actual content
     Column(
         modifier = Modifier
             .fillMaxSize(1f)
@@ -177,6 +190,10 @@ fun GameScreen(
     }
 }
 
+
+/**
+ * "Do you want to leave game" dialog
+ */
 @Composable
 fun CancelConfirmationAlertDialog(
     confirmAction: () -> Unit,
@@ -198,6 +215,13 @@ fun CancelConfirmationAlertDialog(
         }
     )
 }
+
+
+/**
+ * "Game Over" dialog
+ * - start new game
+ * - just look on final position
+ */
 @Composable
 fun GameOverDialog(
     winnerIndex: Int,
@@ -263,7 +287,10 @@ fun GameOverDialog(
 }
 
 
-
+/**
+ * Info section
+ * Simple text string for different in-game hints and alerts
+ */
 @Composable
 fun InfoSection(infoSectionMessage: InfoSectionState) {
     Text(
@@ -273,6 +300,10 @@ fun InfoSection(infoSectionMessage: InfoSectionState) {
     )
 }
 
+/**
+ * Main board
+ * Can be animated or not
+ */
 @Composable
 fun AnimatedBoardSection(
     gameState: GameState,
@@ -283,7 +314,9 @@ fun AnimatedBoardSection(
     moveType: MoveType?,
     modifier: Modifier
 ) {
+    //are there any effects to show?
     if (gameState.pendingEffects.isEmpty()) {
+        //nope. Just show board based on latest state
         BoardSection(
             gameState = gameState,
             board = gameState.board,
@@ -295,11 +328,12 @@ fun AnimatedBoardSection(
             modifier = modifier
         )
     } else {
-        // State for ongoing animations
+        //there are animations. Let's show them atop of "old state" board
+        //State for ongoing animations
         var animatedPieces by remember(gameState.pendingEffects) { mutableStateOf(listOf<AnimatedPiece>()) }
         var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
-        // When effects change, start animations
+        //When effects change, start animations
         LaunchedEffect(gameState.pendingEffects) {
             animatedPieces = gameState.pendingEffects.map { effect ->
                 when (effect) {
@@ -330,7 +364,7 @@ fun AnimatedBoardSection(
                 }
 
             }
-            // Animate all in parallel
+            //animate all in parallel
             coroutineScope {
                 val animationJobs = mutableListOf<Job>()
                 animatedPieces.forEach { piece ->
@@ -348,7 +382,7 @@ fun AnimatedBoardSection(
             modifier = modifier
                 .onGloballyPositioned { containerSize = it.size }
         ) {
-            // Static board (old board) – but hide pieces that are moving
+            //static board (old board) – but hide pieces that are moving
             val cellHeight = containerSize.height / gameState.board.getHeight()
             val cellWidth = containerSize.width / gameState.board.getWidth()
             val cellHeightDp = with(LocalDensity.current) { cellHeight.toDp() }
@@ -365,7 +399,7 @@ fun AnimatedBoardSection(
                 moveType = moveType,
                 modifier = modifier
             )
-            // Overlay for moving pieces
+            //overlay for moving pieces
             animatedPieces.forEach { piece ->
                 when (piece) {
                     is AnimatedPiece.MovingPiece -> AnimatedMovingPiece(
@@ -397,6 +431,9 @@ fun AnimatedBoardSection(
     }
 }
 
+/**
+ * Single animated piece for "piece is moving" event
+ */
 @Composable
 fun AnimatedMovingPiece(
     piece: AnimatedPiece.MovingPiece,
@@ -439,6 +476,9 @@ fun AnimatedMovingPiece(
     }
 }
 
+/**
+ * Single animated piece for "new piece appear" event
+ */
 @Composable
 fun AnimatedAppearingPiece(
     piece: AnimatedPiece.AppearingPiece,
@@ -479,6 +519,9 @@ fun AnimatedAppearingPiece(
     }
 }
 
+/**
+ * Single animated piece for "piece disappear" event
+ */
 @Composable
 fun AnimatedDisappearingPiece(
     piece: AnimatedPiece.DisappearingPiece,
@@ -519,8 +562,11 @@ fun AnimatedDisappearingPiece(
     }
 }
 
-//yes, we pass board as additional parameter, although it is in GameState
-//thing is, there are two boards here - sometimes we need one, sometimes - another
+/**
+ * Actual board. Grid of cells
+ * Yes, we pass board as additional parameter, although it is in GameState
+ * Thing is, there are two boards here - sometimes we need one, sometimes - another
+ */
 @Composable
 fun BoardSection(
     gameState: GameState,
@@ -549,20 +595,26 @@ fun BoardSection(
                     .fillMaxWidth(1f)
             ) {
                 row.forEachIndexed { colIndex, cell ->
+                    //cell can be hidden, if some animation is happening
                     val painter = if (hiddenCells.contains(rowIndex to colIndex)) {
                         null
                     } else painterByCellType(cell.type)
+                    //cell has a different tint based on player, description based on type and
+                    //background color based on triplet-related highlight state
                     val playerColor = PlayerColors.of(cell.owner)
                     val contentDescription = contentDescriptionByCellType(cell.type)
                     val backgroundColor =
                         if (superHighlightedCells.contains(Pair(rowIndex, colIndex))) {
+                            //"we are part of one of triplets on board and player select this triplet for deletion" highlight
                             PieceColors.SuperHighlightBackground
                         } else if (highlightedCells.contains(Pair(rowIndex, colIndex))) {
+                            //"we are part of one of triplets on board" highlight
                             PieceColors.HighlightBackground
                         } else {
+                            //no highlight
                             PieceColors.DefaultBackground
                         }
-
+                    //actual cell
                     Box(
                         modifier = Modifier
                             .weight(1f)
@@ -601,20 +653,30 @@ fun BoardSection(
     }
 }
 
-
+/**
+ * Based on type, give me cell picture
+ */
 @Composable
 private fun painterByCellType(cellType: CellType): Painter? = when (cellType) {
     CellType.CAT -> painterResource(R.drawable.ic_cat)
     CellType.KITTEN -> painterResource(R.drawable.ic_kitten)
     CellType.EMPTY -> null
 }
+/**
+ * Based on type, give me content description
+ */
 @Composable
 private fun contentDescriptionByCellType(cellType: CellType): String = when (cellType) {
     CellType.CAT -> stringResource(R.string.cell_with_cat_piece_content_description)
     CellType.KITTEN -> stringResource(R.string.cell_with_kitten_piece_content_description)
     CellType.EMPTY -> stringResource(R.string.empty_cell_content_description)
 }
-
+/**
+ * Is cell good for particular move type?
+ * "Set kitten/cat" wants empty cell
+ * "Promote kitten" wants cell with your kitten
+ * "Return cat" wants cell with your cat
+ */
 @Composable
 private fun isCellEnabled(
     isHumanTurn: Boolean,
@@ -633,7 +695,9 @@ private fun isCellEnabled(
         MoveType.RETURN_CAT -> cell.type == CellType.CAT && cell.owner == activePlayerIndex
     }
 }
-
+/**
+ * Transforms triplets into set of highlightet cell coordinates
+ */
 fun getHighlights(triplets: Set<TripletOnBoard?>): Set<Pair<Int, Int>> =
     triplets
         .filterNotNull()
@@ -642,6 +706,10 @@ fun getHighlights(triplets: Set<TripletOnBoard?>): Set<Pair<Int, Int>> =
         }.toSet()
 
 
+/**
+ * Hands section
+ * Two players, two similar hand blocks
+ */
 @Composable
 fun HandsSection(
     gameState: GameState,
@@ -673,6 +741,12 @@ fun HandsSection(
     }
 }
 
+/**
+ * Triplet removal section
+ * Shows button for each possible triplet and confirmation button
+ * "Triplet button" changes highlight color on board
+ * "Confirm button" removes selected triplet
+ */
 @Composable
 fun TripletRemovalSection(
     gameState: GameState,
@@ -724,6 +798,13 @@ fun TripletRemovalSection(
     }
 }
 
+/**
+ * Hand block
+ * Four buttons, each of them can be active or blocked based on board situation
+ * Autoselects one of possible "set" actions on start as default option
+ * - kitten if there is a kitten
+ * - cat if there is cat and no kittens
+ */
 @Composable
 fun HandBlock(
     hand: Hand,
@@ -776,6 +857,7 @@ fun HandBlock(
         ) {
             val kittenIsEnabled = isActiveHand && hand.kittenCurrent > 0
             val catIsEnabled = isActiveHand && hand.catCurrent > 0
+            //"Set kitten" button
             GeneralButton(
                 onClick = {
                     if (isActiveHand) {
@@ -800,6 +882,8 @@ fun HandBlock(
                     modifier = Modifier.weight(1f)
                 )
             }
+
+            //"Set cat" button
             GeneralButton(
                 onClick = {
                     if (isActiveHand) {
@@ -830,6 +914,8 @@ fun HandBlock(
         ) {
             val canPromoteKitten = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.kittenMax != 0)
             val canReturnCat = (isActiveHand && hand.kittenCurrent == 0 && hand.catCurrent == 0 && hand.catMax != 0)
+
+            //"Promote kitten" button
             GeneralButton(
                 onClick = {
                     if (isActiveHand) {
@@ -851,6 +937,8 @@ fun HandBlock(
                     modifier = Modifier.fillMaxSize(1f)
                 )
             }
+
+            //"Return cat" button
             GeneralButton(
                 onClick = {
                     if (isActiveHand) {
@@ -876,6 +964,10 @@ fun HandBlock(
     }
 }
 
+/**
+ * Block for "set X" buttons
+ * Shows picture, current amount and max amount for target piece
+ */
 @Composable
 fun PieceBlock(
     painter: Painter?,
@@ -923,6 +1015,11 @@ fun PieceBlock(
     }
 }
 
+
+/**
+ * Button helper composable
+ * Content comes from outside - this just shows "border" button of particular color, based on enabled/disabled status
+ */
 @Composable
 fun GeneralButton(
     enabled: Boolean,

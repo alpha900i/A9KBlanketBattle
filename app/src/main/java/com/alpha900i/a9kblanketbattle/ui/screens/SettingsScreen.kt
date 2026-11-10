@@ -33,6 +33,10 @@ import com.alpha900i.a9kblanketbattle.domain.PlayerType
 import com.alpha900i.a9kblanketbattle.ui.SettingsActions
 import com.alpha900i.a9kblanketbattle.ui.SettingsResult
 
+/**
+ * Settings screen
+ * Field for each setting, button to restore default values
+ */
 @Composable
 fun SettingsScreen(
     settings: Settings,
@@ -84,6 +88,12 @@ fun SettingsScreen(
     }
 }
 
+
+/**
+ * Helper composable for int setting
+ * Based on OutlinedTextField, so hint section can be used to show existing consistency mistakes
+ * Value is trying to be saved on each change, but only as far as new Settings object is consistent
+ */
 @Composable
 fun IntSetting(
     title: String,
@@ -141,6 +151,10 @@ fun IntSetting(
     }
 }
 
+/**
+ * Helper composable for player type setting
+ * Basic dropdown list
+ */
 @Composable
 fun PlayerTypeSetting(
     title: String,

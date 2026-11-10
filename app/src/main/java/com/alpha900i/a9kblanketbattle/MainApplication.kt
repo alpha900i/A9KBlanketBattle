@@ -8,7 +8,9 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.alpha900i.a9kblanketbattle.data.AppContainer
 import com.alpha900i.a9kblanketbattle.data.DefaultAppContainer
 
-
+/**
+ * Standard Application class. Inits container with prepared DataStore
+ */
 private const val DATA_STORE_NAME = "main_data_store"
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     name = DATA_STORE_NAME

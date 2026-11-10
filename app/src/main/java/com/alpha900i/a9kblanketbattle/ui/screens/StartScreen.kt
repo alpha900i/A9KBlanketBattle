@@ -19,6 +19,10 @@ import androidx.compose.ui.res.stringResource
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.ui.StartScreenActions
 
+/**
+ * Start screen
+ * Picture, three buttons - start game/settings/end game
+ */
 @Composable
 fun StartScreen(
     actions: StartScreenActions

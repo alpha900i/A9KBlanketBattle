@@ -4,6 +4,9 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.alpha900i.a9kblanketbattle.data.repository.DataStoreRepository
 
+/**
+ * Standard container. Works with dataStore access
+ */
 interface AppContainer {
     val dataStoreRepository: DataStoreRepository
 }

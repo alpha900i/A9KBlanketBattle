@@ -14,6 +14,10 @@ import com.alpha900i.a9kblanketbattle.ui.screens.GameScreen
 import com.alpha900i.a9kblanketbattle.ui.screens.SettingsScreen
 import com.alpha900i.a9kblanketbattle.ui.screens.StartScreen
 
+/**
+ * Standard nav host
+ * Shows one of app's screens
+ */
 @Composable
 fun AppNavHost(
     startScreenActions: StartScreenActions,
@@ -62,6 +66,11 @@ fun AppNavHost(
     }
 }
 
+
+/**
+ * NavController
+ * Navigation actions for those who want to use them
+ */
 class AppNavigationController(
     private val navController: NavHostController,
     private val backDispatcher: OnBackPressedDispatcher?

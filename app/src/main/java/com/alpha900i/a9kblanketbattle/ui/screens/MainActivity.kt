@@ -51,6 +51,9 @@ import com.alpha900i.a9kblanketbattle.ui.TempMessageType
 import com.alpha900i.a9kblanketbattle.ui.UiState
 import com.alpha900i.a9kblanketbattle.ui.theme.A9KBlanketBattleTheme
 
+/**
+ * Main and only activity
+ */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +66,12 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+/**
+ * Main content composable
+ * Forms nav controller, top bar and required callbacks/state flows
+ * Shows toolbar and MainScreen
+ */
 @Composable
 fun MainContent(
     navController: NavHostController = rememberNavController()
@@ -161,6 +170,11 @@ fun MainContent(
     }
 }
 
+
+/**
+ * Main content composable
+ * Wrapper around whatever nav controller wants to show now
+ */
 @Composable
 fun MainScreen(
     gameState: GameState,
@@ -197,6 +211,10 @@ fun MainScreen(
     }
 }
 
+/**
+ * Toolbar
+ * Title and, for some screens, back button
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
@@ -233,6 +251,10 @@ fun AppTopBar(
     )
 }
 
+/**
+ * Helper toolbar composable
+ * Based on current screen, decides what is screen's title and whether it should have back button
+ */
 @Composable
 private fun formAppBarData(baseRoute: String): Pair<String, Boolean> =
     when (baseRoute) {

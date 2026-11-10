@@ -2,7 +2,9 @@ package com.alpha900i.a9kblanketbattle.data.datastore
 
 import com.alpha900i.a9kblanketbattle.domain.PlayerType
 import com.alpha900i.a9kblanketbattle.ui.Constants
-
+/**
+ * Sealed class for possible consistency issues in settings
+ */
 sealed class InvalidSettingsException(val formatArgs: List<Any>) : IllegalArgumentException() {
     data class WidthOutOfRange(val minWidth: Int, val maxWidth: Int, val width: Int):
         InvalidSettingsException(listOf(minWidth, maxWidth, width))
@@ -17,6 +19,12 @@ sealed class InvalidSettingsException(val formatArgs: List<Any>) : IllegalArgume
         InvalidSettingsException(listOf(piecePerPlayer, 2*piecePerPlayer, width, height, width*height))
 }
 
+/**
+ * Data class, that keeps inside of it all known settings
+ * [width] and [height] define board size
+ * [kittenStart] and [catStart] define players' starting hands
+ * [firstPlayerType] and [secondPlayerType] define players' types (human/bot/etc...)
+ */
 data class Settings(
     val width: Int,
     val height: Int,
@@ -25,8 +33,11 @@ data class Settings(
     val firstPlayerType: PlayerType,
     val secondPlayerType: PlayerType
 ) {
+    /**
+     * Initialization is merged with consistency checks
+     */
     init {
-        //range checks
+        //values need to be in range
         checkRule(
             width in Constants.MIN_WIDTH..Constants.MAX_WIDTH,
             InvalidSettingsException.WidthOutOfRange(
@@ -58,11 +69,13 @@ data class Settings(
             )
         )
 
-        //cross-field invariants
+        //need to have at least one piece on start
         checkRule(
             kittenStart + catStart > 0,
             InvalidSettingsException.NoStartingPieces()
         )
+
+        //there should be enough cells on board to put all possible pieces for both players
         checkRule(
             2 * (kittenStart + catStart) <= width * height,
             InvalidSettingsException.NotEnoughCells(kittenStart + catStart, width, height)
