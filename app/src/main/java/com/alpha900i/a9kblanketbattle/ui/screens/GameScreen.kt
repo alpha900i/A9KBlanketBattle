@@ -318,8 +318,9 @@ fun AnimatedBoardSection(
     if (gameState.pendingEffects.isEmpty()) {
         //nope. Just show board based on latest state
         BoardSection(
-            gameState = gameState,
             board = gameState.board,
+            deletableTriplets = gameState.deletableTriplets,
+            activePlayerIndex = gameState.activePlayerIndex,
             hiddenCells = setOf(),
             highlightedTriplet = highlightedTriplet,
             isHumanTurn = isHumanTurn,
@@ -390,8 +391,9 @@ fun AnimatedBoardSection(
 
             val hiddenCells = animatedPieces.map { it.pos }.toSet()
             BoardSection(
-                gameState = gameState,
                 board = gameState.oldBoard,
+                deletableTriplets = gameState.deletableTriplets,
+                activePlayerIndex = gameState.activePlayerIndex,
                 hiddenCells = hiddenCells,
                 highlightedTriplet = highlightedTriplet,
                 isHumanTurn = isHumanTurn,
@@ -569,8 +571,9 @@ fun AnimatedDisappearingPiece(
  */
 @Composable
 fun BoardSection(
-    gameState: GameState,
     board: Board,
+    deletableTriplets: Set<TripletOnBoard>,
+    activePlayerIndex: Int,
     hiddenCells: Set<Pair<Int, Int>>,
     highlightedTriplet: TripletOnBoard?,
     isHumanTurn: Boolean,
@@ -581,8 +584,8 @@ fun BoardSection(
     val superHighlightedCells: Set<Pair<Int, Int>> = remember(highlightedTriplet) {
         getHighlights(setOf(highlightedTriplet))
     }
-    val highlightedCells: Set<Pair<Int, Int>> = remember(gameState.deletableTriplets) {
-        getHighlights(gameState.deletableTriplets)
+    val highlightedCells: Set<Pair<Int, Int>> = remember(deletableTriplets) {
+        getHighlights(deletableTriplets)
     }
     Column(
         modifier = modifier
@@ -626,7 +629,7 @@ fun BoardSection(
                                     isHumanTurn,
                                     cell,
                                     moveType,
-                                    gameState.activePlayerIndex
+                                    activePlayerIndex
                                 ),
                                 onClick = {
                                     submitMove(
