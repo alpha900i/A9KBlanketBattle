@@ -28,4 +28,6 @@ object Constants {
     const val ANIMATION_TIME = 300
     //delay before bot movement - needed to make sure that bot-vs-bot match actually has time to show events
     const val BOT_DELAY_TIME = 500L
+    //delay before temp info message disappears
+    const val TEMP_INFO_TIME = 1000L
 }

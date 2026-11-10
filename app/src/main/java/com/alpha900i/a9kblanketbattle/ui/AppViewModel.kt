@@ -273,7 +273,7 @@ class AppViewModel(
         _infoTempMessage.value = tempMessage
         _infoTempMessage.update { tempMessage }
         _tempMessageJob = viewModelScope.launch {
-            delay(1000)
+            delay(Constants.TEMP_INFO_TIME)
             //only clear if this hint is still the current one
             if (_infoTempMessage.value == tempMessage) _infoTempMessage.value = InfoSectionTempState.NoHint
         }
