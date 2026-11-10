@@ -380,13 +380,6 @@ class AppViewModel(
     }
 
     /**
-     * Only action on start. Would be restarted on startNewGame anyway, but some things are need to be initiated
-     */
-    init {
-        startGameLoop()
-    }
-
-    /**
      * Game loop. Switches turns, makes move one after another
      */
     private var gameLoopJob: Job? = null
