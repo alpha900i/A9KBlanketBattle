@@ -15,7 +15,7 @@ object PlayerColors {
     val P2 = Color.Red
     val None = Color.Yellow
 
-    fun of(owner: Int): Color = when (owner) {
+    fun of(owner: Int?): Color = when (owner) {
         0 -> P1
         1 -> P2
         else -> None

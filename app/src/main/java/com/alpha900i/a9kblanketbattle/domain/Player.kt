@@ -1,7 +1,8 @@
 package com.alpha900i.a9kblanketbattle.domain
 
-import com.alpha900i.a9kblanketbattle.data.CellType
+import com.alpha900i.a9kblanketbattle.data.Cell
 import com.alpha900i.a9kblanketbattle.data.GameState
+import com.alpha900i.a9kblanketbattle.data.PieceType
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.ui.Constants
 import kotlinx.coroutines.CompletableDeferred
@@ -128,12 +129,16 @@ class BotFirstFit(override val index: Int) : Bot(index = index) {
     }
 
     override fun formReturnMove(gameState: GameState): Move {
-        val myCells = gameState.board.getPlayerCellCoordinates(index = index)
+        val myCells = gameState.board.getPlayerPieceCoordinates(index = index)
         check(myCells.isNotEmpty()) {
             "FirstFitBot-player tries to remove while having no active pieces"
         }
         val (rowIndex, colIndex) = myCells[0]
-        val moveType = if (gameState.board.getCellType(rowIndex, colIndex) == CellType.KITTEN) {
+        val cell = gameState.board.cells[rowIndex][colIndex]
+        if (cell !is Cell.Piece) {
+            error("getPlayerPieceCoordinates returned an empty cell — board bug")
+        }
+        val moveType = if (cell.type == PieceType.KITTEN) {
             MoveType.PROMOTE_KITTEN
         } else {
             MoveType.RETURN_CAT
@@ -186,12 +191,16 @@ class BotRandom(
     }
 
     override fun formReturnMove(gameState: GameState): Move {
-        val myCells = gameState.board.getPlayerCellCoordinates(index = index)
+        val myCells = gameState.board.getPlayerPieceCoordinates(index = index)
         check(myCells.isNotEmpty()) {
             "RandomBot-player tries to remove while having no active pieces"
         }
         val (rowIndex, colIndex) = myCells.random()
-        val moveType = if (gameState.board.getCellType(rowIndex, colIndex) == CellType.KITTEN) {
+        val cell = gameState.board.cells[rowIndex][colIndex]
+        if (cell !is Cell.Piece) {
+            error("getPlayerPieceCoordinates returned an empty cell — board bug")
+        }
+        val moveType = if (cell.type == PieceType.KITTEN) {
             MoveType.PROMOTE_KITTEN
         } else {
             MoveType.RETURN_CAT

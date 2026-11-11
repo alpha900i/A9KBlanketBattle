@@ -4,11 +4,11 @@ fun board(vararg rows: String): Board = Board(
     rows.map { row ->
         row.map { c ->
             when (c) {
-                '.' -> Cell.emptyCell()
-                'k' -> Cell(CellType.KITTEN, 0)
-                'c' -> Cell(CellType.CAT, 0)
-                'K' -> Cell(CellType.KITTEN, 1)
-                'C' -> Cell(CellType.CAT, 1)
+                '.' -> Cell.Empty
+                'k' -> Cell.Piece(PieceType.KITTEN, 0)
+                'c' -> Cell.Piece(PieceType.CAT, 0)
+                'K' -> Cell.Piece(PieceType.KITTEN, 1)
+                'C' -> Cell.Piece(PieceType.CAT, 1)
                 else -> error("bad cell $c")
             }
         }

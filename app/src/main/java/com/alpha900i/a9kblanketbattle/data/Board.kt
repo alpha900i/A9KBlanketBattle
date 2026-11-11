@@ -1,45 +1,57 @@
 package com.alpha900i.a9kblanketbattle.data
 
+import com.alpha900i.a9kblanketbattle.data.Cell.Empty
+import com.alpha900i.a9kblanketbattle.data.Cell.Piece
+import com.alpha900i.a9kblanketbattle.data.PieceType.CAT
+import com.alpha900i.a9kblanketbattle.data.PieceType.KITTEN
 import com.alpha900i.a9kblanketbattle.domain.HandChange
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 /**
  * Type of single cell
- * [isPushable] answers, whether current piece can be pushed by piece of given MoveType
  */
-enum class CellType {
-    EMPTY,
+enum class PieceType {
     KITTEN,
     CAT;
+}
 
-    fun isPushable(moveType: MoveType): Boolean {
-        return when (moveType) {
-            MoveType.SET_CAT -> (this == CAT || this == KITTEN)
-            MoveType.SET_KITTEN -> (this == KITTEN)
+/**
+ * Cell can be [Empty] or [Piece]
+ * Piece has a [type] and number of its [owner]
+ */
+sealed interface Cell {
+    object Empty: Cell
+    data class Piece(val type: PieceType, val owner: Int) : Cell
+}
+
+/**
+ * [isPushable] answers, whether current cell can be pushed by piece of given MoveType
+ * We can't have it inside of interface, because we want contract and they don't work on open functions
+ * and interface has only opens
+ */
+@OptIn(ExperimentalContracts::class)
+fun Cell.isPushable(moveType: MoveType): Boolean {
+    contract {
+        returns(true) implies (this@isPushable is Piece)
+    }
+    return when (this) {
+        is Empty -> false
+        is Piece -> when (moveType) {
+            MoveType.SET_CAT -> (type == CAT || type == KITTEN)
+            MoveType.SET_KITTEN -> (type == KITTEN)
             else -> false
         }
     }
 }
-
-/**
- * Single cell has a [type] and number of its [owner]
- * Empty cells have [owner] -1, although it never used for them
- */
-data class Cell(
-    val type: CellType,
-    val owner: Int
-) {
-    companion object {
-        fun emptyCell(): Cell {
-            return Cell(CellType.EMPTY, -1)
-        }
-    }
-}
+val Cell.typeOrNull: PieceType? get() = (this as? Cell.Piece)?.type
+val Cell.ownerOrNull: Int? get() = (this as? Cell.Piece)?.owner
 
 /**
  * Three "interesting" pieces on a board in a row.
- * In practice they are always of same owner, always non-empty, but can contain different pieces
+ * In practice, they are always of same owner, always non-empty, but can contain different pieces
  * [row] and [column] are row and column of starting cell
  * [rowShift] and [columnShift] show delta to next cell in triplet
  * So, triplet consists of cells
@@ -108,24 +120,24 @@ data class Board(
     fun getEmptyCellCoordinates(): List<Pair<Int, Int>> =
         cells.flatMapIndexed { rowIndex, row ->
             row.mapIndexedNotNull { colIndex, cell ->
-                if (cell.type == CellType.EMPTY) {
+                if (cell is Empty) {
                     rowIndex to colIndex
                 } else {
                     null
                 }
             }
         }
-    fun getPlayerCellCoordinates(index: Int): List<Pair<Int, Int>> =
+    fun getPlayerPieceCoordinates(index: Int): List<Pair<Int, Int>> =
         cells.flatMapIndexed { rowIndex, row ->
             row.mapIndexedNotNull { colIndex, cell ->
-                if (cell.type != CellType.EMPTY && cell.owner == index) {
+                if (cell is Piece && cell.owner == index) {
                     rowIndex to colIndex
                 } else {
                     null
                 }
             }
         }
-    fun getCellType(rowIndex: Int, colIndex: Int): CellType = cells[rowIndex][colIndex].type
+    fun getCellType(rowIndex: Int, colIndex: Int): PieceType? = cells[rowIndex][colIndex].typeOrNull
 
     /**
      * General move application
@@ -262,37 +274,38 @@ data class Board(
             //is cell in question even in board?
             if (checkX in 0 until getHeight() && checkY in 0 until getWidth()) {
                 //is there a pushable piece (so, kitten) in this cell?
-                if (mutableCells[checkX][checkY].type.isPushable(moveType)) {
+                val checkCell = mutableCells[checkX][checkY]
+                if (checkCell.isPushable(moveType)) {
                     //is cell we are getting pushed to on board?
                     if (receiverX in 0 until getHeight() && receiverY in 0 until getWidth()) {
                         //is cell we are getting pushed empty>
-                        if (mutableCells[receiverX][receiverY].type == CellType.EMPTY) {
-                            mutableCells[receiverX][receiverY] = mutableCells[checkX][checkY]
-                            mutableCells[checkX][checkY] = Cell.emptyCell()
+                        if (mutableCells[receiverX][receiverY] is Empty) {
+                            mutableCells[receiverX][receiverY] = checkCell
+                            mutableCells[checkX][checkY] = Empty
                             pendingEffects.add(
                                 VisualEffect.MovePiece(
                                     fromRow = checkX,
                                     fromColumn = checkY,
                                     toRow = receiverX,
                                     toColumn = receiverY,
-                                    owner = mutableCells[receiverX][receiverY].owner,
-                                    type = mutableCells[receiverX][receiverY].type
+                                    owner = checkCell.owner,
+                                    type = checkCell.type
                                 )
                             )
                         }
                     } else {
                         //receiver cell is not on board - time to fall of board
-                        val cellOwner = mutableCells[checkX][checkY].owner
-                        val cellType = mutableCells[checkX][checkY].type
-                        if (cellType == CellType.CAT) {
+                        val cellOwner = checkCell.owner
+                        val cellType = checkCell.type
+                        if (cellType == CAT) {
                             handChanges[cellOwner] =
                                 handChanges[cellOwner].copy(deltaCurrentCat = handChanges[cellOwner].deltaCurrentCat + 1)
                         }
-                        if (cellType == CellType.KITTEN) {
+                        if (cellType == KITTEN) {
                             handChanges[cellOwner] =
                                 handChanges[cellOwner].copy(deltaCurrentKitten = handChanges[cellOwner].deltaCurrentKitten + 1)
                         }
-                        mutableCells[checkX][checkY] = Cell.emptyCell()
+                        mutableCells[checkX][checkY] = Empty
                         pendingEffects.add(
                             VisualEffect.RemovePiece(
                                 row = checkX,
@@ -305,20 +318,20 @@ data class Board(
                 }
             }
         }
-        val cellType = if (moveType == MoveType.SET_CAT) {
-            CellType.CAT
+        val pieceType = if (moveType == MoveType.SET_CAT) {
+            CAT
         } else {
-            CellType.KITTEN
+            KITTEN
         }
-        mutableCells[moveX][moveY] = Cell(
-            type = cellType,
+        mutableCells[moveX][moveY] = Piece(
+            type = pieceType,
             owner = playerIndex
         )
-        if (cellType == CellType.CAT) {
+        if (pieceType == CAT) {
             handChanges[playerIndex] =
                 handChanges[playerIndex].copy(deltaCurrentCat = handChanges[playerIndex].deltaCurrentCat - 1)
         }
-        if (cellType == CellType.KITTEN) {
+        if (pieceType == KITTEN) {
             handChanges[playerIndex] =
                 handChanges[playerIndex].copy(deltaCurrentKitten = handChanges[playerIndex].deltaCurrentKitten - 1)
         }
@@ -328,7 +341,7 @@ data class Board(
                 row = moveX,
                 column = moveY,
                 owner = playerIndex,
-                type = cellType
+                type = pieceType
             )
         )
 
@@ -345,11 +358,12 @@ data class Board(
         handChanges: MutableList<HandChange>,
         playerIndex: Int
     ): List<VisualEffect> {
+        val movedCell = mutableCells[move.row][move.column]
         assert(
-            mutableCells[move.row][move.column].type == CellType.KITTEN && mutableCells[move.row][move.column].owner == playerIndex
+            movedCell is Piece && movedCell.type == KITTEN && movedCell.owner == playerIndex
         )
 
-        mutableCells[move.row][move.column] = Cell.emptyCell()
+        mutableCells[move.row][move.column] = Empty
         handChanges[playerIndex] = handChanges[playerIndex].copy(
             deltaMaxKitten = handChanges[playerIndex].deltaMaxKitten - 1,
             deltaCurrentCat = handChanges[playerIndex].deltaCurrentCat + 1,
@@ -360,7 +374,7 @@ data class Board(
                 row = move.row,
                 column = move.column,
                 owner = playerIndex,
-                type = CellType.KITTEN
+                type = KITTEN
             )
         )
     }
@@ -375,11 +389,12 @@ data class Board(
         handChanges: MutableList<HandChange>,
         playerIndex: Int
     ): List<VisualEffect> {
+        val movedCell = mutableCells[move.row][move.column]
         assert(
-            mutableCells[move.row][move.column].type == CellType.CAT && mutableCells[move.row][move.column].owner == playerIndex
+            movedCell is Piece && movedCell.type == CAT && movedCell.owner == playerIndex
         )
 
-        mutableCells[move.row][move.column] = Cell.emptyCell()
+        mutableCells[move.row][move.column] = Empty
         handChanges[playerIndex] = handChanges[playerIndex].copy(
             deltaCurrentCat = handChanges[playerIndex].deltaCurrentCat + 1
         )
@@ -389,7 +404,7 @@ data class Board(
                 row = move.row,
                 column = move.column,
                 owner = playerIndex,
-                type = CellType.CAT
+                type = PieceType.CAT
             )
         )
     }
@@ -408,13 +423,16 @@ data class Board(
         (0..<mutableCells.size).forEach { rowIndex ->
             (0..<mutableCells[rowIndex].size).forEach { columnIndex ->
                 cellDeltas4directions.forEach { cellDelta ->
-                    val cellOwner = mutableCells[rowIndex][columnIndex].owner
-                    if (isTriplet(
+                    val cell = mutableCells[rowIndex][columnIndex]
+                    if (
+                        isTriplet(
                             mutableCells,
                             rowIndex,
                             columnIndex,
                             cellDelta
-                        ) && cellOwner == playerIndex
+                        )
+                        && cell is Piece
+                        && cell.owner == playerIndex
                     ) {
                         result.add(
                             TripletOnBoard(
@@ -450,10 +468,19 @@ data class Board(
         if (furthestColumnIndex >= mutableCells[rowIndex].size || furthestColumnIndex < 0) {
             return false
         }
-        val owner = mutableCells[rowIndex][columnIndex].owner
+
+        val firstCell = mutableCells[rowIndex][columnIndex]
+        if (firstCell !is Piece) {
+            return false
+        }
+        val firstOwner = firstCell.owner
         (0..2).forEach { shift ->
-            val cellOwner = mutableCells[rowIndex + shift * dx][columnIndex + shift * dy].owner
-            if (cellOwner == -1 || cellOwner != owner) {
+            val cell = mutableCells[rowIndex + shift * dx][columnIndex + shift * dy]
+            if (cell !is Piece) {
+                return false
+            }
+            val cellOwner = cell.owner
+            if (cellOwner != firstOwner) {
                 return false
             }
         }
@@ -488,25 +515,28 @@ data class Board(
             val targetRow = rowIndex + shift * dx
             val targetColumn = columnIndex + shift * dy
             val cell = mutableCells[targetRow][targetColumn]
-            val cellOwner = cell.owner
-            val cellType = cell.type
+            //this condition can't be true, but inside of this method we are not sure about this
+            if (cell is Piece) {
+                val cellOwner = cell.owner
+                val cellType = cell.type
 
-            val kittenTransformed = if (cellType == CellType.KITTEN) 1 else 0
-            handChanges[cellOwner] = handChanges[cellOwner].copy(
-                deltaMaxKitten = handChanges[cellOwner].deltaMaxKitten - kittenTransformed,
-                deltaCurrentCat = handChanges[cellOwner].deltaCurrentCat + 1,
-                deltaMaxCat = handChanges[cellOwner].deltaMaxCat + kittenTransformed
-            )
-
-            mutableCells[targetRow][targetColumn] = Cell.emptyCell()
-            pendingEffects.add(
-                VisualEffect.RemovePiece(
-                    row = targetRow,
-                    column = targetColumn,
-                    owner = cellOwner,
-                    type = cellType
+                val kittenTransformed = if (cellType == KITTEN) 1 else 0
+                handChanges[cellOwner] = handChanges[cellOwner].copy(
+                    deltaMaxKitten = handChanges[cellOwner].deltaMaxKitten - kittenTransformed,
+                    deltaCurrentCat = handChanges[cellOwner].deltaCurrentCat + 1,
+                    deltaMaxCat = handChanges[cellOwner].deltaMaxCat + kittenTransformed
                 )
-            )
+
+                mutableCells[targetRow][targetColumn] = Empty
+                pendingEffects.add(
+                    VisualEffect.RemovePiece(
+                        row = targetRow,
+                        column = targetColumn,
+                        owner = cellOwner,
+                        type = cellType
+                    )
+                )
+            }
         }
         return pendingEffects
     }
@@ -529,7 +559,8 @@ data class Board(
         //check horizontal/vertical/diagonal triplet to down/right direction
         (0..<mutableCells.size).forEach { rowIndex ->
             (0..<mutableCells[rowIndex].size).forEach { columnIndex ->
-                if (mutableCells[rowIndex][columnIndex].owner == playerIndex) {
+                val cell = mutableCells[rowIndex][columnIndex]
+                if (cell is Piece && cell.owner == playerIndex) {
                     cellDeltas4directions.forEach { cellDelta ->
                         if (isCatTriplet(
                                 mutableCells,
@@ -538,10 +569,10 @@ data class Board(
                                 cellDelta
                             )
                         ) {
-                            return Pair(true, mutableCells[rowIndex][columnIndex].owner)
+                            return Pair(true, cell.owner)
                         }
                     }
-                    if (mutableCells[rowIndex][columnIndex].type == CellType.CAT) {
+                    if (cell.type == CAT) {
                         catCount++
                     }
                 }
@@ -573,11 +604,19 @@ data class Board(
         if (furthestColumnIndex >= mutableCells[rowIndex].size || furthestColumnIndex < 0) {
             return false
         }
-        val owner = mutableCells[rowIndex][columnIndex].owner
+        val firstCell = mutableCells[rowIndex][columnIndex]
+        if (firstCell !is Piece) {
+            return false
+        }
+        val firstOwner = firstCell.owner
         (0..2).forEach { shift ->
-            val cellOwner = mutableCells[rowIndex + shift * dx][columnIndex + shift * dy].owner
-            val cellType = mutableCells[rowIndex + shift * dx][columnIndex + shift * dy].type
-            if (cellOwner == -1 || cellOwner != owner || cellType != CellType.CAT) {
+            val cell = mutableCells[rowIndex + shift * dx][columnIndex + shift * dy]
+            if (cell !is Piece) {
+                return false
+            }
+            val cellOwner = cell.owner
+            val cellType = cell.type
+            if (cellOwner != firstOwner || cellType != CAT) {
                 return false
             }
         }
@@ -589,14 +628,14 @@ data class Board(
      * Are there any pieces on board whatsoever?
      */
     fun hasPieces(): Boolean {
-        return cells.any { line -> line.any { cell -> cell.type != CellType.EMPTY } }
+        return cells.any { line -> line.any { cell -> cell is Piece } }
     }
 
     companion object {
         fun emptyBoard(width: Int, height: Int): Board {
             val cells = List(height) {
                 List(width) {
-                    Cell.emptyCell()
+                    Empty
                 }
             }
             return Board(cells)

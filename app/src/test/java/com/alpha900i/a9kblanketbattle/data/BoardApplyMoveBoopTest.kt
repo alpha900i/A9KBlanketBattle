@@ -123,12 +123,12 @@ class BoardApplyMoveBoopTest {
             assertEquals(case.to.first, movePiece.toRow, "${case.label}: toRow")
             assertEquals(case.to.second, movePiece.toColumn, "${case.label}: toCol")
             assertEquals(0, movePiece.owner, "${case.label}: owner preserved")
-            assertEquals(CellType.KITTEN, movePiece.type, "${case.label}: type preserved")
+            assertEquals(PieceType.KITTEN, movePiece.type, "${case.label}: type preserved")
 
             //Source emptied, destination occupied, placed piece at move cell.
-            assertEquals(CellType.EMPTY, result.board.getCellType(case.from.first, case.from.second), "${case.label}: source empty")
-            assertEquals(CellType.KITTEN, result.board.getCellType(case.to.first, case.to.second), "${case.label}: destination filled")
-            assertEquals(CellType.KITTEN, result.board.getCellType(case.move.row, case.move.column), "${case.label}: placed piece")
+            assertTrue(result.board.cells[case.from.first][case.from.second] is Cell.Empty, "${case.label}: source empty")
+            assertEquals(PieceType.KITTEN, result.board.getCellType(case.to.first, case.to.second), "${case.label}: destination filled")
+            assertEquals(PieceType.KITTEN, result.board.getCellType(case.move.row, case.move.column), "${case.label}: placed piece")
 
             //Nothing went to hand because nothing fell off.
             assertEquals(-1, result.handChanges[0].deltaCurrentKitten, "${case.label}: place delta")
@@ -171,12 +171,12 @@ class BoardApplyMoveBoopTest {
             val removePiece = result.singleRemovePiece()
             assertEquals(case.pushedFrom.first, removePiece.row, "${case.label}: removeRow")
             assertEquals(case.pushedFrom.second, removePiece.column, "${case.label}: removeCol")
-            assertEquals(CellType.KITTEN, removePiece.type, "${case.label}: type")
+            assertEquals(PieceType.KITTEN, removePiece.type, "${case.label}: type")
             assertEquals(0, removePiece.owner, "${case.label}: owner")
 
             //Pushed cell emptied, placed piece present, destination gone.
-            assertEquals(CellType.EMPTY, result.board.getCellType(case.pushedFrom.first, case.pushedFrom.second), "${case.label}: source empty")
-            assertEquals(CellType.KITTEN, result.board.getCellType(case.move.row, case.move.column), "${case.label}: placed piece")
+            assertTrue(result.board.cells[case.pushedFrom.first][case.pushedFrom.second] is Cell.Empty, "${case.label}: source empty")
+            assertEquals(PieceType.KITTEN, result.board.getCellType(case.move.row, case.move.column), "${case.label}: placed piece")
 
             //Place + return = net 0 on current kitten for the acting player.
             assertEquals(0, result.handChanges[0].deltaCurrentKitten, "${case.label}: current delta")
@@ -196,7 +196,7 @@ class BoardApplyMoveBoopTest {
         val removePiece = result.singleRemovePiece()
         assertEquals(2, removePiece.row)
         assertEquals(1, removePiece.column)
-        assertEquals(CellType.CAT, removePiece.type)
+        assertEquals(PieceType.CAT, removePiece.type)
         assertEquals(0, removePiece.owner)
 
         //Placed cat (-1) + returned cat (+1) cancel on currentCat.
@@ -226,7 +226,7 @@ class BoardApplyMoveBoopTest {
         assertEquals(1, movePiece.fromColumn)
         assertEquals(3, movePiece.toRow)
         assertEquals(1, movePiece.toColumn)
-        assertEquals(CellType.KITTEN, movePiece.type)
+        assertEquals(PieceType.KITTEN, movePiece.type)
     }
 
     @Test
@@ -243,7 +243,7 @@ class BoardApplyMoveBoopTest {
         assertEquals(1, movePiece.fromColumn)
         assertEquals(3, movePiece.toRow)
         assertEquals(1, movePiece.toColumn)
-        assertEquals(CellType.CAT, movePiece.type)
+        assertEquals(PieceType.CAT, movePiece.type)
         assertEquals(0, movePiece.owner) //owner of the pushed cat, not the mover
     }
 
@@ -258,8 +258,8 @@ class BoardApplyMoveBoopTest {
 
         result.assertOnlyAddPiece()
         //Cat stays where it was.
-        assertEquals(CellType.CAT, result.board.getCellType(2, 1))
-        assertEquals(0, result.board.cells[2][1].owner)
+        assertEquals(PieceType.CAT, result.board.getCellType(2, 1))
+        assertEquals(0, result.board.cells[2][1].ownerOrNull)
     }
 
 
@@ -284,11 +284,11 @@ class BoardApplyMoveBoopTest {
         ).applyMove(Move(1, 1, MoveType.SET_KITTEN), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
         result.assertOnlyAddPiece()
-        assertEquals(CellType.KITTEN, result.board.getCellType(1, 1))
-        assertEquals(CellType.KITTEN, result.board.getCellType(2, 1))
-        assertEquals(CellType.CAT, result.board.getCellType(3, 1))
-        assertEquals(1, result.board.cells[2][1].owner)
-        assertEquals(1, result.board.cells[3][1].owner)
+        assertEquals(PieceType.KITTEN, result.board.getCellType(1, 1))
+        assertEquals(PieceType.KITTEN, result.board.getCellType(2, 1))
+        assertEquals(PieceType.CAT, result.board.getCellType(3, 1))
+        assertEquals(1, result.board.cells[2][1].ownerOrNull)
+        assertEquals(1, result.board.cells[3][1].ownerOrNull)
     }
 
 
@@ -326,16 +326,16 @@ class BoardApplyMoveBoopTest {
         assertEquals(expectedSet, recorded, "boop set mismatch")
 
         assertTrue(
-            result.movePieces().all { it.owner == 1 && it.type == CellType.KITTEN },
+            result.movePieces().all { it.owner == 1 && it.type == PieceType.KITTEN },
             "all moved pieces should belong to player 1",
         )
 
         //Center has the new piece, all 8 neighbors are empty.
-        assertEquals(CellType.KITTEN, result.board.getCellType(2, 2))
-        assertEquals(0, result.board.cells[2][2].owner)
+        assertEquals(PieceType.KITTEN, result.board.getCellType(2, 2))
+        assertEquals(0, result.board.cells[2][2].ownerOrNull)
         for (r in 1..3) for (c in 1..3) {
             if (r == 2 && c == 2) continue
-            assertEquals(CellType.EMPTY, result.board.getCellType(r, c), "neighbor ($r,$c) should be empty")
+            assertTrue(result.board.cells[r][c] is Cell.Empty, "neighbor ($r,$c) should be empty")
         }
 
         //Nothing fell off: only the placed piece leaves the mover's hand.
@@ -366,15 +366,15 @@ class BoardApplyMoveBoopTest {
         //Off-board boop.
         val offBoard = result.removePieces().singleOrNull { it.row == 0 && it.column == 1 }
             ?: fail("expected removal of (0,1), got ${result.removePieces()}")
-        assertEquals(CellType.KITTEN, offBoard.type)
+        assertEquals(PieceType.KITTEN, offBoard.type)
         assertEquals(1, offBoard.owner)
 
         //Board state.
-        assertEquals(CellType.EMPTY, result.board.getCellType(0, 1))
-        assertEquals(CellType.EMPTY, result.board.getCellType(1, 2))
-        assertEquals(CellType.KITTEN, result.board.getCellType(1, 3))
-        assertEquals(CellType.KITTEN, result.board.getCellType(1, 1))
-        assertEquals(0, result.board.cells[1][1].owner)
+        assertTrue( result.board.cells[0][1] is Cell.Empty)
+        assertTrue(result.board.cells[1][2] is Cell.Empty)
+        assertEquals(PieceType.KITTEN, result.board.getCellType(1, 3))
+        assertEquals(PieceType.KITTEN, result.board.getCellType(1, 1))
+        assertEquals(0, result.board.cells[1][1].ownerOrNull)
 
         //Hand changes: P0 placed one (-1), P1 got one back from the edge (+1).
         assertEquals(-1, result.handChanges[0].deltaCurrentKitten)

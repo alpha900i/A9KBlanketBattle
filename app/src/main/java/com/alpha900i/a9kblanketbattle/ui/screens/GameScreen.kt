@@ -59,11 +59,13 @@ import androidx.compose.ui.window.Dialog
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.Board
 import com.alpha900i.a9kblanketbattle.data.Cell
-import com.alpha900i.a9kblanketbattle.data.CellType
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.Hand
+import com.alpha900i.a9kblanketbattle.data.PieceType
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.data.VisualEffect
+import com.alpha900i.a9kblanketbattle.data.ownerOrNull
+import com.alpha900i.a9kblanketbattle.data.typeOrNull
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
 import com.alpha900i.a9kblanketbattle.ui.AnimatedPiece
@@ -601,11 +603,11 @@ fun BoardSection(
                     //cell can be hidden, if some animation is happening
                     val painter = if (hiddenCells.contains(rowIndex to colIndex)) {
                         null
-                    } else painterByCellType(cell.type)
+                    } else painterByCellType(cell.typeOrNull)
                     //cell has a different tint based on player, description based on type and
                     //background color based on triplet-related highlight state
-                    val playerColor = PlayerColors.of(cell.owner)
-                    val contentDescription = contentDescriptionByCellType(cell.type)
+                    val playerColor = PlayerColors.of(cell.ownerOrNull)
+                    val contentDescription = contentDescriptionByCellType(cell.typeOrNull)
                     val backgroundColor =
                         if (superHighlightedCells.contains(Pair(rowIndex, colIndex))) {
                             //"we are part of one of triplets on board and player select this triplet for deletion" highlight
@@ -622,7 +624,10 @@ fun BoardSection(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
-                            .border(dimensionResource(R.dimen.cell_border_width), PieceColors.Border)
+                            .border(
+                                dimensionResource(R.dimen.cell_border_width),
+                                PieceColors.Border
+                            )
                             .background(backgroundColor)
                             .clickable(
                                 enabled = isCellEnabled(
@@ -660,20 +665,22 @@ fun BoardSection(
  * Based on type, give me cell picture
  */
 @Composable
-private fun painterByCellType(cellType: CellType): Painter? = when (cellType) {
-    CellType.CAT -> painterResource(R.drawable.ic_cat)
-    CellType.KITTEN -> painterResource(R.drawable.ic_kitten)
-    CellType.EMPTY -> null
-}
+private fun painterByCellType(pieceType: PieceType?): Painter? =
+    when (pieceType) {
+        null -> null
+        PieceType.CAT -> painterResource(R.drawable.ic_cat)
+        PieceType.KITTEN -> painterResource(R.drawable.ic_kitten)
+    }
 /**
  * Based on type, give me content description
  */
 @Composable
-private fun contentDescriptionByCellType(cellType: CellType): String = when (cellType) {
-    CellType.CAT -> stringResource(R.string.cell_with_cat_piece_content_description)
-    CellType.KITTEN -> stringResource(R.string.cell_with_kitten_piece_content_description)
-    CellType.EMPTY -> stringResource(R.string.empty_cell_content_description)
-}
+private fun contentDescriptionByCellType(pieceType: PieceType?): String =
+    when (pieceType) {
+        null -> stringResource(R.string.empty_cell_content_description)
+        PieceType.CAT -> stringResource(R.string.cell_with_cat_piece_content_description)
+        PieceType.KITTEN -> stringResource(R.string.cell_with_kitten_piece_content_description)
+    }
 /**
  * Is cell good for particular move type?
  * "Set kitten/cat" wants empty cell
@@ -692,10 +699,10 @@ private fun isCellEnabled(
     }
     return when (moveType) {
         null -> false
-        MoveType.SET_KITTEN -> cell.type == CellType.EMPTY
-        MoveType.SET_CAT -> cell.type == CellType.EMPTY
-        MoveType.PROMOTE_KITTEN -> cell.type == CellType.KITTEN && cell.owner == activePlayerIndex
-        MoveType.RETURN_CAT -> cell.type == CellType.CAT && cell.owner == activePlayerIndex
+        MoveType.SET_KITTEN -> cell is Cell.Empty
+        MoveType.SET_CAT -> cell is Cell.Empty
+        MoveType.PROMOTE_KITTEN -> cell is Cell.Piece && cell.type == PieceType.KITTEN && cell.owner == activePlayerIndex
+        MoveType.RETURN_CAT -> cell is Cell.Piece && cell.type == PieceType.CAT && cell.owner == activePlayerIndex
     }
 }
 /**
@@ -877,8 +884,8 @@ fun HandBlock(
                 modifier = Modifier.weight(1f)
             ) {
                 PieceBlock(
-                    painterByCellType(cellType = CellType.KITTEN),
-                    contentDescriptionByCellType(cellType = CellType.KITTEN),
+                    painterByCellType(PieceType.KITTEN),
+                    contentDescriptionByCellType( PieceType.KITTEN),
                     hand.kittenCurrent,
                     hand.kittenMax,
                     isActivePiece = kittenActive && isActiveHand,
@@ -903,8 +910,8 @@ fun HandBlock(
                 modifier = Modifier.weight(1f)
             ) {
                 PieceBlock(
-                    painterByCellType(cellType = CellType.CAT),
-                    contentDescriptionByCellType(cellType = CellType.CAT),
+                    painterByCellType(PieceType.CAT),
+                    contentDescriptionByCellType(PieceType.CAT),
                     hand.catCurrent,
                     hand.catMax,
                     isActivePiece = catActive && isActiveHand,

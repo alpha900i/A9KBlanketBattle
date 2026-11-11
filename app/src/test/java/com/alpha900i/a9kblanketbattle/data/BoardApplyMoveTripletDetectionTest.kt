@@ -201,12 +201,12 @@ class BoardApplyMoveTripletDetectionTest {
         )
 
         //Board still contains the three cats, all P0.
-        assertEquals(CellType.CAT, result.board.getCellType(2, 1))
-        assertEquals(CellType.CAT, result.board.getCellType(2, 2))
-        assertEquals(CellType.CAT, result.board.getCellType(2, 3))
-        assertEquals(0, result.board.cells[2][1].owner)
-        assertEquals(0, result.board.cells[2][2].owner)
-        assertEquals(0, result.board.cells[2][3].owner)
+        assertEquals(PieceType.CAT, result.board.getCellType(2, 1))
+        assertEquals(PieceType.CAT, result.board.getCellType(2, 2))
+        assertEquals(PieceType.CAT, result.board.getCellType(2, 3))
+        assertEquals(0, result.board.cells[2][1].ownerOrNull)
+        assertEquals(0, result.board.cells[2][2].ownerOrNull)
+        assertEquals(0, result.board.cells[2][3].ownerOrNull)
     }
 
     @Test
@@ -232,11 +232,11 @@ class BoardApplyMoveTripletDetectionTest {
         )
 
         //P1's triplet remains intact on the board.
-        assertEquals(CellType.CAT, result.board.getCellType(0, 0))
-        assertEquals(CellType.CAT, result.board.getCellType(0, 1))
-        assertEquals(CellType.CAT, result.board.getCellType(0, 2))
-        assertEquals(1, result.board.cells[0][0].owner)
-        assertEquals(1, result.board.cells[0][1].owner)
-        assertEquals(1, result.board.cells[0][2].owner)
+        assertEquals(PieceType.CAT, result.board.getCellType(0, 0))
+        assertEquals(PieceType.CAT, result.board.getCellType(0, 1))
+        assertEquals(PieceType.CAT, result.board.getCellType(0, 2))
+        assertEquals(1, result.board.cells[0][0].ownerOrNull)
+        assertEquals(1, result.board.cells[0][1].ownerOrNull)
+        assertEquals(1, result.board.cells[0][2].ownerOrNull)
     }
 }

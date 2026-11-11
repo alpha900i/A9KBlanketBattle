@@ -2,7 +2,7 @@ package com.alpha900i.a9kblanketbattle.ui
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import com.alpha900i.a9kblanketbattle.data.CellType
+import com.alpha900i.a9kblanketbattle.data.PieceType
 
 /**
  * Basic sealed class for animated piece
@@ -14,7 +14,7 @@ import com.alpha900i.a9kblanketbattle.data.CellType
 sealed class AnimatedPiece(
     open val pos: Pair<Int, Int>,
     open val owner: Int,
-    open val type: CellType,
+    open val type: PieceType,
     open val offset: Animatable<Float, AnimationVector1D>
 ) {
     /**
@@ -24,7 +24,7 @@ sealed class AnimatedPiece(
         val startPos: Pair<Int, Int>,
         val endPos: Pair<Int, Int>,
         override val owner: Int,
-        override val type: CellType,
+        override val type: PieceType,
         override val offset: Animatable<Float, AnimationVector1D>
     ) : AnimatedPiece(startPos, owner, type, offset)
 
@@ -34,7 +34,7 @@ sealed class AnimatedPiece(
     data class AppearingPiece(
         override val pos: Pair<Int, Int>,
         override val owner: Int,
-        override val type: CellType,
+        override val type: PieceType,
         override val offset: Animatable<Float, AnimationVector1D>
     ) : AnimatedPiece(pos, owner, type, offset)
 
@@ -44,7 +44,7 @@ sealed class AnimatedPiece(
     data class DisappearingPiece(
         override val pos: Pair<Int, Int>,
         override val owner: Int,
-        override val type: CellType,
+        override val type: PieceType,
         override val offset: Animatable<Float, AnimationVector1D>
     ) : AnimatedPiece(pos, owner, type, offset)
 }

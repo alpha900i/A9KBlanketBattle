@@ -8,6 +8,7 @@ import com.alpha900i.a9kblanketbattle.domain.Player
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class GameMoveCountTest {
     private class FixedPlayer(
@@ -36,8 +37,8 @@ class GameMoveCountTest {
 
     @Test
     fun `triplet removal increments moveCount`() = runBlocking {
-        val kitten0 = Cell(CellType.KITTEN, owner = 0)
-        val empty = Cell.emptyCell()
+        val kitten0 = Cell.Piece(PieceType.KITTEN, owner = 0)
+        val empty = Cell.Empty
         val boardWithTriplet = Board(
             listOf(
                 listOf(kitten0, kitten0, kitten0),
@@ -88,8 +89,8 @@ class GameMoveCountTest {
 
     @Test
     fun `promote-only move increments moveCount`() = runBlocking {
-        val empty = Cell.emptyCell()
-        val kitten0 = Cell(CellType.KITTEN, owner = 0)
+        val empty = Cell.Empty
+        val kitten0 = Cell.Piece(PieceType.KITTEN, owner = 0)
         val boardWithKitten = Board(
             listOf(
                 listOf(kitten0, empty, empty),
@@ -124,8 +125,8 @@ class GameMoveCountTest {
 
     @Test
     fun `boop-return-to-hand increments moveCount`() = runBlocking {
-        val empty = Cell.emptyCell()
-        val kitten1 = Cell(CellType.KITTEN, owner = 1)
+        val empty = Cell.Empty
+        val kitten1 = Cell.Piece(PieceType.KITTEN, owner = 1)
         val boardWithKitten = Board(
             listOf(
                 listOf(kitten1, empty, empty),
@@ -156,8 +157,8 @@ class GameMoveCountTest {
         assertEquals(1, result.moveCount)
 
         // The whole point: verify the boop-return actually happened.
-        assertEquals(CellType.EMPTY, result.board.getCellType(0, 0))
-        assertEquals(CellType.KITTEN, result.board.getCellType(0, 1))
+        assertTrue(result.board.cells[0][0] is Cell.Empty)
+        assertEquals(PieceType.KITTEN, result.board.getCellType(0, 1))
         assertEquals(1, result.hands[1].kittenCurrent)  // returned to hand
         assertEquals(0, result.hands[0].kittenCurrent)  // placed one
     }

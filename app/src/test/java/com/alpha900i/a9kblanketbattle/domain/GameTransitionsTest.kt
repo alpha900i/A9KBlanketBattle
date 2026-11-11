@@ -1,12 +1,14 @@
 package com.alpha900i.a9kblanketbattle.domain
 
 import com.alpha900i.a9kblanketbattle.data.Board
-import com.alpha900i.a9kblanketbattle.data.CellType
+import com.alpha900i.a9kblanketbattle.data.Cell
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.Hand
+import com.alpha900i.a9kblanketbattle.data.PieceType
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.data.VisualEffect
 import com.alpha900i.a9kblanketbattle.data.board
+import com.alpha900i.a9kblanketbattle.data.ownerOrNull
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -152,8 +154,8 @@ class GameTransitionsTest {
             assertEquals(initialBoard, result.oldBoard)
 
             //New board has the placed piece, owned by P0.
-            assertEquals(CellType.KITTEN, result.board.getCellType(1, 1))
-            assertEquals(0, result.board.cells[1][1].owner)
+            assertEquals(PieceType.KITTEN, result.board.getCellType(1, 1))
+            assertEquals(0, result.board.cells[1][1].ownerOrNull)
 
             //Hands updated: P0's kittenCurrent -1; P1's unchanged.
             assertEquals(4, result.hands[0].kittenCurrent)
@@ -275,9 +277,9 @@ class GameTransitionsTest {
             assertTrue(result.deletableTriplets.isEmpty())
 
             //Board cells cleared.
-            assertEquals(CellType.EMPTY, result.board.getCellType(0, 0))
-            assertEquals(CellType.EMPTY, result.board.getCellType(0, 1))
-            assertEquals(CellType.EMPTY, result.board.getCellType(0, 2))
+            assertTrue(result.board.cells[0][0] is Cell.Empty)
+            assertTrue(result.board.cells[0][1] is Cell.Empty)
+            assertTrue(result.board.cells[0][2] is Cell.Empty)
 
             //Effects: one AddPiece + three RemovePieces.
             val adds = result.pendingEffects.filterIsInstance<VisualEffect.AddPiece>()
@@ -332,14 +334,14 @@ class GameTransitionsTest {
             assertEquals(initialBoard, result.oldBoard)
 
             //Board cells cleared.
-            assertEquals(CellType.EMPTY, result.board.getCellType(0, 0))
-            assertEquals(CellType.EMPTY, result.board.getCellType(0, 1))
-            assertEquals(CellType.EMPTY, result.board.getCellType(0, 2))
+            assertTrue(result.board.cells[0][0] is Cell.Empty)
+            assertTrue(result.board.cells[0][1] is Cell.Empty)
+            assertTrue(result.board.cells[0][2] is Cell.Empty)
 
             //Three RemovePiece effects, one per cleared cell.
             val removes = result.pendingEffects.filterIsInstance<VisualEffect.RemovePiece>()
             assertEquals(3, removes.size)
-            assertTrue(removes.all { it.type == CellType.CAT && it.owner == 0 })
+            assertTrue(removes.all { it.type == PieceType.CAT && it.owner == 0 })
 
             //Hand: three cats returned; max unchanged.
             assertEquals(3, result.hands[0].catCurrent)

@@ -33,12 +33,14 @@ import kotlin.test.assertTrue
  * is unreachable from real game flow and is not tested here.
  */
 class BoardApplyRemovalTest {
-
-    private fun Board.assertCell(row: Int, col: Int, type: CellType, owner: Int) {
-        assertEquals(type, getCellType(row, col), "type at ($row,$col)")
-        assertEquals(owner, cells[row][col].owner, "owner at ($row,$col)")
+    private fun Board.assertCellEmpty(row: Int, col: Int) {
+        assertTrue(cells[row][col] is Cell.Empty, "Not empty cell at ($row,$col)")
     }
-
+    private fun Board.assertCellPiece(row: Int, col: Int, type: PieceType, owner: Int) {
+        assertTrue(cells[row][col] is Cell.Piece, "Not piece cell at ($row,$col)")
+        assertEquals(type, getCellType(row, col), "type at ($row,$col)")
+        assertEquals(owner, cells[row][col].ownerOrNull, "owner at ($row,$col)")
+    }
     private fun MoveResult.removePieces(): List<VisualEffect.RemovePiece> =
         pendingEffects.filterIsInstance<VisualEffect.RemovePiece>()
 
@@ -57,14 +59,13 @@ class BoardApplyRemovalTest {
             "....",
         ).applyRemoval(TripletOnBoard(row = 1, column = 1, rowShift = 0, columnShift = 1))
 
-        result.board.assertCell(1, 1, CellType.EMPTY, -1)
-        result.board.assertCell(1, 2, CellType.EMPTY, -1)
-        result.board.assertCell(1, 3, CellType.EMPTY, -1)
+        result.board.assertCellEmpty(1, 2)
+        result.board.assertCellEmpty(1, 3)
 
         //Three RemovePiece of type CAT, owner 0.
         val removes = result.removePieces()
         assertEquals(3, removes.size, "expected 3 RemovePiece, got ${result.pendingEffects}")
-        assertTrue(removes.all { it.type == CellType.CAT && it.owner == 0 })
+        assertTrue(removes.all { it.type == PieceType.CAT && it.owner == 0 })
         assertEquals(
             setOf(1 to 1, 1 to 2, 1 to 3),
             removes.map { it.row to it.column }.toSet(),
@@ -86,15 +87,16 @@ class BoardApplyRemovalTest {
             ".kkk",
             "....",
             "....",
-        ).applyRemoval(TripletOnBoard(row = 1, column = 1, rowShift = 0, columnShift = 1))
+        ).applyRemoval(TripletOnBoard(row = 1, column = 1, rowShift = 0, columnShift = 1)).also {
 
-        result.board.assertCell(1, 1, CellType.EMPTY, -1)
-        result.board.assertCell(1, 2, CellType.EMPTY, -1)
-        result.board.assertCell(1, 3, CellType.EMPTY, -1)
+            it.board.assertCellEmpty(1, 1)
+            it.board.assertCellEmpty(1, 2)
+            it.board.assertCellEmpty(1, 3)
+        }
 
         val removes = result.removePieces()
         assertEquals(3, removes.size)
-        assertTrue(removes.all { it.type == CellType.KITTEN && it.owner == 0 })
+        assertTrue(removes.all { it.type == PieceType.KITTEN && it.owner == 0 })
 
         //Hand: max kittens shrink by 3, current + max cats grow by 3.
         assertEquals(HandChange(0, -3, 3, 3), result.handChanges[0])
@@ -115,14 +117,14 @@ class BoardApplyRemovalTest {
             "....",
         ).applyRemoval(TripletOnBoard(row = 1, column = 1, rowShift = 0, columnShift = 1))
 
-        result.board.assertCell(1, 1, CellType.EMPTY, -1)
-        result.board.assertCell(1, 2, CellType.EMPTY, -1)
-        result.board.assertCell(1, 3, CellType.EMPTY, -1)
+        result.board.assertCellEmpty(1, 1)
+        result.board.assertCellEmpty(1, 2)
+        result.board.assertCellEmpty(1, 3)
 
         val removes = result.removePieces()
         assertEquals(3, removes.size)
         assertEquals(
-            setOf(CellType.CAT to (1 to 1), CellType.KITTEN to (1 to 2), CellType.CAT to (1 to 3)),
+            setOf(PieceType.CAT to (1 to 1), PieceType.KITTEN to (1 to 2), PieceType.CAT to (1 to 3)),
             removes.map { it.type to (it.row to it.column) }.toSet(),
         )
 
@@ -183,9 +185,9 @@ class BoardApplyRemovalTest {
             "c..",
         ).applyRemoval(TripletOnBoard(row = 0, column = 2, rowShift = 1, columnShift = -1))
 
-        result.board.assertCell(0, 2, CellType.EMPTY, -1)
-        result.board.assertCell(1, 1, CellType.EMPTY, -1)
-        result.board.assertCell(2, 0, CellType.EMPTY, -1)
+        result.board.assertCellEmpty(0, 2)
+        result.board.assertCellEmpty(1, 1)
+        result.board.assertCellEmpty(2, 0)
 
         assertEquals(
             setOf(0 to 2, 1 to 1, 2 to 0),
@@ -212,8 +214,8 @@ class BoardApplyRemovalTest {
         ).applyRemoval(TripletOnBoard(row = 1, column = 1, rowShift = 0, columnShift = 1))
 
         //Board unchanged - pieces at (1,1), (1,2) still present.
-        result.board.assertCell(1, 1, CellType.CAT, 0)
-        result.board.assertCell(1, 2, CellType.CAT, 0)
+        result.board.assertCellPiece(1, 1, PieceType.CAT, 0)
+        result.board.assertCellPiece(1, 2, PieceType.CAT, 0)
 
         //No effects, no hand changes.
         assertTrue(result.pendingEffects.isEmpty())

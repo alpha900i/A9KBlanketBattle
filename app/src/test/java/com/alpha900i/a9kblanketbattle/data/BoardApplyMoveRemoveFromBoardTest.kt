@@ -59,7 +59,7 @@ class BoardApplyMoveRemoveFromBoardTest {
         ).applyMove(Move(1, 1, MoveType.PROMOTE_KITTEN), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
         //Promoted cell is now empty.
-        assertEquals(CellType.EMPTY, result.board.getCellType(1, 1))
+        assertTrue(result.board.cells[1][1] is Cell.Empty)
 
         //Hand deltas: kitten leaves the game, cat appears in hand.
         assertEquals(
@@ -79,7 +79,7 @@ class BoardApplyMoveRemoveFromBoardTest {
         val remove = removes.single()
         assertEquals(1, remove.row)
         assertEquals(1, remove.column)
-        assertEquals(CellType.KITTEN, remove.type)
+        assertEquals(PieceType.KITTEN, remove.type)
         assertEquals(0, remove.owner)
 
         //No AddPiece or MovePiece accompanies a promotion.
@@ -87,10 +87,10 @@ class BoardApplyMoveRemoveFromBoardTest {
         assertTrue(result.movePieces().isEmpty(), "promotion should not emit MovePiece, got ${result.movePieces()}")
 
         //Other cells untouched.
-        assertEquals(CellType.CAT, result.board.getCellType(0, 0))
-        assertEquals(1, result.board.cells[0][0].owner)
-        assertEquals(CellType.KITTEN, result.board.getCellType(2, 2))
-        assertEquals(1, result.board.cells[2][2].owner)
+        assertEquals(PieceType.CAT, result.board.getCellType(0, 0))
+        assertEquals(1, result.board.cells[0][0].ownerOrNull)
+        assertEquals(PieceType.KITTEN, result.board.getCellType(2, 2))
+        assertEquals(1, result.board.cells[2][2].ownerOrNull)
 
         //Removing a piece cannot end the game or form a triplet.
         assertFalse(result.gameOver)
@@ -109,12 +109,12 @@ class BoardApplyMoveRemoveFromBoardTest {
             "...",
         ).applyMove(Move(0, 0, MoveType.PROMOTE_KITTEN), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
-        assertEquals(CellType.EMPTY, result.board.getCellType(0, 0))
+        assertTrue(result.board.cells[0][0] is Cell.Empty)
         assertEquals(
             HandChange(0, -1, 1, 1),
             result.handChanges[0],
         )
-        assertEquals(CellType.KITTEN, result.removePieces().single().type)
+        assertEquals(PieceType.KITTEN, result.removePieces().single().type)
     }
 
     @Test
@@ -160,7 +160,7 @@ class BoardApplyMoveRemoveFromBoardTest {
         ).applyMove(Move(1, 1, MoveType.RETURN_CAT), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
         //Returned cell is now empty.
-        assertEquals(CellType.EMPTY, result.board.getCellType(1, 1))
+        assertTrue(result.board.cells[1][1] is Cell.Empty)
 
         //Hand deltas: cat returns from board to hand, max unchanged.
         assertEquals(
@@ -180,14 +180,14 @@ class BoardApplyMoveRemoveFromBoardTest {
         val remove = removes.single()
         assertEquals(1, remove.row)
         assertEquals(1, remove.column)
-        assertEquals(CellType.CAT, remove.type)
+        assertEquals(PieceType.CAT, remove.type)
         assertEquals(0, remove.owner)
 
         //Other cells untouched.
-        assertEquals(CellType.KITTEN, result.board.getCellType(0, 0))
-        assertEquals(1, result.board.cells[0][0].owner)
-        assertEquals(CellType.KITTEN, result.board.getCellType(2, 2))
-        assertEquals(0, result.board.cells[2][2].owner)
+        assertEquals(PieceType.KITTEN, result.board.getCellType(0, 0))
+        assertEquals(1, result.board.cells[0][0].ownerOrNull)
+        assertEquals(PieceType.KITTEN, result.board.getCellType(2, 2))
+        assertEquals(0, result.board.cells[2][2].ownerOrNull)
 
         assertFalse(result.gameOver)
         assertEquals(-1, result.winnerIndex)
@@ -203,12 +203,12 @@ class BoardApplyMoveRemoveFromBoardTest {
             "...",
         ).applyMove(Move(0, 0, MoveType.RETURN_CAT), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
-        assertEquals(CellType.EMPTY, result.board.getCellType(0, 0))
+        assertTrue(result.board.cells[0][0] is Cell.Empty)
         assertEquals(
             HandChange(0, 0, 1, 0),
             result.handChanges[0],
         )
-        assertEquals(CellType.CAT, result.removePieces().single().type)
+        assertEquals(PieceType.CAT, result.removePieces().single().type)
     }
 
     @Test

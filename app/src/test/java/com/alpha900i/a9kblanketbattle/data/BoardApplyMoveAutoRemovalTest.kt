@@ -56,7 +56,7 @@ class BoardApplyMoveAutoRemovalTest {
         //the mixed triplet (1,1)cat (1,2)cat (1,3)kitten.
         //
         //No boops: (1,2) is a CAT, which SET_KITTEN cannot push; all other
-        //neighbours are empty or off the edge.
+        //neighbors are empty or off the edge.
         val maxPieceAmount = 8
         val result = board(
             "....",
@@ -73,22 +73,22 @@ class BoardApplyMoveAutoRemovalTest {
         assertFalse(result.gameOver)
 
         //Board: all three cells of the triplet are empty now.
-        assertEquals(CellType.EMPTY, result.board.getCellType(1, 1))
-        assertEquals(CellType.EMPTY, result.board.getCellType(1, 2))
-        assertEquals(CellType.EMPTY, result.board.getCellType(1, 3))
+        assertTrue(result.board.cells[1][1] is Cell.Empty)
+        assertTrue(result.board.cells[1][2] is Cell.Empty)
+        assertTrue(result.board.cells[1][3] is Cell.Empty)
 
         //Effects: exactly one AddPiece and three RemovePieces.
         val addPieces = result.pendingEffects.filterIsInstance<VisualEffect.AddPiece>()
         val removePieces = result.pendingEffects.filterIsInstance<VisualEffect.RemovePiece>()
         assertEquals(1, addPieces.size, "expected one AddPiece, got ${result.pendingEffects}")
         assertEquals(3, removePieces.size, "expected three RemovePieces, got ${result.pendingEffects}")
-        assertTrue(addPieces.all { it.owner == 0 && it.type == CellType.KITTEN })
+        assertTrue(addPieces.all { it.owner == 0 && it.type == PieceType.KITTEN })
         assertTrue(removePieces.all { it.owner == 0 })
         assertEquals(
             setOf(
-                CellType.CAT to (1 to 1),
-                CellType.CAT to (1 to 2),
-                CellType.KITTEN to (1 to 3),
+                PieceType.CAT to (1 to 1),
+                PieceType.CAT to (1 to 2),
+                PieceType.KITTEN to (1 to 3),
             ),
             removePieces.map { it.type to (it.row to it.column) }.toSet(),
         )
@@ -169,7 +169,7 @@ class BoardApplyMoveAutoRemovalTest {
     //=========================================================================
     @Test
     fun `two triplets suppress auto-removal - board intact, both triplets reported`() {
-        //"+" shape around (2,2): P0 cats at N/S/E/W, placed kitten at centre.
+        //"+" shape around (2,2): P0 cats at N/S/E/W, placed kitten at center.
         //SET_KITTEN can't push CATs, so nothing gets displaced.
         //
         //Expected triplets:
@@ -192,12 +192,12 @@ class BoardApplyMoveAutoRemovalTest {
         assertEquals(expected, result.deletableTriplets)
 
         //Board intact: all 5 pieces still in place.
-        assertEquals(CellType.CAT, result.board.getCellType(1, 2))
-        assertEquals(CellType.CAT, result.board.getCellType(2, 1))
-        assertEquals(CellType.KITTEN, result.board.getCellType(2, 2))
-        assertEquals(CellType.CAT, result.board.getCellType(2, 3))
-        assertEquals(CellType.CAT, result.board.getCellType(3, 2))
-        assertEquals(0, result.board.cells[2][2].owner)
+        assertEquals(PieceType.CAT, result.board.getCellType(1, 2))
+        assertEquals(PieceType.CAT, result.board.getCellType(2, 1))
+        assertEquals(PieceType.KITTEN, result.board.getCellType(2, 2))
+        assertEquals(PieceType.CAT, result.board.getCellType(2, 3))
+        assertEquals(PieceType.CAT, result.board.getCellType(3, 2))
+        assertEquals(0, result.board.cells[2][2].ownerOrNull)
 
         //No RemovePiece in the effects because no removal happened.
         val removePieces = result.pendingEffects.filterIsInstance<VisualEffect.RemovePiece>()
@@ -233,7 +233,7 @@ class BoardApplyMoveAutoRemovalTest {
         //Board.applyMove's auto-removal condition is
         //     size == 1 && !gameOver
         //which is false here because gameOver is true. So the triplet is
-        //NOT removed even though it is the only one and it is not itself
+        //NOT removed even though it is the only one, and it is not itself
         //a winning triplet.
         //
         //No boops: (0,1) is a CAT, not pushable by SET_KITTEN.
@@ -257,11 +257,11 @@ class BoardApplyMoveAutoRemovalTest {
         )
 
         //Board still has all five pieces - the triplet was not removed.
-        assertEquals(CellType.CAT, result.board.getCellType(0, 0))
-        assertEquals(CellType.CAT, result.board.getCellType(0, 1))
-        assertEquals(CellType.KITTEN, result.board.getCellType(0, 2))
-        assertEquals(CellType.CAT, result.board.getCellType(2, 2))
-        assertEquals(CellType.CAT, result.board.getCellType(2, 3))
+        assertEquals(PieceType.CAT, result.board.getCellType(0, 0))
+        assertEquals(PieceType.CAT, result.board.getCellType(0, 1))
+        assertEquals(PieceType.KITTEN, result.board.getCellType(0, 2))
+        assertEquals(PieceType.CAT, result.board.getCellType(2, 2))
+        assertEquals(PieceType.CAT, result.board.getCellType(2, 3))
 
         //No RemovePiece effects: nothing was removed.
         val removePieces = result.pendingEffects.filterIsInstance<VisualEffect.RemovePiece>()

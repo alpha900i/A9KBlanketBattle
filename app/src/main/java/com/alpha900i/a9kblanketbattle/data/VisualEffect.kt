@@ -13,7 +13,7 @@ sealed class VisualEffect {
         val toRow: Int,
         val toColumn: Int,
         val owner: Int,
-        val type: CellType
+        val type: PieceType
     ) : VisualEffect()
     /**
      * New piece of [type] belonging to player #[owner] appears on [row]x[column]
@@ -22,7 +22,7 @@ sealed class VisualEffect {
         val row: Int,
         val column: Int,
         val owner: Int,
-        val type: CellType
+        val type: PieceType
     ) : VisualEffect()
     /**
      * Piece of [type] belonging to player #[owner] removed from [row]x[column]
@@ -31,6 +31,6 @@ sealed class VisualEffect {
         val row: Int,
         val column: Int,
         val owner: Int,
-        val type: CellType
+        val type: PieceType
     ) : VisualEffect()
 }

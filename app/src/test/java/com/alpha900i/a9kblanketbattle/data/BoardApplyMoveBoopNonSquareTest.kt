@@ -4,6 +4,7 @@ import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.test.fail
 
 /**
@@ -50,8 +51,8 @@ class BoardApplyMoveBoopNonSquareTest {
         ).applyMove(Move(2, 2, MoveType.SET_KITTEN), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
         //No crash -> piece placed.
-        assertEquals(CellType.KITTEN, result.board.getCellType(2, 2))
-        assertEquals(0, result.board.cells[2][2].owner)
+        assertEquals(PieceType.KITTEN, result.board.getCellType(2, 2))
+        assertEquals(0, result.board.cells[2][2].ownerOrNull)
 
         //Upward boop (direction (-1,0)) still works: (1,2) -> (0,2).
         val movePiece = result.movePieces().singleOrNull { it.fromRow == 1 && it.fromColumn == 2 }
@@ -79,8 +80,8 @@ class BoardApplyMoveBoopNonSquareTest {
         assertEquals(1, movePiece.toRow)
         assertEquals(4, movePiece.toColumn)
 
-        assertEquals(CellType.EMPTY, result.board.getCellType(1, 3))
-        assertEquals(CellType.KITTEN, result.board.getCellType(1, 4))
+        assertTrue(result.board.cells[1][3] is Cell.Empty)
+        assertEquals(PieceType.KITTEN, result.board.getCellType(1, 4))
     }
 
 
@@ -104,8 +105,8 @@ class BoardApplyMoveBoopNonSquareTest {
             "...",
         ).applyMove(Move(2, 2, MoveType.SET_KITTEN), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
-        assertEquals(CellType.KITTEN, result.board.getCellType(2, 2))
-        assertEquals(0, result.board.cells[2][2].owner)
+        assertEquals(PieceType.KITTEN, result.board.getCellType(2, 2))
+        assertEquals(0, result.board.cells[2][2].ownerOrNull)
 
         val movePiece = result.movePieces().singleOrNull { it.fromRow == 2 && it.fromColumn == 1 }
             ?: fail("expected leftward boop from (2,1), got ${result.movePieces()}")
@@ -134,7 +135,7 @@ class BoardApplyMoveBoopNonSquareTest {
         assertEquals(4, movePiece.toRow)
         assertEquals(1, movePiece.toColumn)
 
-        assertEquals(CellType.EMPTY, result.board.getCellType(3, 1))
-        assertEquals(CellType.KITTEN, result.board.getCellType(4, 1))
+        assertTrue(result.board.cells[3][1] is Cell.Empty)
+        assertEquals(PieceType.KITTEN, result.board.getCellType(4, 1))
     }
 }
