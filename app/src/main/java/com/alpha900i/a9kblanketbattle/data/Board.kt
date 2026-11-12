@@ -90,16 +90,14 @@ data class TripletOnBoard(
  * [board] is updated states of board
  * [pendingEffects] is pieces' changes during that move that needs visualization (movements, appearings, disappearings)
  * [handChanges] is 2-element array that describes how contents of player's hand changed after turn
- * [gameOver] is "is game over after this turn"
- * [winnerIndex] is "number of player that won". Makes sense only paired with [gameOver] = true
+ * [winnerIndex] is "number of player that won". Null if game is not over yet
  * [deletableTriplets] is set of triplets that player can remove from board; player may need to decide, which one to remove
  */
 data class MoveResult(
     val board: Board,
     val pendingEffects: List<VisualEffect>,
     val handChanges: List<HandChange>,
-    val gameOver: Boolean,
-    val winnerIndex: Int,
+    val winnerIndex: Int?,
     val deletableTriplets: Set<TripletOnBoard>
 )
 
@@ -182,8 +180,7 @@ data class Board(
             }
         }
 
-
-        val (gameOver, winnerIndex) = checkForGameOver(
+        val winnerIndex = checkForGameOver(
             mutableCells = mutableCells,
             playerIndex = playerIndex,
             maxPieceAmount = maxPieceAmount
@@ -196,7 +193,7 @@ data class Board(
 
         //if we have one triplet to delete - we autodelete it here
         //only exception - winning triplet. We don't want to delete it
-        if (deletableTriplets.size == 1 && !gameOver) {
+        if (deletableTriplets.size == 1 && winnerIndex == null) {
             val removalEffect: List<VisualEffect> = removeTriplet(
                 mutableCells = mutableCells,
                 tripletOnBoard = deletableTriplets.first(),
@@ -211,7 +208,6 @@ data class Board(
             Board(immutableCells),
             pendingEffects = pendingEffects,
             handChanges,
-            gameOver,
             winnerIndex,
             deletableTriplets
         )
@@ -241,9 +237,8 @@ data class Board(
         return MoveResult(
             Board(immutableCells),
             pendingEffects = pendingEffects,
-            handChanges,
-            false,           //we wouldn't get here if there was an active "game over", and triplet removal can't initiate one
-            -1,
+            handChanges,      //we wouldn't get here if there was an active "game over", and triplet removal can't initiate one
+            null,
             setOf()     //no removal after removal
         )
     }
@@ -404,7 +399,7 @@ data class Board(
                 row = move.row,
                 column = move.column,
                 owner = playerIndex,
-                type = PieceType.CAT
+                type = CAT
             )
         )
     }
@@ -553,7 +548,7 @@ data class Board(
         mutableCells: MutableList<MutableList<Cell>>,
         playerIndex: Int,
         maxPieceAmount: Int
-    ): Pair<Boolean, Int> {
+    ): Int? {
         var catCount: Int = 0
         //for each cell
         //check horizontal/vertical/diagonal triplet to down/right direction
@@ -569,7 +564,7 @@ data class Board(
                                 cellDelta
                             )
                         ) {
-                            return Pair(true, cell.owner)
+                            return cell.owner
                         }
                     }
                     if (cell.type == CAT) {
@@ -579,9 +574,9 @@ data class Board(
             }
         }
         return if (catCount == maxPieceAmount) {
-            Pair(true, playerIndex)
+            playerIndex
         } else {
-            Pair(false, -1)
+            null
         }
     }
 

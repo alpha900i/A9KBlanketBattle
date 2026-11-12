@@ -4,7 +4,7 @@ import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -73,8 +73,7 @@ class BoardApplyMoveTripletDetectionTest {
 
         //Mixed type (kitten + cat + cat) counts as a deletable triplet but
         //is not a winning cat-triplet, so no game over.
-        assertFalse(result.gameOver, "mixed triplet must not end the game")
-        assertEquals(-1, result.winnerIndex)
+        assertNull(result.winnerIndex, "mixed triplet must not end the game")
     }
 
     @Test
@@ -99,8 +98,7 @@ class BoardApplyMoveTripletDetectionTest {
         )
         assertEquals(expected, result.deletableTriplets)
 
-        assertFalse(result.gameOver)
-        assertEquals(-1, result.winnerIndex)
+        assertNull(result.winnerIndex)
     }
 
 
@@ -125,7 +123,7 @@ class BoardApplyMoveTripletDetectionTest {
             result.deletableTriplets.isEmpty(),
             "foreign middle piece must break the triplet, got ${result.deletableTriplets}",
         )
-        assertFalse(result.gameOver)
+        assertNull(result.winnerIndex)
     }
 
     @Test
@@ -188,8 +186,7 @@ class BoardApplyMoveTripletDetectionTest {
             "....",
         ).applyMove(Move(2, 3, MoveType.SET_CAT), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
-        assertTrue(result.gameOver, "cat triplet must end the game")
-        assertEquals(0, result.winnerIndex)
+        assertEquals(0, result.winnerIndex, "cat triplet must end the game")
 
         //Game-over suppresses auto-removal, so the winning triplet is still
         //reported in Board's MoveResult. Game.applyMove is responsible for
@@ -224,8 +221,8 @@ class BoardApplyMoveTripletDetectionTest {
             "....",
         ).applyMove(Move(3, 3, MoveType.SET_KITTEN), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
-        assertFalse(result.gameOver, "other player's cat triplet must not end the game")
-        assertEquals(-1, result.winnerIndex)
+
+        assertNull(result.winnerIndex, "other player's cat triplet must not end the game")
         assertTrue(
             result.deletableTriplets.isEmpty(),
             "other player's triplet must not appear in deletableTriplets, got ${result.deletableTriplets}",

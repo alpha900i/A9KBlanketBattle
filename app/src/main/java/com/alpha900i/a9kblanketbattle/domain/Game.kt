@@ -55,12 +55,12 @@ class Game {
             hand.applyChange(moveResult.handChanges[index])
         }
         val newPhase: GamePhase = when {
-            moveResult.gameOver -> GamePhase.GameOver(moveResult.winnerIndex)
+            moveResult.winnerIndex != null -> GamePhase.GameOver(moveResult.winnerIndex)
             moveResult.deletableTriplets.isNotEmpty() -> GamePhase.AwaitingTripletSelection(moveResult.deletableTriplets)
             else -> GamePhase.InProgress
         }
         val newPlayerIndex = when (newPhase) {
-            is GamePhase.GameOver -> moveResult.winnerIndex
+            is GamePhase.GameOver -> newPhase.winnerIndex
             is GamePhase.AwaitingTripletSelection -> gameState.activePlayerIndex
             else -> (gameState.activePlayerIndex + 1) % PLAYER_COUNT
         }
@@ -102,7 +102,7 @@ class Game {
 
         //update state
         val newPhase: GamePhase = when {
-            moveResult.gameOver -> GamePhase.GameOver(moveResult.winnerIndex)
+            moveResult.winnerIndex != null -> GamePhase.GameOver(moveResult.winnerIndex)
             moveResult.deletableTriplets.isNotEmpty() -> GamePhase.AwaitingTripletSelection(moveResult.deletableTriplets)
             else -> GamePhase.InProgress
         }

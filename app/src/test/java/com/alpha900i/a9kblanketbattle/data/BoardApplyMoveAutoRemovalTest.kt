@@ -5,7 +5,8 @@ import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -70,7 +71,7 @@ class BoardApplyMoveAutoRemovalTest {
             result.deletableTriplets.isEmpty(),
             "auto-removal must clear deletableTriplets, got ${result.deletableTriplets}",
         )
-        assertFalse(result.gameOver)
+        assertNull(result.winnerIndex)
 
         //Board: all three cells of the triplet are empty now.
         assertTrue(result.board.cells[1][1] is Cell.Empty)
@@ -246,7 +247,7 @@ class BoardApplyMoveAutoRemovalTest {
             ".....",
         ).applyMove(Move(0, 2, MoveType.SET_KITTEN), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
-        assertTrue(result.gameOver, "catCount == maxPieceAmount must end the game")
+        assertNotNull(result.winnerIndex, "catCount == maxPieceAmount must end the game")
         assertEquals(0, result.winnerIndex)
 
         //The mixed triplet is still reported - Board's MoveResult keeps it,

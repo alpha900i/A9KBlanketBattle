@@ -6,7 +6,7 @@ import com.alpha900i.a9kblanketbattle.domain.MoveType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -93,8 +93,7 @@ class BoardApplyMoveRemoveFromBoardTest {
         assertEquals(1, result.board.cells[2][2].ownerOrNull)
 
         //Removing a piece cannot end the game or form a triplet.
-        assertFalse(result.gameOver)
-        assertEquals(-1, result.winnerIndex)
+        assertNull(result.winnerIndex)
         assertTrue(result.deletableTriplets.isEmpty())
     }
 
@@ -189,14 +188,13 @@ class BoardApplyMoveRemoveFromBoardTest {
         assertEquals(PieceType.KITTEN, result.board.getCellType(2, 2))
         assertEquals(0, result.board.cells[2][2].ownerOrNull)
 
-        assertFalse(result.gameOver)
-        assertEquals(-1, result.winnerIndex)
+        assertNull(result.winnerIndex)
         assertTrue(result.deletableTriplets.isEmpty())
     }
 
     @Test
     fun `RETURN_CAT can be performed on any board position without side effects`() {
-        //Corner position; behaviour is position-agnostic.
+        //Corner position; behavior is position-agnostic.
         val result = board(
             "c..",
             "...",

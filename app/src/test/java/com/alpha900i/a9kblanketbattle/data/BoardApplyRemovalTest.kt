@@ -3,7 +3,7 @@ package com.alpha900i.a9kblanketbattle.data
 import com.alpha900i.a9kblanketbattle.domain.HandChange
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -237,8 +237,7 @@ class BoardApplyRemovalTest {
             "....",
         ).applyRemoval(TripletOnBoard(row = 1, column = 1, rowShift = 0, columnShift = 1))
 
-        assertFalse(result.gameOver)
-        assertEquals(-1, result.winnerIndex)
+        assertNull(result.winnerIndex)
         assertTrue(result.deletableTriplets.isEmpty())
     }
 }

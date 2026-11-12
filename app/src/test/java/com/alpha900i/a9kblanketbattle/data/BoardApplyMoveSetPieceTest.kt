@@ -6,6 +6,7 @@ import com.alpha900i.a9kblanketbattle.domain.MoveType
 import org.junit.Assert
 
 import kotlin.test.Test
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 
@@ -135,8 +136,7 @@ class BoardApplyMoveSetPieceTest {
 
         val result = board.applyMove(move, playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
-        Assert.assertFalse(result.gameOver)
-        Assert.assertEquals(-1, result.winnerIndex)
+        assertNull(result.winnerIndex)
     }
 
     @Test
