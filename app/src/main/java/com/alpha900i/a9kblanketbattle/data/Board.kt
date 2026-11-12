@@ -107,7 +107,7 @@ data class MoveResult(
  * Rectangular grid of cells
  * [getHeight] and [getWidth] return respective dimension
  * [getEmptyCellCoordinates] returns list of coordinates of indices for empty cells
- * [getPlayerCellCoordinates] returns list of coordinates of indices for cells belonging to given player
+ * [getPlayerPieceCoordinates] returns list of coordinates of indices for cells belonging to given player
  * [getCellType] returns type of cell in given row and column
  * [applyMove] takes move description; returns result of this move application on given board
  * [applyRemoval] takes triplet, selected for removal; returns result of this removal for given board
