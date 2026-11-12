@@ -49,25 +49,18 @@ class Game {
         move: Move,
         stateUpdater: (GameState) -> Unit
     ) {
-        val (
-            newBoard,
-            pendingEffects,
-            handChanges,
-            gameOver,
-            winnerIndex,
-            deletableTriplets
-        ) = gameState.board.applyMove(move, gameState.activePlayerIndex, gameState.maxPieceAmount)
+        val moveResult = gameState.board.applyMove(move, gameState.activePlayerIndex, gameState.maxPieceAmount)
         //modify hands
         val newHands = gameState.hands.mapIndexed { index, hand ->
-            hand.applyChange(handChanges[index])
+            hand.applyChange(moveResult.handChanges[index])
         }
         val newPhase: GamePhase = when {
-            gameOver -> GamePhase.GameOver(winnerIndex)
-            deletableTriplets.isNotEmpty() -> GamePhase.AwaitingTripletSelection(deletableTriplets)
+            moveResult.gameOver -> GamePhase.GameOver(moveResult.winnerIndex)
+            moveResult.deletableTriplets.isNotEmpty() -> GamePhase.AwaitingTripletSelection(moveResult.deletableTriplets)
             else -> GamePhase.InProgress
         }
         val newPlayerIndex = when (newPhase) {
-            is GamePhase.GameOver -> winnerIndex
+            is GamePhase.GameOver -> moveResult.winnerIndex
             is GamePhase.AwaitingTripletSelection -> gameState.activePlayerIndex
             else -> (gameState.activePlayerIndex + 1) % PLAYER_COUNT
         }
@@ -78,9 +71,9 @@ class Game {
         }
 
         val newState = GameState(
-            board = newBoard,
+            board = moveResult.board,
             oldBoard = gameState.board,
-            pendingEffects = pendingEffects,
+            pendingEffects = moveResult.pendingEffects,
             hands = newHands,
             activePlayerIndex = newPlayerIndex,
             maxPieceAmount = gameState.maxPieceAmount,
@@ -102,23 +95,23 @@ class Game {
         tripletToRemove: TripletOnBoard,
         stateUpdater: (GameState) -> Unit
     ) {
-        val (newBoard, pendingEffects, handChanges, gameOver, winnerIndex, deletableTriplets) = gameState.board.applyRemoval(tripletToRemove)
+        val moveResult = gameState.board.applyRemoval(tripletToRemove)
         val newHands = gameState.hands.mapIndexed { index, hand ->
-            hand.applyChange(handChanges[index])
+            hand.applyChange(moveResult.handChanges[index])
         }
 
         //update state
         val newPhase: GamePhase = when {
-            gameOver -> GamePhase.GameOver(winnerIndex)
-            deletableTriplets.isNotEmpty() -> GamePhase.AwaitingTripletSelection(deletableTriplets)
+            moveResult.gameOver -> GamePhase.GameOver(moveResult.winnerIndex)
+            moveResult.deletableTriplets.isNotEmpty() -> GamePhase.AwaitingTripletSelection(moveResult.deletableTriplets)
             else -> GamePhase.InProgress
         }
         val newMoveCount = gameState.moveCount + 1
         val newPlayerIndex = (gameState.activePlayerIndex + 1) % PLAYER_COUNT
         val newState = GameState(
-            board = newBoard,
+            board = moveResult.board,
             oldBoard = gameState.board,
-            pendingEffects = pendingEffects,
+            pendingEffects = moveResult.pendingEffects,
             hands = newHands,
             activePlayerIndex = newPlayerIndex,
             maxPieceAmount = gameState.maxPieceAmount,
