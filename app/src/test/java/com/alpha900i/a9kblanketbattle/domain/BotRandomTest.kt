@@ -1,6 +1,7 @@
 package com.alpha900i.a9kblanketbattle.domain
 
 import com.alpha900i.a9kblanketbattle.data.Board
+import com.alpha900i.a9kblanketbattle.data.GamePhase
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.Hand
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
@@ -31,21 +32,25 @@ class BotRandomTest {
         board: Board,
         hand: Hand = Hand(kittenCurrent = 3, kittenMax = 3, catCurrent = 2, catMax = 2),
         deletableTriplets: Set<TripletOnBoard> = emptySet(),
-    ): GameState = GameState(
-        oldBoard = board,
-        board = board,
-        pendingEffects = emptyList(),
-        hands = listOf(
-            hand,
-            Hand(kittenCurrent = 3, kittenMax = 3, catCurrent = 2, catMax = 2),
-        ),
-        activePlayerIndex = 0,
-        gameIsActive = true,
-        winnerIndex = -1,
-        deletableTriplets = deletableTriplets,
-        maxPieceAmount = 8,
-        moveCount = 0
-    )
+    ): GameState {
+        val newPhase: GamePhase = if (deletableTriplets.isEmpty())
+            GamePhase.InProgress
+        else
+            GamePhase.AwaitingTripletSelection(deletableTriplets)
+        return GameState(
+            oldBoard = board,
+            board = board,
+            pendingEffects = emptyList(),
+            hands = listOf(
+                hand,
+                Hand(kittenCurrent = 3, kittenMax = 3, catCurrent = 2, catMax = 2),
+            ),
+            activePlayerIndex = 0,
+            maxPieceAmount = 8,
+            moveCount = 0,
+            gamePhase = newPhase
+        )
+    }
 
 
 
@@ -162,13 +167,14 @@ class BotRandomTest {
         val t1 = TripletOnBoard(0, 0, 0, 1)
         val t2 = TripletOnBoard(0, 0, 1, 0)
         val bot = BotRandom(0, Random(42))
+        val deletableTriplets = setOf(t1, t2)
         val gameState = state(
             board = board("ccc", "c..", "..."),
             hand = Hand(kittenCurrent = 0, kittenMax = 3, catCurrent = 0, catMax = 2),
-            deletableTriplets = setOf(t1, t2),
+            deletableTriplets = deletableTriplets
         )
         var captured: TripletOnBoard? = null
-        bot.removeTriplet(gameState) { captured = it }
+        bot.removeTriplet(deletableTriplets) { captured = it }
 
         assertTrue(
             assertNotNull(captured) in setOf(t1, t2),

@@ -1,6 +1,7 @@
 package com.alpha900i.a9kblanketbattle.domain
 
 import com.alpha900i.a9kblanketbattle.data.Board
+import com.alpha900i.a9kblanketbattle.data.GamePhase
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.Hand
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
@@ -10,6 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * First-fit bot logic.
@@ -32,21 +34,25 @@ class BotFirstFitTest {
         board: Board,
         hand: Hand = Hand(kittenCurrent = 3, kittenMax = 3, catCurrent = 2, catMax = 2),
         deletableTriplets: Set<TripletOnBoard> = emptySet(),
-    ): GameState = GameState(
-        oldBoard = board,
-        board = board,
-        pendingEffects = emptyList(),
-        hands = listOf(
-            hand,
-            Hand(kittenCurrent = 3, kittenMax = 3, catCurrent = 2, catMax = 2),
-        ),
-        activePlayerIndex = 0,
-        gameIsActive = true,
-        winnerIndex = -1,
-        deletableTriplets = deletableTriplets,
-        maxPieceAmount = 8,
-        moveCount = 0
-    )
+    ): GameState {
+        val newPhase: GamePhase = if (deletableTriplets.isEmpty())
+            GamePhase.InProgress
+        else
+            GamePhase.AwaitingTripletSelection(deletableTriplets)
+        return GameState(
+            oldBoard = board,
+            board = board,
+            pendingEffects = emptyList(),
+            hands = listOf(
+                hand,
+                Hand(kittenCurrent = 3, kittenMax = 3, catCurrent = 2, catMax = 2),
+            ),
+            activePlayerIndex = 0,
+            maxPieceAmount = 8,
+            moveCount = 0,
+            gamePhase = newPhase
+        )
+    }
 
 
 
@@ -214,14 +220,15 @@ class BotFirstFitTest {
         //and pinning it here would couple this test to Board.getDeletableTriplets.
         val triplet = TripletOnBoard(0, 0, 0, 1)
         val bot = BotFirstFit(0)
+        val deletableTriplets =  setOf(triplet)
         val gameState = state(
             board = board("ccc", "...", "..."),
             hand = Hand(kittenCurrent = 0, kittenMax = 3, catCurrent = 0, catMax = 2),
-            deletableTriplets = setOf(triplet),
+            deletableTriplets = deletableTriplets,
         )
         var captured: TripletOnBoard? = null
-        bot.removeTriplet(gameState) { captured = it }
-
+        bot.removeTriplet(deletableTriplets) { captured = it }
+        assertTrue(gameState.gamePhase is GamePhase.AwaitingTripletSelection)
         assertEquals(triplet, captured)
     }
 }

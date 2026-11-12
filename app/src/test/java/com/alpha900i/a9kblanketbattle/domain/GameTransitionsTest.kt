@@ -2,6 +2,7 @@ package com.alpha900i.a9kblanketbattle.domain
 
 import com.alpha900i.a9kblanketbattle.data.Board
 import com.alpha900i.a9kblanketbattle.data.Cell
+import com.alpha900i.a9kblanketbattle.data.GamePhase
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.Hand
 import com.alpha900i.a9kblanketbattle.data.PieceType
@@ -13,6 +14,7 @@ import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -59,7 +61,7 @@ class GameTransitionsTest {
             applier(m)
         }
 
-        override suspend fun removeTriplet(gameState: GameState, applier: (TripletOnBoard) -> Unit) {
+        override suspend fun removeTriplet(deletableTriplets: Set<TripletOnBoard>, applier: (TripletOnBoard) -> Unit) {
             removeTripletCalls++
             val t = triplet ?: error("ScriptedPlayer[$index] has no triplet configured")
             applier(t)
@@ -73,18 +75,26 @@ class GameTransitionsTest {
         gameIsActive: Boolean = true,
         maxPieceAmount: Int = 8,
         deletableTriplets: Set<TripletOnBoard> = emptySet(),
-    ): GameState = GameState(
-        oldBoard = initialBoard,
-        board = initialBoard,
-        pendingEffects = emptyList(),
-        hands = hands,
-        activePlayerIndex = activePlayerIndex,
-        gameIsActive = gameIsActive,
-        winnerIndex = -1,
-        deletableTriplets = deletableTriplets,
-        maxPieceAmount = maxPieceAmount,
-        moveCount = 0
-    )
+    ): GameState {
+        val newPhase: GamePhase = if (!deletableTriplets.isEmpty())
+            GamePhase.AwaitingTripletSelection(deletableTriplets)
+        else if (gameIsActive) {
+            GamePhase.InProgress
+        } else {
+            GamePhase.NotStarted
+        }
+
+        return GameState(
+            oldBoard = initialBoard,
+            board = initialBoard,
+            pendingEffects = emptyList(),
+            hands = hands,
+            activePlayerIndex = activePlayerIndex,
+            maxPieceAmount = maxPieceAmount,
+            moveCount = 0,
+            gamePhase = newPhase
+        )
+    }
 
 
 
@@ -146,9 +156,7 @@ class GameTransitionsTest {
 
             //Turn passed.
             assertEquals(1, result.activePlayerIndex)
-            assertTrue(result.gameIsActive)
-            assertEquals(-1, result.winnerIndex)
-            assertTrue(result.deletableTriplets.isEmpty())
+            assertTrue(result.gamePhase is GamePhase.InProgress)
 
             //oldBoard now holds the previous board.
             assertEquals(initialBoard, result.oldBoard)
@@ -206,11 +214,9 @@ class GameTransitionsTest {
 
             //Same active player; game still active; no winner.
             assertEquals(0, result.activePlayerIndex)
-            assertTrue(result.gameIsActive)
-            assertEquals(-1, result.winnerIndex)
-
-            //Both triplets reported.
-            assertEquals(2, result.deletableTriplets.size)
+            val phase = assertIs<GamePhase.AwaitingTripletSelection>(result.gamePhase)
+            //both triplets reported.
+            assertEquals(2, phase.triplets.size)
         }
     }
 
@@ -240,12 +246,11 @@ class GameTransitionsTest {
             Game().makeMove(listOf(player0, ScriptedPlayer(1)), state) { newState = it }
             val result = assertNotNull(newState)
 
-            assertEquals(0, result.winnerIndex)
-            assertFalse(result.gameIsActive)
-            assertTrue(
-                result.deletableTriplets.isEmpty(),
-                "winning triplet must be dropped from state, got ${result.deletableTriplets}",
-            )
+
+            val phase = assertIs<GamePhase.GameOver>(result.gamePhase)
+            //both triplets reported.
+            assertEquals(0, phase.winnerIndex)
+
             //activePlayerIndex doubles as winnerIndex on game over.
             assertEquals(0, result.activePlayerIndex)
         }
@@ -274,7 +279,7 @@ class GameTransitionsTest {
 
             //Turn passed; no triplets pending.
             assertEquals(1, result.activePlayerIndex)
-            assertTrue(result.deletableTriplets.isEmpty())
+            assertFalse(result.gamePhase is GamePhase.AwaitingTripletSelection)
 
             //Board cells cleared.
             assertTrue(result.board.cells[0][0] is Cell.Empty)
@@ -322,13 +327,7 @@ class GameTransitionsTest {
 
             //Turn advanced.
             assertEquals(1, result.activePlayerIndex)
-            assertTrue(result.gameIsActive)
-
-            //Removal can never end the game.
-            assertEquals(-1, result.winnerIndex)
-
-            //No triplets pending after removal.
-            assertTrue(result.deletableTriplets.isEmpty())
+            assertTrue(result.gamePhase is GamePhase.InProgress)
 
             //oldBoard preserved.
             assertEquals(initialBoard, result.oldBoard)

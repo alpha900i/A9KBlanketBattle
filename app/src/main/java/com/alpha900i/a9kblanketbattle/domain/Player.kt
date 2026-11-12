@@ -48,7 +48,7 @@ enum class PlayerType(
  * Basic interface for all players, human or bots
  * [index] is number of player in current session
  * [makeMove] takes active gameState and applier-callback, that takes move; it should generate new move based on this state and pass it to callback
- * [removeTriplet] takes active gameState and applier-callback, that takes triplet; it should select one of removable triplets to actually remove and pass it to callback
+ * [removeTriplet] takes target triplets and applier-callback, that takes triplet; it should select one of removable triplets to actually remove and pass it to callback
  */
 interface Player {
     val index: Int
@@ -58,7 +58,7 @@ interface Player {
     )
 
     suspend fun removeTriplet(
-        gameState: GameState,
+        deletableTriplets: Set<TripletOnBoard>,
         applier: (TripletOnBoard) -> Unit
     )
 }
@@ -83,10 +83,10 @@ abstract class Bot(override val index: Int) : Player {
     }
 
     final override suspend fun removeTriplet(
-        gameState: GameState,
+        deletableTriplets: Set<TripletOnBoard>,
         applier: (TripletOnBoard) -> Unit
     ) {
-        applier(selectTripletForRemoval(gameState))
+        applier(selectTripletForRemoval(deletableTriplets))
     }
 
     protected open fun formMove(gameState: GameState): Move {
@@ -103,7 +103,7 @@ abstract class Bot(override val index: Int) : Player {
     }
     protected abstract fun formSetMove(gameState: GameState): Move
     protected abstract fun formReturnMove(gameState: GameState): Move
-    protected abstract fun selectTripletForRemoval(gameState: GameState): TripletOnBoard
+    protected abstract fun selectTripletForRemoval(deletableTriplets: Set<TripletOnBoard>): TripletOnBoard
 }
 /**
  * "First-fit" bot
@@ -146,8 +146,8 @@ class BotFirstFit(override val index: Int) : Bot(index = index) {
         return Move(rowIndex, colIndex, moveType)
     }
 
-    override fun selectTripletForRemoval(gameState: GameState): TripletOnBoard {
-        return gameState.deletableTriplets.first()
+    override fun selectTripletForRemoval(deletableTriplets: Set<TripletOnBoard>): TripletOnBoard {
+        return deletableTriplets.first()
     }
 }
 
@@ -208,8 +208,8 @@ class BotRandom(
         return Move(rowIndex, colIndex, moveType)
     }
 
-    override fun selectTripletForRemoval(gameState: GameState): TripletOnBoard {
-        return gameState.deletableTriplets.random()
+    override fun selectTripletForRemoval(deletableTriplets: Set<TripletOnBoard>): TripletOnBoard {
+        return deletableTriplets.random()
     }
 }
 
@@ -249,7 +249,7 @@ class HumanPlayer(override val index: Int) : Player {
     }
 
     override suspend fun removeTriplet(
-        gameState: GameState,
+        deletableTriplets: Set<TripletOnBoard>,
         applier: (TripletOnBoard) -> Unit
     ) {
         deferredRemoval?.cancel()

@@ -2,17 +2,34 @@ package com.alpha900i.a9kblanketbattle.data
 
 
 /**
+ * Specific game phase with some data unique only for it
+ * [NotStarted] - game not even started yet
+ * [InProgress] - game started, normal move expected
+ * [AwaitingTripletSelection] - triplet removal action is expected; [triplets] are possible targets for this removal
+ * [GameOver] - game is over, player #[winnerIndex] has won
+ */
+sealed interface GamePhase {
+    data object NotStarted : GamePhase
+    data object InProgress : GamePhase
+    data class AwaitingTripletSelection(val triplets: Set<TripletOnBoard>) : GamePhase
+    data class GameOver(val winnerIndex: Int) : GamePhase
+}
+
+val GamePhase.deletableTripletsOrEmpty: Set<TripletOnBoard>
+    get() = (this as? GamePhase.AwaitingTripletSelection)?.triplets ?: emptySet()
+val GamePhase.isPlayable: Boolean
+    get() = (this is GamePhase.InProgress || this is GamePhase.AwaitingTripletSelection)
+
+/**
  * Current state of game
  * [oldBoard] - board that was before last turn
  * [board] - current board, that we obtained after last turn
  * [pendingEffects] - series of piece movements that led from [oldBoard] to [board]
  * [hands] - 2-item list, containing player's hands
  * [activePlayerIndex] - number of player whose turn currently is happening
- * [gameIsActive] - flag that shows, whether game is started and not finished yet
- * [winnerIndex] - number of player that already won game (if game is over)
- * [deletableTriplets] - list of triplets that, after last turn, appeared on a board and can be deleted. Player would need to select one of them for deletion
  * [maxPieceAmount] - full amount of pieces one player can have on board; used for one of game over conditions
  * [moveCount] - amount of moves done so far. One move - one action of one player
+ * [gamePhase] - current phase of game and data, that additional describes it
  */
 data class GameState(
     val oldBoard: Board,
@@ -20,11 +37,9 @@ data class GameState(
     val pendingEffects: List<VisualEffect>,
     val hands: List<Hand>,
     val activePlayerIndex: Int,
-    val gameIsActive: Boolean,
-    val winnerIndex: Int,
-    val deletableTriplets: Set<TripletOnBoard>,
     val maxPieceAmount: Int,
-    val moveCount: Int
+    val moveCount: Int,
+    val gamePhase: GamePhase
 ) {
     /**
      * Game is in progress if it
@@ -33,7 +48,7 @@ data class GameState(
      * Uses to decide, whether game screen can be left without confirmation
      */
     fun gameInProgress(): Boolean {
-        return gameIsActive && moveCount > 0
+        return gamePhase is GamePhase.InProgress && moveCount > 0
     }
 
     companion object {
@@ -98,11 +113,9 @@ data class GameState(
                     )
                 ),
                 activePlayerIndex = 0,
-                gameIsActive = gameIsActive,
-                winnerIndex = -1,
-                deletableTriplets = setOf(),
                 maxPieceAmount = kittenMax + catMax,
-                moveCount = 0
+                moveCount = 0,
+                gamePhase = if (gameIsActive) GamePhase.InProgress else GamePhase.NotStarted
             )
         }
     }

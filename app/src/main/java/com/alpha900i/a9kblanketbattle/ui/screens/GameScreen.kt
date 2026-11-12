@@ -59,11 +59,13 @@ import androidx.compose.ui.window.Dialog
 import com.alpha900i.a9kblanketbattle.R
 import com.alpha900i.a9kblanketbattle.data.Board
 import com.alpha900i.a9kblanketbattle.data.Cell
+import com.alpha900i.a9kblanketbattle.data.GamePhase
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.Hand
 import com.alpha900i.a9kblanketbattle.data.PieceType
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.data.VisualEffect
+import com.alpha900i.a9kblanketbattle.data.deletableTripletsOrEmpty
 import com.alpha900i.a9kblanketbattle.data.ownerOrNull
 import com.alpha900i.a9kblanketbattle.data.typeOrNull
 import com.alpha900i.a9kblanketbattle.domain.Move
@@ -109,7 +111,7 @@ fun GameScreen(
     onAnimationComplete: () -> Unit
 ) {
     var cancelConfirmationNeeded by rememberSaveable { mutableStateOf(false)}
-    var gameOverDialogClosed by rememberSaveable(gameState.winnerIndex) { mutableStateOf(false) }
+    var gameOverDialogClosed by rememberSaveable(gameState.gamePhase) { mutableStateOf(false) }
 
     //back button. Leave screen if needed or decide to show "cancel confirmation dialog"
     BackHandler(enabled = true) {
@@ -131,9 +133,9 @@ fun GameScreen(
         )
     }
     //game is over? We have dialog for that to
-    if (gameState.winnerIndex != -1 && !gameOverDialogClosed) {
+    if (gameState.gamePhase is GamePhase.GameOver && !gameOverDialogClosed) {
         GameOverDialog(
-            winnerIndex = gameState.winnerIndex,
+            winnerIndex = gameState.gamePhase.winnerIndex,
             confirmAction = {
                 gameOverDialogClosed = true
                 startNewGame()
@@ -167,7 +169,7 @@ fun GameScreen(
             moveType = selectedMoveType,
             modifier = Modifier.weight(4f)
         )
-        if (gameState.deletableTriplets.isEmpty()) {
+        if (gameState.gamePhase !is GamePhase.AwaitingTripletSelection) {
             HandsSection(
                 gameState = gameState,
                 isHumanTurn = isHumanTurn,
@@ -180,7 +182,7 @@ fun GameScreen(
             )
         } else {
             TripletRemovalSection(
-                gameState = gameState,
+                deletableTriplets = gameState.gamePhase.triplets,
                 isHumanTurn = isHumanTurn,
                 highlightTriplet = { triplet ->
                     highlightedTriplet = triplet
@@ -321,7 +323,7 @@ fun AnimatedBoardSection(
         //nope. Just show board based on latest state
         BoardSection(
             board = gameState.board,
-            deletableTriplets = gameState.deletableTriplets,
+            deletableTriplets = gameState.gamePhase.deletableTripletsOrEmpty,
             activePlayerIndex = gameState.activePlayerIndex,
             hiddenCells = setOf(),
             highlightedTriplet = highlightedTriplet,
@@ -394,7 +396,7 @@ fun AnimatedBoardSection(
             val hiddenCells = animatedPieces.map { it.pos }.toSet()
             BoardSection(
                 board = gameState.oldBoard,
-                deletableTriplets = gameState.deletableTriplets,
+                deletableTriplets = gameState.gamePhase.deletableTripletsOrEmpty,
                 activePlayerIndex = gameState.activePlayerIndex,
                 hiddenCells = hiddenCells,
                 highlightedTriplet = highlightedTriplet,
@@ -759,7 +761,7 @@ fun HandsSection(
  */
 @Composable
 fun TripletRemovalSection(
-    gameState: GameState,
+    deletableTriplets: Set<TripletOnBoard>,
     isHumanTurn: Boolean,
     highlightTriplet: (TripletOnBoard?) -> Unit,
     submitRemoval: (TripletOnBoard) -> Unit,
@@ -772,7 +774,7 @@ fun TripletRemovalSection(
                 .fillMaxWidth(1f)
                 .weight(1f)
         ) {
-            gameState.deletableTriplets.forEach { tripletOnBoard ->
+            deletableTriplets.forEach { tripletOnBoard ->
                 val buttonColor = TripletHighlightColors.of(tripletOnBoard == selectedTriplet)
                 Button(
                     colors = ButtonDefaults.buttonColors(

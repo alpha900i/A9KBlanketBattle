@@ -17,7 +17,7 @@ class GameMoveCountTest {
         private val triplet: TripletOnBoard? = null,
     ) : Player {
         override suspend fun makeMove(gameState: GameState, applier: (Move) -> Unit) = applier(move)
-        override suspend fun removeTriplet(gameState: GameState, applier: (TripletOnBoard) -> Unit) =
+        override suspend fun removeTriplet(deletableTriplets: Set<TripletOnBoard>, applier: (TripletOnBoard) -> Unit) =
             applier(checkNotNull(triplet) { "FixedPlayer was not configured with a triplet" })
     }
 
@@ -51,6 +51,7 @@ class GameMoveCountTest {
         val triplet = TripletOnBoard(row = 0, column = 0, rowShift = 0, columnShift = 1)
 
         val base = GameState.startingState(3, 3, kittenStart = 3, catStart = 0, gameIsActive = true)
+        val newPhase = GamePhase.AwaitingTripletSelection(setOf(triplet))
         val state = base.copy(
             board = boardWithTriplet,
             hands = listOf(
@@ -58,13 +59,13 @@ class GameMoveCountTest {
                 base.hands[0].applyChange(HandChange(-3, 0, 0, 0)),
                 base.hands[1],
             ),
-            deletableTriplets = setOf(triplet),
+            gamePhase = newPhase
         )
 
         // Sanity: the state must be in the "removal required" branch.
         // If HandChange's argument order differs from what's assumed here,
         // these fail before the assertion of interest and point you at the cause.
-        assertEquals(1, state.deletableTriplets.size)
+        assertEquals(1, state.gamePhase.deletableTripletsOrEmpty.size)
         assertEquals(0, state.hands[0].kittenCurrent)
         assertEquals(3, state.hands[0].kittenMax)
         assertEquals(0, state.moveCount)
@@ -83,7 +84,7 @@ class GameMoveCountTest {
         // Sanity that we actually went through applyRemoval's path,
         // not the applyMove one — otherwise the increment could be
         // in the wrong place and this test wouldn't notice.
-        assertEquals(0, result.deletableTriplets.size)
+        assertEquals(0, result.gamePhase.deletableTripletsOrEmpty.size)
         assertEquals(1, result.activePlayerIndex)  // turn passed to P1
     }
 

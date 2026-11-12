@@ -35,17 +35,17 @@ class GameStateStartingStateTest {
         )
 
         assertEquals(0, state.activePlayerIndex)
-        assertEquals(-1, state.winnerIndex)
         assertTrue(state.pendingEffects.isEmpty())
-        assertTrue(state.deletableTriplets.isEmpty())
+        assertFalse(state.gamePhase is GamePhase.GameOver)
+        assertFalse(state.gamePhase is GamePhase.AwaitingTripletSelection)
     }
 
     @Test
     fun `gameIsActive is taken from the factory argument`() {
         val active = GameState.startingState(3, 4, 5, 2, gameIsActive = true)
         val inactive = GameState.startingState(3, 4, 5, 2, gameIsActive = false)
-        assertTrue(active.gameIsActive)
-        assertFalse(inactive.gameIsActive)
+        assertTrue(active.gamePhase is GamePhase.InProgress)
+        assertTrue(inactive.gamePhase is GamePhase.NotStarted)
     }
 
     @Test

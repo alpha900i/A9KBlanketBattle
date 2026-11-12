@@ -95,18 +95,19 @@ class HumanPlayerTest {
     //=========================================================================
     @Test
     fun `submitRemoval before removeTriplet is a silent no-op`() = runTest {
+        val t1 = TripletOnBoard(0, 0, 0, 1)
         val p = HumanPlayer(0)
-        p.submitRemoval(TripletOnBoard(0, 0, 0, 1))
+        p.submitRemoval(t1)
 
         var captured: TripletOnBoard? = null
-        val job = launch { p.removeTriplet(state) { captured = it } }
+        val job = launch { p.removeTriplet(setOf(t1)) { captured = it } }
         runCurrent()
         assertNull(captured, "removeTriplet should still be awaiting")
 
-        val triplet = TripletOnBoard(1, 1, 1, 0)
-        p.submitRemoval(triplet)
+        val t2 = TripletOnBoard(1, 1, 1, 0)
+        p.submitRemoval(t2)
         advanceUntilIdle()
-        assertEquals(triplet, captured)
+        assertEquals(t2, captured)
         job.join()
     }
 
@@ -115,7 +116,7 @@ class HumanPlayerTest {
         val p = HumanPlayer(0)
         val triplet = TripletOnBoard(0, 0, 0, 1)
         var captured: TripletOnBoard? = null
-        val job = launch { p.removeTriplet(state) { captured = it } }
+        val job = launch { p.removeTriplet(setOf(triplet)) { captured = it } }
         runCurrent()
         assertNull(captured)
 
@@ -134,7 +135,7 @@ class HumanPlayerTest {
     fun `submitMove does not complete a pending removeTriplet`() = runTest {
         val p = HumanPlayer(0)
         var captured: TripletOnBoard? = null
-        val job = launch { p.removeTriplet(state) { captured = it } }
+        val job = launch { p.removeTriplet(setOf()) { captured = it } }
         runCurrent()
 
         //submitMove should be a no-op here - the two awaiters use separate

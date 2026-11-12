@@ -9,10 +9,12 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.alpha900i.a9kblanketbattle.MainApplication
 import com.alpha900i.a9kblanketbattle.R
+import com.alpha900i.a9kblanketbattle.data.GamePhase
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.data.datastore.InvalidSettingsException
 import com.alpha900i.a9kblanketbattle.data.datastore.Settings
+import com.alpha900i.a9kblanketbattle.data.isPlayable
 import com.alpha900i.a9kblanketbattle.data.repository.DataStoreRepository
 import com.alpha900i.a9kblanketbattle.domain.Game
 import com.alpha900i.a9kblanketbattle.domain.HumanPlayer
@@ -287,8 +289,8 @@ class AppViewModel(
         gameState, uiState, tempMessage ->
         when {
             (tempMessage != InfoSectionTempState.NoHint) -> InfoSectionState.TempMessage(tempMessage)
-            !gameState.gameIsActive -> InfoSectionState.GameOver(gameState.winnerIndex)
-            gameState.deletableTriplets.size > 1 -> InfoSectionState.TripletRemoval(gameState.activePlayerIndex)
+            gameState.gamePhase is GamePhase.GameOver -> InfoSectionState.GameOver(gameState.gamePhase.winnerIndex)
+            gameState.gamePhase is GamePhase.AwaitingTripletSelection -> InfoSectionState.TripletRemoval(gameState.activePlayerIndex)
             uiState.selectedMoveType == MoveType.SET_KITTEN -> InfoSectionState.SetKitten(gameState.activePlayerIndex)
             uiState.selectedMoveType == MoveType.SET_CAT -> InfoSectionState.SetCat(gameState.activePlayerIndex)
             uiState.selectedMoveType == MoveType.PROMOTE_KITTEN -> InfoSectionState.PromoteKitten(gameState.activePlayerIndex)
@@ -389,7 +391,7 @@ class AppViewModel(
         gameLoopJob = viewModelScope.launch {
             gameState.collect { state ->
                 try {
-                    if (state.gameIsActive) {
+                    if (state.gamePhase.isPlayable) {
                         setHumanTurn(players[state.activePlayerIndex] is HumanPlayer)
                         game.makeMove(players, state) { newState ->
                             updateGameState(newState = newState)
