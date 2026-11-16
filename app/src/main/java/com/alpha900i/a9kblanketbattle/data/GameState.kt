@@ -27,7 +27,6 @@ val GamePhase.isPlayable: Boolean
  * [pendingEffects] - series of piece movements that led from [oldBoard] to [board]
  * [hands] - 2-item list, containing player's hands
  * [activePlayerIndex] - number of player whose turn currently is happening
- * [maxPieceAmount] - full amount of pieces one player can have on board; used for one of game over conditions
  * [moveCount] - amount of moves done so far. One move - one action of one player
  * [gamePhase] - current phase of game and data, that additional describes it
  */
@@ -37,7 +36,6 @@ data class GameState(
     val pendingEffects: List<VisualEffect>,
     val hands: List<Hand>,
     val activePlayerIndex: Int,
-    val maxPieceAmount: Int,
     val moveCount: Int,
     val gamePhase: GamePhase
 ) {
@@ -113,7 +111,6 @@ data class GameState(
                     )
                 ),
                 activePlayerIndex = 0,
-                maxPieceAmount = kittenMax + catMax,
                 moveCount = 0,
                 gamePhase = if (gameIsActive) GamePhase.InProgress else GamePhase.NotStarted
             )

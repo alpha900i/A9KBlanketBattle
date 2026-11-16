@@ -48,7 +48,6 @@ class BotFirstFitTest {
                 Hand(kittenCurrent = 3, kittenMax = 3, catCurrent = 2, catMax = 2),
             ),
             activePlayerIndex = 0,
-            maxPieceAmount = 8,
             moveCount = 0,
             gamePhase = newPhase
         )

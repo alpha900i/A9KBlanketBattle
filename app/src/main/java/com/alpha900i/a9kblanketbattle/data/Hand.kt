@@ -24,4 +24,7 @@ data class Hand(
             catMax = catMax + handChange.deltaMaxCat,
         )
     }
+
+    val maxPieceAmount: Int
+        get() = kittenMax + catMax
 }

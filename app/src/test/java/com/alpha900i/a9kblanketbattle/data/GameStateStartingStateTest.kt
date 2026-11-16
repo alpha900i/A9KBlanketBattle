@@ -74,7 +74,28 @@ class GameStateStartingStateTest {
                 kittenStart = 5,
                 catStart = 2,
                 gameIsActive = true
-            ).maxPieceAmount
+            ).hands[0].maxPieceAmount
+        )
+        assertEquals(
+            7,
+            GameState.startingState(
+                3,
+                3,
+                kittenStart = 5,
+                catStart = 2,
+                gameIsActive = true
+            ).hands[1].maxPieceAmount
+        )
+
+        assertEquals(
+            2,
+            GameState.startingState(
+                3,
+                3,
+                kittenStart = 2,
+                catStart = 0,
+                gameIsActive = true
+            ).hands[0].maxPieceAmount
         )
         assertEquals(
             2,
@@ -84,7 +105,18 @@ class GameStateStartingStateTest {
                 kittenStart = 2,
                 catStart = 0,
                 gameIsActive = true
-            ).maxPieceAmount
+            ).hands[1].maxPieceAmount
+        )
+
+        assertEquals(
+            4,
+            GameState.startingState(
+                3,
+                3,
+                kittenStart = 0,
+                catStart = 4,
+                gameIsActive = true
+            ).hands[0].maxPieceAmount
         )
         assertEquals(
             4,
@@ -94,7 +126,7 @@ class GameStateStartingStateTest {
                 kittenStart = 0,
                 catStart = 4,
                 gameIsActive = true
-            ).maxPieceAmount
+            ).hands[1].maxPieceAmount
         )
     }
 }

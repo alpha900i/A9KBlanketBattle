@@ -49,7 +49,7 @@ class Game {
         move: Move,
         stateUpdater: (GameState) -> Unit
     ) {
-        val moveResult = gameState.board.applyMove(move, gameState.activePlayerIndex, gameState.maxPieceAmount)
+        val moveResult = gameState.board.applyMove(move, gameState.activePlayerIndex, gameState.hands[gameState.activePlayerIndex].maxPieceAmount)
         //modify hands
         val newHands = gameState.hands.mapIndexed { index, hand ->
             hand.applyChange(moveResult.handChanges[index])
@@ -76,7 +76,6 @@ class Game {
             pendingEffects = moveResult.pendingEffects,
             hands = newHands,
             activePlayerIndex = newPlayerIndex,
-            maxPieceAmount = gameState.maxPieceAmount,
             moveCount = newMoveCount,
             gamePhase = newPhase
         )
@@ -114,7 +113,6 @@ class Game {
             pendingEffects = moveResult.pendingEffects,
             hands = newHands,
             activePlayerIndex = newPlayerIndex,
-            maxPieceAmount = gameState.maxPieceAmount,
             moveCount = newMoveCount,
             gamePhase = newPhase
         )

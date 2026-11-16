@@ -90,7 +90,6 @@ class GameTransitionsTest {
             pendingEffects = emptyList(),
             hands = hands,
             activePlayerIndex = activePlayerIndex,
-            maxPieceAmount = maxPieceAmount,
             moveCount = 0,
             gamePhase = newPhase
         )
