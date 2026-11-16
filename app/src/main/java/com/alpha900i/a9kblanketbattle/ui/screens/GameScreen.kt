@@ -52,6 +52,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -789,7 +790,7 @@ fun TripletRemovalSection(
                         .fillMaxHeight(1f)
                 ) {
                     Text(
-                        text = "Row ${tripletOnBoard.row} Column ${tripletOnBoard.column}"
+                        text = "${tripletOnBoard.row}:${tripletOnBoard.column}-${tripletOnBoard.endRow}:${tripletOnBoard.endColumn}"
                     )
                 }
             }
@@ -1051,4 +1052,23 @@ fun GeneralButton(
     ) {
         content()
     }
+}
+
+
+
+@Preview
+@Composable
+fun TripletRemovalSectionPreview() {
+    TripletRemovalSection(
+        deletableTriplets = setOf(
+            TripletOnBoard(0, 0, 1, 0),
+            TripletOnBoard(0, 0, 0, 1),
+            TripletOnBoard(0, 0, 1, 1),
+            TripletOnBoard(1, 1, 1, 1)
+        ),
+        isHumanTurn = true,
+        highlightTriplet = {},
+        submitRemoval = {},
+        modifier = Modifier
+    )
 }

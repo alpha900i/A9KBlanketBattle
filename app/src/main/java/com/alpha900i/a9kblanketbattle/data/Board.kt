@@ -83,6 +83,9 @@ data class TripletOnBoard(
         (0..2).map { shift ->
             Pair(row + shift * rowShift, column + shift * columnShift)
         }.toSet()
+
+    val endRow: Int = row + 2 * rowShift
+    val endColumn: Int = column + 2 * columnShift
 }
 
 /**
