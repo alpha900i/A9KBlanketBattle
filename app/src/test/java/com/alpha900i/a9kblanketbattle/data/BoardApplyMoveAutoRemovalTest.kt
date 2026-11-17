@@ -74,9 +74,9 @@ class BoardApplyMoveAutoRemovalTest {
         assertNull(result.winnerIndex)
 
         //Board: all three cells of the triplet are empty now.
-        assertTrue(result.board.cells[1][1] is Cell.Empty)
-        assertTrue(result.board.cells[1][2] is Cell.Empty)
-        assertTrue(result.board.cells[1][3] is Cell.Empty)
+        result.board.assertCellEmpty(1, 1)
+        result.board.assertCellEmpty(1, 2)
+        result.board.assertCellEmpty(1, 3)
 
         //Effects: exactly one AddPiece and three RemovePieces.
         val addPieces = result.pendingEffects.filterIsInstance<VisualEffect.AddPiece>()
@@ -193,11 +193,11 @@ class BoardApplyMoveAutoRemovalTest {
         assertEquals(expected, result.deletableTriplets)
 
         //Board intact: all 5 pieces still in place.
-        assertEquals(PieceType.CAT, result.board.getCellType(1, 2))
-        assertEquals(PieceType.CAT, result.board.getCellType(2, 1))
-        assertEquals(PieceType.KITTEN, result.board.getCellType(2, 2))
-        assertEquals(PieceType.CAT, result.board.getCellType(2, 3))
-        assertEquals(PieceType.CAT, result.board.getCellType(3, 2))
+        result.board.assertCellPiece(1, 2, PieceType.CAT, 0)
+        result.board.assertCellPiece(2, 1, PieceType.CAT, 0)
+        result.board.assertCellPiece(2, 2, PieceType.KITTEN, 0)
+        result.board.assertCellPiece(2, 3, PieceType.CAT, 0)
+        result.board.assertCellPiece(3, 2, PieceType.CAT, 0)
         assertEquals(0, result.board.cells[2][2].ownerOrNull)
 
         //No RemovePiece in the effects because no removal happened.
@@ -258,11 +258,11 @@ class BoardApplyMoveAutoRemovalTest {
         )
 
         //Board still has all five pieces - the triplet was not removed.
-        assertEquals(PieceType.CAT, result.board.getCellType(0, 0))
-        assertEquals(PieceType.CAT, result.board.getCellType(0, 1))
-        assertEquals(PieceType.KITTEN, result.board.getCellType(0, 2))
-        assertEquals(PieceType.CAT, result.board.getCellType(2, 2))
-        assertEquals(PieceType.CAT, result.board.getCellType(2, 3))
+        result.board.assertCellPiece(0, 0, PieceType.CAT, 0)
+        result.board.assertCellPiece(0, 1, PieceType.CAT, 0)
+        result.board.assertCellPiece(0, 2, PieceType.KITTEN, 0)
+        result.board.assertCellPiece(2, 2, PieceType.CAT, 0)
+        result.board.assertCellPiece(2, 3, PieceType.CAT, 0)
 
         //No RemovePiece effects: nothing was removed.
         val removePieces = result.pendingEffects.filterIsInstance<VisualEffect.RemovePiece>()

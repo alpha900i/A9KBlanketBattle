@@ -33,17 +33,6 @@ import kotlin.test.assertTrue
  * is unreachable from real game flow and is not tested here.
  */
 class BoardApplyRemovalTest {
-    private fun Board.assertCellEmpty(row: Int, col: Int) {
-        assertTrue(cells[row][col] is Cell.Empty, "Not empty cell at ($row,$col)")
-    }
-    private fun Board.assertCellPiece(row: Int, col: Int, type: PieceType, owner: Int) {
-        assertTrue(cells[row][col] is Cell.Piece, "Not piece cell at ($row,$col)")
-        assertEquals(type, getCellType(row, col), "type at ($row,$col)")
-        assertEquals(owner, cells[row][col].ownerOrNull, "owner at ($row,$col)")
-    }
-    private fun MoveResult.removePieces(): List<VisualEffect.RemovePiece> =
-        pendingEffects.filterIsInstance<VisualEffect.RemovePiece>()
-
     //=========================================================================
     //2.1 — Pure cat triplet
     //=========================================================================

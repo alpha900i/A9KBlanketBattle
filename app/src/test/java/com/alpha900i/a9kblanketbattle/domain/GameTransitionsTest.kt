@@ -1,13 +1,13 @@
 package com.alpha900i.a9kblanketbattle.domain
 
 import com.alpha900i.a9kblanketbattle.data.Board
-import com.alpha900i.a9kblanketbattle.data.Cell
 import com.alpha900i.a9kblanketbattle.data.GamePhase
 import com.alpha900i.a9kblanketbattle.data.GameState
 import com.alpha900i.a9kblanketbattle.data.Hand
 import com.alpha900i.a9kblanketbattle.data.PieceType
 import com.alpha900i.a9kblanketbattle.data.TripletOnBoard
 import com.alpha900i.a9kblanketbattle.data.VisualEffect
+import com.alpha900i.a9kblanketbattle.data.assertCellEmpty
 import com.alpha900i.a9kblanketbattle.data.board
 import com.alpha900i.a9kblanketbattle.data.ownerOrNull
 import kotlinx.coroutines.runBlocking
@@ -281,9 +281,9 @@ class GameTransitionsTest {
             assertFalse(result.gamePhase is GamePhase.AwaitingTripletSelection)
 
             //Board cells cleared.
-            assertTrue(result.board.cells[0][0] is Cell.Empty)
-            assertTrue(result.board.cells[0][1] is Cell.Empty)
-            assertTrue(result.board.cells[0][2] is Cell.Empty)
+            result.board.assertCellEmpty(0, 0)
+            result.board.assertCellEmpty(0, 1)
+            result.board.assertCellEmpty(0, 2)
 
             //Effects: one AddPiece + three RemovePieces.
             val adds = result.pendingEffects.filterIsInstance<VisualEffect.AddPiece>()
@@ -332,9 +332,9 @@ class GameTransitionsTest {
             assertEquals(initialBoard, result.oldBoard)
 
             //Board cells cleared.
-            assertTrue(result.board.cells[0][0] is Cell.Empty)
-            assertTrue(result.board.cells[0][1] is Cell.Empty)
-            assertTrue(result.board.cells[0][2] is Cell.Empty)
+            result.board.assertCellEmpty(0, 0)
+            result.board.assertCellEmpty(0, 1)
+            result.board.assertCellEmpty(0, 2)
 
             //Three RemovePiece effects, one per cleared cell.
             val removes = result.pendingEffects.filterIsInstance<VisualEffect.RemovePiece>()

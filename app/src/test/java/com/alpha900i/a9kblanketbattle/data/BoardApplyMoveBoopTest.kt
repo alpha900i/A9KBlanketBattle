@@ -126,9 +126,10 @@ class BoardApplyMoveBoopTest {
             assertEquals(PieceType.KITTEN, movePiece.type, "${case.label}: type preserved")
 
             //Source emptied, destination occupied, placed piece at move cell.
-            assertTrue(result.board.cells[case.from.first][case.from.second] is Cell.Empty, "${case.label}: source empty")
-            assertEquals(PieceType.KITTEN, result.board.getCellType(case.to.first, case.to.second), "${case.label}: destination filled")
-            assertEquals(PieceType.KITTEN, result.board.getCellType(case.move.row, case.move.column), "${case.label}: placed piece")
+
+            result.board.assertCellEmpty(case.from.first, case.from.second)
+            result.board.assertCellPiece(case.to.first, case.to.second, PieceType.KITTEN, 0)
+            result.board.assertCellPiece(case.move.row, case.move.column, PieceType.KITTEN, 0)
 
             //Nothing went to hand because nothing fell off.
             assertEquals(-1, result.handChanges[0].deltaCurrentKitten, "${case.label}: place delta")
@@ -175,8 +176,8 @@ class BoardApplyMoveBoopTest {
             assertEquals(0, removePiece.owner, "${case.label}: owner")
 
             //Pushed cell emptied, placed piece present, destination gone.
-            assertTrue(result.board.cells[case.pushedFrom.first][case.pushedFrom.second] is Cell.Empty, "${case.label}: source empty")
-            assertEquals(PieceType.KITTEN, result.board.getCellType(case.move.row, case.move.column), "${case.label}: placed piece")
+            result.board.assertCellEmpty(case.pushedFrom.first, case.pushedFrom.second)
+            result.board.assertCellPiece(case.move.row, case.move.column, PieceType.KITTEN, 0)
 
             //Place + return = net 0 on current kitten for the acting player.
             assertEquals(0, result.handChanges[0].deltaCurrentKitten, "${case.label}: current delta")
@@ -258,8 +259,7 @@ class BoardApplyMoveBoopTest {
 
         result.assertOnlyAddPiece()
         //Cat stays where it was.
-        assertEquals(PieceType.CAT, result.board.getCellType(2, 1))
-        assertEquals(0, result.board.cells[2][1].ownerOrNull)
+        result.board.assertCellPiece(2, 1, PieceType.CAT, 0)
     }
 
 
@@ -284,11 +284,9 @@ class BoardApplyMoveBoopTest {
         ).applyMove(Move(1, 1, MoveType.SET_KITTEN), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
         result.assertOnlyAddPiece()
-        assertEquals(PieceType.KITTEN, result.board.getCellType(1, 1))
-        assertEquals(PieceType.KITTEN, result.board.getCellType(2, 1))
-        assertEquals(PieceType.CAT, result.board.getCellType(3, 1))
-        assertEquals(1, result.board.cells[2][1].ownerOrNull)
-        assertEquals(1, result.board.cells[3][1].ownerOrNull)
+        result.board.assertCellPiece(1, 1, PieceType.KITTEN, 0)
+        result.board.assertCellPiece(2, 1, PieceType.KITTEN, 1)
+        result.board.assertCellPiece(3, 1, PieceType.CAT, 1)
     }
 
 
@@ -335,7 +333,7 @@ class BoardApplyMoveBoopTest {
         assertEquals(0, result.board.cells[2][2].ownerOrNull)
         for (r in 1..3) for (c in 1..3) {
             if (r == 2 && c == 2) continue
-            assertTrue(result.board.cells[r][c] is Cell.Empty, "neighbor ($r,$c) should be empty")
+            result.board.assertCellEmpty(r, c)
         }
 
         //Nothing fell off: only the placed piece leaves the mover's hand.
@@ -370,11 +368,10 @@ class BoardApplyMoveBoopTest {
         assertEquals(1, offBoard.owner)
 
         //Board state.
-        assertTrue( result.board.cells[0][1] is Cell.Empty)
-        assertTrue(result.board.cells[1][2] is Cell.Empty)
-        assertEquals(PieceType.KITTEN, result.board.getCellType(1, 3))
-        assertEquals(PieceType.KITTEN, result.board.getCellType(1, 1))
-        assertEquals(0, result.board.cells[1][1].ownerOrNull)
+        result.board.assertCellEmpty(0, 1)
+        result.board.assertCellEmpty(1, 2)
+        result.board.assertCellPiece(1, 3, PieceType.KITTEN, 1)
+        result.board.assertCellPiece(1, 1, PieceType.KITTEN, 0)
 
         //Hand changes: P0 placed one (-1), P1 got one back from the edge (+1).
         assertEquals(-1, result.handChanges[0].deltaCurrentKitten)

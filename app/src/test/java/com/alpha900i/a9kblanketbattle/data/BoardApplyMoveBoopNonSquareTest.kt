@@ -4,7 +4,6 @@ import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.fail
 
 /**
@@ -51,8 +50,7 @@ class BoardApplyMoveBoopNonSquareTest {
         ).applyMove(Move(2, 2, MoveType.SET_KITTEN), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
         //No crash -> piece placed.
-        assertEquals(PieceType.KITTEN, result.board.getCellType(2, 2))
-        assertEquals(0, result.board.cells[2][2].ownerOrNull)
+        result.board.assertCellPiece(2, 2, PieceType.KITTEN, 0)
 
         //Upward boop (direction (-1,0)) still works: (1,2) -> (0,2).
         val movePiece = result.movePieces().singleOrNull { it.fromRow == 1 && it.fromColumn == 2 }
@@ -80,8 +78,9 @@ class BoardApplyMoveBoopNonSquareTest {
         assertEquals(1, movePiece.toRow)
         assertEquals(4, movePiece.toColumn)
 
-        assertTrue(result.board.cells[1][3] is Cell.Empty)
-        assertEquals(PieceType.KITTEN, result.board.getCellType(1, 4))
+
+        result.board.assertCellEmpty(1, 3)
+        result.board.assertCellPiece(1, 4, PieceType.KITTEN, 1)
     }
 
 
@@ -105,8 +104,7 @@ class BoardApplyMoveBoopNonSquareTest {
             "...",
         ).applyMove(Move(2, 2, MoveType.SET_KITTEN), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
-        assertEquals(PieceType.KITTEN, result.board.getCellType(2, 2))
-        assertEquals(0, result.board.cells[2][2].ownerOrNull)
+        result.board.assertCellPiece(2, 2, PieceType.KITTEN, 0)
 
         val movePiece = result.movePieces().singleOrNull { it.fromRow == 2 && it.fromColumn == 1 }
             ?: fail("expected leftward boop from (2,1), got ${result.movePieces()}")
@@ -135,7 +133,8 @@ class BoardApplyMoveBoopNonSquareTest {
         assertEquals(4, movePiece.toRow)
         assertEquals(1, movePiece.toColumn)
 
-        assertTrue(result.board.cells[3][1] is Cell.Empty)
-        assertEquals(PieceType.KITTEN, result.board.getCellType(4, 1))
+
+        result.board.assertCellEmpty(3, 1)
+        result.board.assertCellPiece(4, 1, PieceType.KITTEN, 1)
     }
 }

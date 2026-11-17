@@ -59,7 +59,7 @@ class BoardApplyMoveRemoveFromBoardTest {
         ).applyMove(Move(1, 1, MoveType.PROMOTE_KITTEN), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
         //Promoted cell is now empty.
-        assertTrue(result.board.cells[1][1] is Cell.Empty)
+        result.board.assertCellEmpty(1, 1)
 
         //Hand deltas: kitten leaves the game, cat appears in hand.
         assertEquals(
@@ -87,10 +87,8 @@ class BoardApplyMoveRemoveFromBoardTest {
         assertTrue(result.movePieces().isEmpty(), "promotion should not emit MovePiece, got ${result.movePieces()}")
 
         //Other cells untouched.
-        assertEquals(PieceType.CAT, result.board.getCellType(0, 0))
-        assertEquals(1, result.board.cells[0][0].ownerOrNull)
-        assertEquals(PieceType.KITTEN, result.board.getCellType(2, 2))
-        assertEquals(1, result.board.cells[2][2].ownerOrNull)
+        result.board.assertCellPiece(0, 0, PieceType.CAT, 1)
+        result.board.assertCellPiece(2, 2, PieceType.KITTEN, 1)
 
         //Removing a piece cannot end the game or form a triplet.
         assertNull(result.winnerIndex)
@@ -108,7 +106,7 @@ class BoardApplyMoveRemoveFromBoardTest {
             "...",
         ).applyMove(Move(0, 0, MoveType.PROMOTE_KITTEN), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
-        assertTrue(result.board.cells[0][0] is Cell.Empty)
+        result.board.assertCellEmpty(0, 0)
         assertEquals(
             HandChange(0, -1, 1, 1),
             result.handChanges[0],
@@ -159,7 +157,7 @@ class BoardApplyMoveRemoveFromBoardTest {
         ).applyMove(Move(1, 1, MoveType.RETURN_CAT), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
         //Returned cell is now empty.
-        assertTrue(result.board.cells[1][1] is Cell.Empty)
+        result.board.assertCellEmpty(1, 1)
 
         //Hand deltas: cat returns from board to hand, max unchanged.
         assertEquals(
@@ -183,10 +181,8 @@ class BoardApplyMoveRemoveFromBoardTest {
         assertEquals(0, remove.owner)
 
         //Other cells untouched.
-        assertEquals(PieceType.KITTEN, result.board.getCellType(0, 0))
-        assertEquals(1, result.board.cells[0][0].ownerOrNull)
-        assertEquals(PieceType.KITTEN, result.board.getCellType(2, 2))
-        assertEquals(0, result.board.cells[2][2].ownerOrNull)
+        result.board.assertCellPiece(0, 0, PieceType.KITTEN, 1)
+        result.board.assertCellPiece(2, 2, PieceType.KITTEN, 0)
 
         assertNull(result.winnerIndex)
         assertTrue(result.deletableTriplets.isEmpty())
@@ -201,7 +197,7 @@ class BoardApplyMoveRemoveFromBoardTest {
             "...",
         ).applyMove(Move(0, 0, MoveType.RETURN_CAT), playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
-        assertTrue(result.board.cells[0][0] is Cell.Empty)
+        result.board.assertCellEmpty(0, 0)
         assertEquals(
             HandChange(0, 0, 1, 0),
             result.handChanges[0],

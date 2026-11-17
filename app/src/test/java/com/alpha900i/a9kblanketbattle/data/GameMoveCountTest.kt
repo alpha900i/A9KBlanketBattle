@@ -8,7 +8,6 @@ import com.alpha900i.a9kblanketbattle.domain.Player
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class GameMoveCountTest {
     private class FixedPlayer(
@@ -158,8 +157,8 @@ class GameMoveCountTest {
         assertEquals(1, result.moveCount)
 
         // The whole point: verify the boop-return actually happened.
-        assertTrue(result.board.cells[0][0] is Cell.Empty)
-        assertEquals(PieceType.KITTEN, result.board.getCellType(0, 1))
+        result.board.assertCellEmpty(0, 0)
+        result.board.assertCellPiece(0, 1, PieceType.KITTEN, 0)
         assertEquals(1, result.hands[1].kittenCurrent)  // returned to hand
         assertEquals(0, result.hands[0].kittenCurrent)  // placed one
     }

@@ -1,5 +1,8 @@
 package com.alpha900i.a9kblanketbattle.data
 
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
 fun board(vararg rows: String): Board = Board(
     rows.map { row ->
         row.map { c ->
@@ -14,3 +17,14 @@ fun board(vararg rows: String): Board = Board(
         }
     }
 )
+
+fun Board.assertCellEmpty(row: Int, col: Int) {
+    assertTrue(cells[row][col] is Cell.Empty, "Not empty cell at ($row,$col)")
+}
+fun Board.assertCellPiece(row: Int, col: Int, type: PieceType, owner: Int) {
+    assertTrue(cells[row][col] is Cell.Piece, "Not piece cell at ($row,$col)")
+    assertEquals(type, getCellType(row, col), "type at ($row,$col)")
+    assertEquals(owner, cells[row][col].ownerOrNull, "owner at ($row,$col)")
+}
+fun MoveResult.removePieces(): List<VisualEffect.RemovePiece> =
+    pendingEffects.filterIsInstance<VisualEffect.RemovePiece>()

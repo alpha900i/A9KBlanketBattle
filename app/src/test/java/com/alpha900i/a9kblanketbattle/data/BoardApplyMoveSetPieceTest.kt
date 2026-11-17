@@ -4,10 +4,8 @@ import com.alpha900i.a9kblanketbattle.domain.HandChange
 import com.alpha900i.a9kblanketbattle.domain.Move
 import com.alpha900i.a9kblanketbattle.domain.MoveType
 import org.junit.Assert
-
 import kotlin.test.Test
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 
 /**
@@ -34,8 +32,7 @@ class BoardApplyMoveSetPieceTest {
 
         val result = board.applyMove(move, playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
-        Assert.assertEquals(PieceType.KITTEN, result.board.getCellType(1, 1))
-        Assert.assertEquals(0, result.board.cells[1][1].ownerOrNull)
+        result.board.assertCellPiece(1, 1, PieceType.KITTEN, 0)
     }
 
     @Test
@@ -49,8 +46,7 @@ class BoardApplyMoveSetPieceTest {
 
         val result = board.applyMove(move, playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
-        Assert.assertEquals(PieceType.CAT, result.board.getCellType(2, 2))
-        Assert.assertEquals(0, result.board.cells[2][2].ownerOrNull)
+        result.board.assertCellPiece(2, 2, PieceType.CAT, 0)
     }
 
 
@@ -212,13 +208,10 @@ class BoardApplyMoveSetPieceTest {
         val result = board.applyMove(move, playerIndex = 0, maxPieceAmount = maxPieceAmount)
 
         //new piece
-        Assert.assertEquals(PieceType.KITTEN, result.board.getCellType(3, 3))
-        Assert.assertEquals(0, result.board.cells[3][3].ownerOrNull)
+        result.board.assertCellPiece(3, 3, PieceType.KITTEN, 0)
         //pre-existing pieces preserved, with their original owners
-        Assert.assertEquals(PieceType.KITTEN, result.board.getCellType(0, 0))
-        Assert.assertEquals(0, result.board.cells[0][0].ownerOrNull)
-        Assert.assertEquals(PieceType.CAT, result.board.getCellType(5, 5))
-        Assert.assertEquals(1, result.board.cells[5][5].ownerOrNull)
+        result.board.assertCellPiece(0, 0, PieceType.KITTEN, 0)
+        result.board.assertCellPiece(5, 5, PieceType.CAT, 1)
         //exactly one new piece appeared
         val filled = result.board.cells.sumOf { row -> row.count { it !is Cell.Empty } }
         Assert.assertEquals(3, filled)
@@ -237,8 +230,7 @@ class BoardApplyMoveSetPieceTest {
         )
         original.applyMove(Move(1, 1, MoveType.SET_KITTEN), playerIndex = 1, maxPieceAmount = maxPieceAmount)
 
-        Assert.assertEquals(PieceType.KITTEN, original.getCellType(0, 0))
-        Assert.assertEquals(0, original.cells[0][0].ownerOrNull)
-        assertTrue(original.cells[1][1] is Cell.Empty)
+        original.assertCellEmpty(1, 1)
+        original.assertCellPiece(0, 0, PieceType.KITTEN, 0)
     }
 }
