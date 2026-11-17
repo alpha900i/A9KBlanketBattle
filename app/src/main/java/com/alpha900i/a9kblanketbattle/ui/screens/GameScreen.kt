@@ -82,6 +82,7 @@ import com.alpha900i.a9kblanketbattle.ui.theme.PieceButtonColors
 import com.alpha900i.a9kblanketbattle.ui.theme.PieceColors
 import com.alpha900i.a9kblanketbattle.ui.theme.PlayerColors
 import com.alpha900i.a9kblanketbattle.ui.theme.TripletHighlightColors
+import com.alpha900i.a9kblanketbattle.ui.theme.TripletToDeleteFontSizes
 import com.alpha900i.a9kblanketbattle.ui.theme.UIColors
 import com.alpha900i.a9kblanketbattle.util.CustomLog
 import kotlinx.coroutines.Job
@@ -781,16 +782,26 @@ fun TripletRemovalSection(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = buttonColor
                     ),
+                    shape = RectangleShape,
                     onClick = {
                         highlightTriplet(tripletOnBoard)
                         selectedTriplet = tripletOnBoard
                     },
                     enabled = isHumanTurn,
+                    contentPadding = PaddingValues(dimensionResource(R.dimen.no_padding_width)),
                     modifier = modifier
                         .fillMaxHeight(1f)
+                        .border(dimensionResource(R.dimen.button_min_border_width), PieceColors.Border)
                 ) {
-                    Text(
-                        text = "${tripletOnBoard.row}:${tripletOnBoard.column}-${tripletOnBoard.endRow}:${tripletOnBoard.endColumn}"
+                    BasicText(
+                        text = "${tripletOnBoard.row}:${tripletOnBoard.column}-${tripletOnBoard.endRow}:${tripletOnBoard.endColumn}",
+                        autoSize = TextAutoSize.StepBased(
+                            minFontSize = TripletToDeleteFontSizes.Min,
+                            maxFontSize = TripletToDeleteFontSizes.Max,
+                            stepSize = TripletToDeleteFontSizes.Step,
+                        ),
+                        maxLines = 1,
+                        style = TextStyle(textAlign = TextAlign.Center)
                     )
                 }
             }

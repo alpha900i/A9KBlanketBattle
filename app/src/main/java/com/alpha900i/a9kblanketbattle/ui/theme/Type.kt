@@ -38,3 +38,8 @@ object PieceBlockFontSizes {
     val Max = 32.sp
     val Step = 1.sp
 }
+object TripletToDeleteFontSizes {
+    val Min = 4.sp
+    val Max = 32.sp
+    val Step = 1.sp
+}
