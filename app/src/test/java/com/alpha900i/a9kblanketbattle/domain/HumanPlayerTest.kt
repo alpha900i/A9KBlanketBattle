@@ -214,7 +214,7 @@ class HumanPlayerTest {
         val job2 = launch { p.makeMove(state) { captured.add(it) } }
         runCurrent()
 
-        //Call 2 cancelled Call 1's deferred; Call 1 should be gone.
+        //Call 2 canceled Call 1's deferred; Call 1 should be gone.
         assertTrue(firstMoveWasCancelled.isCompleted, "call 1 should have been cancelled")
         assertTrue(captured.isEmpty(), "no move captured yet - call 2 still awaiting")
 

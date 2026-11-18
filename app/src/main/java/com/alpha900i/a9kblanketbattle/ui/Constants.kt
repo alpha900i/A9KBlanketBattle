@@ -30,4 +30,6 @@ object Constants {
     const val BOT_DELAY_TIME = 500L
     //delay before temp info message disappears
     const val TEMP_INFO_TIME = 1000L
+
+    const val START_SCREEN_BUTTON_WIDTH_FACTOR = 0.8f
 }

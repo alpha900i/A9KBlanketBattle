@@ -24,7 +24,7 @@ import kotlin.test.assertTrue
  *
  * `getDeletableTriplets` only ever returns single-owner triplets, so the
  * mixed-owner case below is defensive - but applyRemoval is public and the
- * current code handles it correctly, so pinning the behaviour is cheap.
+ * current code handles it correctly, so pinning the behavior is cheap.
  *
  * Note on the OOB guard: removeTriplet only checks the *positive* direction
  * (rowIndex + 2*dx >= height, columnIndex + 2*dy >= width). It does not

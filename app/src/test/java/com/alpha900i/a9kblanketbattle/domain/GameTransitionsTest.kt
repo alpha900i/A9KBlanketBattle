@@ -73,7 +73,6 @@ class GameTransitionsTest {
         hands: List<Hand> = listOf(Hand(5, 5, 3, 3), Hand(5, 5, 3, 3)),
         activePlayerIndex: Int = 0,
         gameIsActive: Boolean = true,
-        maxPieceAmount: Int = 8,
         deletableTriplets: Set<TripletOnBoard> = emptySet(),
     ): GameState {
         val newPhase: GamePhase = if (!deletableTriplets.isEmpty())
@@ -194,7 +193,7 @@ class GameTransitionsTest {
     fun `move creating 2+ triplets keeps active player and populates deletableTriplets`() {
         runBlocking {
             //"+" shape around (2,2): P0 cats at N/S/E/W; P0 makes SET_KITTEN
-            //at centre. SET_KITTEN cannot push CATs, so nothing moves; two
+            //at center. SET_KITTEN cannot push CATs, so nothing moves; two
             //triplets form. Board.applyMove suppresses auto-removal for 2+.
             val state = gameState(
                 initialBoard = board(

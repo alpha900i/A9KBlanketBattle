@@ -49,7 +49,7 @@ class BoardApplyMoveRemoveFromBoardTest {
     @Test
     fun `PROMOTE_KITTEN clears the kitten, adds cat to hand, keeps other cells intact`() {
         //P0's kitten at (1,1), P1's cat at (0,0), P1's kitten at (2,2).
-        //Because neither promote nor setPieceAndBoop touches neighbouring
+        //Because neither promote nor setPieceAndBoop touches neighboring
         //cells, all three positions are unrelated - this test verifies
         //that the promote operation touches only its own cell.
         val result = board(
@@ -97,9 +97,9 @@ class BoardApplyMoveRemoveFromBoardTest {
 
     @Test
     fun `PROMOTE_KITTEN can be performed on any board position without side effects`() {
-        //Corner position, near-only-one-neighbour. Same as the centre case
-        //in terms of behaviour, but pins that the operation is position-
-        //agnostic and doesn't accidentally interact with edges.
+        //Corner position, near-only-one-neighbor. Same as the center case
+        //in terms of behavior, but pins that the operation is position-agnostic
+        //and doesn't accidentally interact with edges.
         val result = board(
             "k..",
             "...",

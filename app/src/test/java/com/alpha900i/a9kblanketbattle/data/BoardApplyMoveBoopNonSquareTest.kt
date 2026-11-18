@@ -10,7 +10,7 @@ import kotlin.test.fail
  * Regression tests for the setPieceAndBoop bounds-check swap:
  *
  *   if (checkX in 0 until mutableCells[0].size &&   //BUG: width, should be height
- *       checkY in 0 until mutableCells.size) {      //BUG: height, should be width
+ *       checkY in 0 until mutableCells.size)        //BUG: height, should be width
  *
  * The swap is invisible on square boards. On rectangular boards it can
  *   - throw IndexOutOfBoundsException when the buggy check accepts an

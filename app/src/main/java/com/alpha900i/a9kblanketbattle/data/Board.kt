@@ -46,8 +46,8 @@ fun Cell.isPushable(moveType: MoveType): Boolean {
         }
     }
 }
-val Cell.typeOrNull: PieceType? get() = (this as? Cell.Piece)?.type
-val Cell.ownerOrNull: Int? get() = (this as? Cell.Piece)?.owner
+val Cell.typeOrNull: PieceType? get() = (this as? Piece)?.type
+val Cell.ownerOrNull: Int? get() = (this as? Piece)?.owner
 
 /**
  * Three "interesting" pieces on a board in a row.

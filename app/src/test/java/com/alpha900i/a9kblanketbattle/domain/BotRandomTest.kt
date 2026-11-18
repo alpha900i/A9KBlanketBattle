@@ -167,7 +167,7 @@ class BotRandomTest {
         val t2 = TripletOnBoard(0, 0, 1, 0)
         val bot = BotRandom(0, Random(42))
         val deletableTriplets = setOf(t1, t2)
-        val gameState = state(
+        state(
             board = board("ccc", "c..", "..."),
             hand = Hand(kittenCurrent = 0, kittenMax = 3, catCurrent = 0, catMax = 2),
             deletableTriplets = deletableTriplets

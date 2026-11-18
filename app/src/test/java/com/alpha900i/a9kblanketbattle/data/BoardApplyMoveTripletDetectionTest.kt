@@ -17,8 +17,8 @@ import kotlin.test.assertTrue
  *   `deletableTriplets` must create >= 2 triplets with the single move.
  *
  *   Two shapes are used below to satisfy this:
- *     "+" (centre + N/S/E/W pieces)  -> horizontal + vertical triplet
- *     "X" (centre + 4 corner pieces) -> both diagonal triplets
+ *     "+" (center + N/S/E/W pieces)  -> horizontal + vertical triplet
+ *     "X" (center + 4 corner pieces) -> both diagonal triplets
  *
  *   Tests that assert the ABSENCE of a triplet don't need this, because
  *   zero triplets means the auto-removal branch can't fire.
@@ -49,7 +49,7 @@ class BoardApplyMoveTripletDetectionTest {
     //=========================================================================
     @Test
     fun `plus shape detects both horizontal and vertical triplets through the placed piece`() {
-        //"+" shape: move at (2,2); P0 cats at N/S/E/W, placed kitten at centre.
+        //"+" shape: move at (2,2); P0 cats at N/S/E/W, placed kitten at center.
         //Surrounding pieces are CATs, so SET_KITTEN cannot push them.
         //
         //Expected triplets (both belong to P0, both mixed type):
@@ -79,7 +79,7 @@ class BoardApplyMoveTripletDetectionTest {
     @Test
     fun `x shape detects both diagonal triplets through the placed piece`() {
         //"X" shape: move at (2,2); P0 cats in the four corners, placed kitten
-        //at centre. Surrounding pieces are CATs, so SET_KITTEN cannot push them.
+        //at center. Surrounding pieces are CATs, so SET_KITTEN cannot push them.
         //
         //Expected triplets (both belong to P0, both mixed type):
         //   down-right: (1,1) -> (2,2) -> (3,3)   direction (1,  1)
@@ -146,7 +146,7 @@ class BoardApplyMoveTripletDetectionTest {
     fun `piece at board edge is not falsely detected as a triplet via an off-edge direction`() {
         //3x3 board with P0 kittens at (0,2) and (2,0); SET_KITTEN at (0,0).
         //
-        //Multiple isTriplet calls from these edge pieces have a furthest
+        //Multiple isTriplet calls from these edge pieces have the furthest
         //cell past the board:
         //   - (0,2) dir (0,1)  -> furthest col = 4, past the right edge
         //   - (0,2) dir (1,1)  -> furthest col = 4, past the right edge
@@ -190,7 +190,7 @@ class BoardApplyMoveTripletDetectionTest {
 
         //Game-over suppresses auto-removal, so the winning triplet is still
         //reported in Board's MoveResult. Game.applyMove is responsible for
-        //dropping it when it constructs the final GameState; that is
+        //dropping it when it constructs the final GameState; that is a
         //test in different place.
         assertEquals(
             setOf(triplet(row = 2, column = 1, rowShift = 0, columnShift = 1)),

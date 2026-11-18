@@ -17,6 +17,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.alpha900i.a9kblanketbattle.R
+import com.alpha900i.a9kblanketbattle.ui.Constants
 import com.alpha900i.a9kblanketbattle.ui.StartScreenActions
 
 /**
@@ -27,7 +28,6 @@ import com.alpha900i.a9kblanketbattle.ui.StartScreenActions
 fun StartScreen(
     actions: StartScreenActions
 ) {
-    val BUTTON_WIDTH_FACTOR : Float = 0.8f
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize(1f)
@@ -44,7 +44,7 @@ fun StartScreen(
             onClick = {
                 actions.startGame()
             },
-            modifier = Modifier.fillMaxWidth(BUTTON_WIDTH_FACTOR)
+            modifier = Modifier.fillMaxWidth(Constants.START_SCREEN_BUTTON_WIDTH_FACTOR)
                 .weight(1f)
         ) {
             Text(stringResource(R.string.start_game_button_title))
@@ -57,7 +57,7 @@ fun StartScreen(
             onClick = {
                 actions.openSettings()
             },
-            modifier = Modifier.fillMaxWidth(BUTTON_WIDTH_FACTOR)
+            modifier = Modifier.fillMaxWidth(Constants.START_SCREEN_BUTTON_WIDTH_FACTOR)
                 .weight(1f)
         ) {
             Text(stringResource(R.string.settings_button_title))
@@ -70,7 +70,7 @@ fun StartScreen(
             onClick = {
                 actions.exitGame()
             },
-            modifier = Modifier.fillMaxWidth(BUTTON_WIDTH_FACTOR)
+            modifier = Modifier.fillMaxWidth(Constants.START_SCREEN_BUTTON_WIDTH_FACTOR)
                 .weight(1f)
         ) {
             Text(stringResource(R.string.exit_game_button_title))

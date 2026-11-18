@@ -144,7 +144,7 @@ class GameMoveCountTest {
             ),
         )
 
-        // Player 0 places a kitten at (0, 1). The neighbour at (0, 0) is booped
+        // Player 0 places a kitten at (0, 1). The neighbor at (0, 0) is booped
         // toward (0, -1), which is off-board → returns to player 1's hand.
         val player0 = FixedPlayer(0, Move(0, 1, MoveType.SET_KITTEN))
         val player1 = FixedPlayer(1, Move(0, 0, MoveType.SET_KITTEN))  // unused
