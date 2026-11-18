@@ -776,7 +776,7 @@ fun TripletRemovalSection(
                 .fillMaxWidth(1f)
                 .weight(1f)
         ) {
-            deletableTriplets.forEach { tripletOnBoard ->
+            deletableTriplets.forEachIndexed { index, tripletOnBoard ->
                 val buttonColor = TripletHighlightColors.of(tripletOnBoard == selectedTriplet)
                 Button(
                     colors = ButtonDefaults.buttonColors(
@@ -794,7 +794,7 @@ fun TripletRemovalSection(
                         .border(dimensionResource(R.dimen.button_min_border_width), PieceColors.Border)
                 ) {
                     BasicText(
-                        text = "${tripletOnBoard.row}:${tripletOnBoard.column}-${tripletOnBoard.endRow}:${tripletOnBoard.endColumn}",
+                        text = "${index + 1}",
                         autoSize = TextAutoSize.StepBased(
                             minFontSize = TripletToDeleteFontSizes.Min,
                             maxFontSize = TripletToDeleteFontSizes.Max,
