@@ -81,6 +81,8 @@ Ivan.Matkovskii  (ivan.matkovsky@gmail.com)
   * Initial stable release - working gameplay, two types of bots
 * 1.2.2
   * Multiple bug fixes and graphic updates, this readme
+* 1.4.12
+  * Multiple bug fixes and graphic updates, a lot of inner optimizations
   
 ## License
 
