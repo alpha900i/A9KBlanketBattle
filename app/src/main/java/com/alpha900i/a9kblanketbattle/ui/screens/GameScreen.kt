@@ -276,7 +276,10 @@ fun GameOverDialog(
                             .weight(1f)
                             .fillMaxHeight(1f)
                     ) {
-                        Text(stringResource(R.string.new_game_button_title))
+                        Text(
+                            stringResource(R.string.new_game_button_title),
+                            textAlign = TextAlign.Center
+                        )
                     }
                     Button(
                         onClick = cancelAction,
@@ -284,7 +287,10 @@ fun GameOverDialog(
                             .weight(1f)
                             .fillMaxHeight(1f)
                     ) {
-                        Text(stringResource(R.string.stay_on_board_button_title))
+                        Text(
+                            stringResource(R.string.stay_on_board_button_title),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             }
