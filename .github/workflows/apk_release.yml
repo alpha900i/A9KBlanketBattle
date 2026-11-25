@@ -33,6 +33,7 @@ jobs:
 
       - name: Build Signed Release APK
         run: |
+          chmod +x gradlew
           ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/release-keystore.jks" \
             -Pandroid.injected.signing.store.password="$KEY_STORE_PASSWORD" \
